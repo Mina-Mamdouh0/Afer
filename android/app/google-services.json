@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "164538397597",
+    "project_id": "afeer-2ea3a",
+    "storage_bucket": "afeer-2ea3a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164538397597:android:2e15f5d8f4faeb560db574",
+        "android_client_info": {
+          "package_name": "com.example.afer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164538397597-c5k2d9fs6i281vpq5u5uvhv9codke9oq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoVF1Bc7RlkM-XwFHgx0WqBhkxmAth_qA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164538397597-c5k2d9fs6i281vpq5u5uvhv9codke9oq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
