@@ -47,5 +47,6 @@ abstract class  LocaleKeys {
   static const rememberMe = 'rememberMe';
   static const technicalSupport = 'technicalSupport';
   static const editInformation = 'editInformation';
+  static const update = 'update';
 
 }

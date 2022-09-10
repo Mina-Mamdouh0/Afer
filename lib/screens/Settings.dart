@@ -23,122 +23,124 @@ class Setting extends StatelessWidget {
         builder: (context, state) {
           cubit = AppCubit.get(context);
 
-          return Column(
-            children: [
-              buildItemSetting(
-                text: LocaleKeys.profile.tr(),
-                icons: Icons.perm_identity_rounded,
-                fct: (){
-                  navigator(context: context, page: UserAccountScreen(), returnPage: true);
-                }
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                  children: [
-                    Expanded(
-                        child: ExpansionTile(
-                            onExpansionChanged: (value) {
-                              if (value) {}
-                            },
-                            tilePadding:
-                            EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-                            title: Text(
-          LocaleKeys.selectSubject.tr(),
-                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                            ),
-                            leading: CircleAvatar(
-                                radius: 18,
-                                backgroundColor: Colors.deepPurpleAccent,
-                                child: IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.settings,
-                                      color: Colors.white,
-                                      size: 15,
-                                    ))),
-                            children: [
-                              generateSubExpansion(
-                                  cubit.firstYear, LocaleKeys.firstYear.tr(), "First Year"),
-                              generateSubExpansion(cubit.secondYear,
-                                  LocaleKeys.secondyear.tr(), "Second Year"),
-                              generateSubExpansion(
-                                  cubit.thirdYear, LocaleKeys.thirdYear.tr(), "Third Year"),
-                              generateSubExpansion(cubit.fourthYear,
-                                  LocaleKeys.fourthYear.tr(), "Fourth Year"),
-
-                              MainButton(text:'تم',fct: () {
-                                if (cubit.subjects.length>7) {
-                                  cubit.ChooseSubject();
-                                } else {
-                                  MotionToast.error(
-                                    description: const Text("اعد اختيار موادك مره اخري"),
-                                    title: const Text("يجب ان يكون عدد المواد 7 مواد "),
-                                    height: 100,
-                                    width: 350,
-                                    animationDuration: const Duration(milliseconds: 900),
-                                    borderRadius: 25,
-                                    barrierColor: Colors.black.withOpacity(0.5),
-                                    position: MotionToastPosition.bottom,
-                                    toastDuration: const Duration(
-                                      milliseconds: 600,
-                                    ),
-                                    animationType: AnimationType.fromBottom,
-                                  ).show(context);
-                                }
-                              })
-
-                            ]))
-                  ],
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                buildItemSetting(
+                  text: LocaleKeys.profile.tr(),
+                  icons: Icons.perm_identity_rounded,
+                  fct: (){
+                    navigator(context: context, page: UserAccountScreen(), returnPage: true);
+                  }
                 ),
-              ),
-              buildItemSetting(
-                  text: LocaleKeys.share.tr(),
-                  icons: Icons.share,
-                  fct: (){
-                  }
-              ),
-              buildItemSetting(
-                  text: LocaleKeys.technicalSupport.tr(),
-                  icons: Icons.biotech,
-                  fct: (){
-                  }
-              ),
-              Padding(
-                padding: const EdgeInsets.all(15),
-                child: Row(
-                children: [
-                Expanded(
-                child: ExpansionTile(
-          tilePadding:
-          EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-          title: Text(
-          LocaleKeys.languages.tr(),
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-          ),
-          leading: CircleAvatar(
-          radius: 18,
-          backgroundColor: Colors.deepPurpleAccent,
-          child: IconButton(
-          onPressed: () {},
-          icon: Icon(
-          Icons.translate,
-          color: Colors.white,
-          size: 15,
-          ))),
-          children: List.generate(
-          2, (index) => generateLanguageListTile(context, index)))),
-          ],
-          ),
-              ),
-              buildItemSetting(
-                  text: LocaleKeys.signOut.tr(),
-                  icons: Icons.logout,
-                  fct: (){
-                    cubit.signOut(context);
-                  }
-              ),
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: ExpansionTile(
+                              onExpansionChanged: (value) {
+                                if (value) {}
+                              },
+                              tilePadding:
+                              EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                              title: Text(
+            LocaleKeys.selectSubject.tr(),
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                              ),
+                              leading: CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Colors.deepPurpleAccent,
+                                  child: IconButton(
+                                      onPressed: () {},
+                                      icon: Icon(
+                                        Icons.settings,
+                                        color: Colors.white,
+                                        size: 15,
+                                      ))),
+                              children: [
+                                generateSubExpansion(
+                                    cubit.firstYear, LocaleKeys.firstYear.tr(), "First Year"),
+                                generateSubExpansion(cubit.secondYear,
+                                    LocaleKeys.secondyear.tr(), "Second Year"),
+                                generateSubExpansion(
+                                    cubit.thirdYear, LocaleKeys.thirdYear.tr(), "Third Year"),
+                                generateSubExpansion(cubit.fourthYear,
+                                    LocaleKeys.fourthYear.tr(), "Fourth Year"),
+
+                                MainButton(text:'تم',fct: () {
+                                  if (cubit.subjects.length>7) {
+                                    cubit.ChooseSubject();
+                                  } else {
+                                    MotionToast.error(
+                                      description: const Text("اعد اختيار موادك مره اخري"),
+                                      title: const Text("يجب ان يكون عدد المواد 7 مواد "),
+                                      height: 100,
+                                      width: 350,
+                                      animationDuration: const Duration(milliseconds: 900),
+                                      borderRadius: 25,
+                                      barrierColor: Colors.black.withOpacity(0.5),
+                                      position: MotionToastPosition.bottom,
+                                      toastDuration: const Duration(
+                                        milliseconds: 600,
+                                      ),
+                                      animationType: AnimationType.fromBottom,
+                                    ).show(context);
+                                  }
+                                })
+
+                              ]))
+                    ],
+                  ),
+                ),
+                buildItemSetting(
+                    text: LocaleKeys.share.tr(),
+                    icons: Icons.share,
+                    fct: (){
+                    }
+                ),
+                buildItemSetting(
+                    text: LocaleKeys.technicalSupport.tr(),
+                    icons: Icons.biotech,
+                    fct: (){
+                    }
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                  children: [
+                  Expanded(
+                  child: ExpansionTile(
+            tilePadding:
+            EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+            title: Text(
+            LocaleKeys.languages.tr(),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            ),
+            leading: CircleAvatar(
+            radius: 18,
+            backgroundColor: Colors.deepPurpleAccent,
+            child: IconButton(
+            onPressed: () {},
+            icon: Icon(
+            Icons.translate,
+            color: Colors.white,
+            size: 15,
+            ))),
+            children: List.generate(
+            2, (index) => generateLanguageListTile(context, index)))),
             ],
+            ),
+                ),
+                buildItemSetting(
+                    text: LocaleKeys.signOut.tr(),
+                    icons: Icons.logout,
+                    fct: (){
+                      cubit.signOut(context);
+                    }
+                ),
+              ],
+            ),
           );
         });
   }

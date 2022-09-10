@@ -1,16 +1,20 @@
 import 'dart:developer';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
+import 'package:afer/screens/week_details/show_lecture.dart';
+import 'package:afer/screens/week_details/show_question.dart';
+import 'package:afer/screens/week_details/show_summary.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 
-import '../screens/lecture_video_screen.dart';
+import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
 import '../model/photo.dart';
@@ -37,26 +41,40 @@ class AppCubit extends Cubit<AppState> {
   ];
   // Home Layout Screen variables
 
-  List<Widget> weekTemplatescreens = [
-    MessageScreen(),
-    LectureVideoScreen(),
-    MessageScreen(),
-    MessageScreen(),
+  List<Widget> lectureScreen = [
+    ShowLecture(),
+    ShowVideo(),
+    ShowSummery(),
+    ShowQuestion(),
   ];
   int currentIndex = 0;
+  int indexRegisterScreen = 0;
+  XFile? file;
+  XFile? fileUpdate;
+
+  void changeRegister(int newIndex){
+    indexRegisterScreen=newIndex;
+    emit(ChangeRegisterScreen());
+  }
+
+  void takeImage(XFile? newFile){
+     file=newFile;
+    emit(TakeImageSignUp());
+  }
+  void updateImage(XFile? newFile){
+    fileUpdate=newFile;
+    emit(UpdateImage());
+  }
 
   var qrStar = "let's Scan it";
   // Home Layout Screen Functions
   void weekTemplateChangeIndex(int index) {
     weekTemplateCurrentIndex = index;
-    weekTemplatePageController.animateToPage(index,
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.linearToEaseOut);
     emit(WeekTemplateChangeIndex());
   }
 
   int weekTemplateCurrentIndex = 0;
-  PageController weekTemplatePageController = PageController(initialPage: 0);
+
 //signup account variables
   var userFormKey = GlobalKey<FormState>();
   var nameController = TextEditingController();
