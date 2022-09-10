@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
 import 'package:afer/screens/week_details/show_lecture.dart';
@@ -13,7 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -32,7 +33,7 @@ class AppCubit extends Cubit<AppState> {
   static AppCubit get(context) => BlocProvider.of(context);
 
   // Home Layout Screen variables
-  UserModule? user;
+  UserModule user=UserModule();
   List<Widget> screens = [
     SubjectsScreen(),
     MessageScreen(),
@@ -51,20 +52,13 @@ class AppCubit extends Cubit<AppState> {
   int indexRegisterScreen = 0;
   XFile? file;
   XFile? fileUpdate;
-
-  void changeRegister(int newIndex){
-    indexRegisterScreen=newIndex;
+String ?profileUrl;
+  void changeRegister(int newIndex) {
+    indexRegisterScreen = newIndex;
     emit(ChangeRegisterScreen());
   }
 
-  void takeImage(XFile? newFile){
-     file=newFile;
-    emit(TakeImageSignUp());
-  }
-  void updateImage(XFile? newFile){
-    fileUpdate=newFile;
-    emit(UpdateImage());
-  }
+
 
   var qrStar = "let's Scan it";
   // Home Layout Screen Functions
@@ -103,8 +97,9 @@ class AppCubit extends Cubit<AppState> {
   List thirdYear = [];
   List fourthYear = [];
   String academicYear = "First year";
+  String semester = "First semester";
   bool isObscureSignIn = true;
-var SignInFormKey = GlobalKey<FormState>();
+  var signInFormKey = GlobalKey<FormState>();
   //Settings Screen variables
   List firstYear = [];
   List<Subject> subjects = [];
@@ -120,10 +115,12 @@ var SignInFormKey = GlobalKey<FormState>();
     isObscureEditInfo = !isObscureEditInfo;
     emit(ChangeObscureState());
   }
+
   void changeObscureSignIn() {
     isObscureSignIn = !isObscureSignIn;
     emit(ChangeObscureState());
   }
+
   void changeObscureSignUp() {
     isObscureSignup = !isObscureSignup;
     emit(ChangeObscureState());
@@ -144,7 +141,16 @@ var SignInFormKey = GlobalKey<FormState>();
     academicYear = year;
     emit(ChangeAcademicYear());
   }
-
+  void takeImage(XFile? newFile) {
+    file = newFile;
+    uploadProfilePhoto();
+    emit(TakeImageSignUp());
+  }
+  void updateImage(XFile? newFile) {
+    fileUpdate = newFile;
+    uploadProfilePhoto();
+    emit(UpdateImage());
+  }
   void createAccount(uid) {
     UserModule user = UserModule(
         uid: uid,
@@ -153,9 +159,12 @@ var SignInFormKey = GlobalKey<FormState>();
         email: emailController.text,
         phone: int.parse(phoneNumberController.text),
         premium: false,
-        profileUrl: "",
+        profileUrl: profileUrl,
         pass: passwordController.text,
-        semester: "First semester");
+        semester: "First semester",
+    academicYear: academicYear,
+
+    );
     print(uid);
     FirebaseFirestore.instance
         .collection("Users")
@@ -169,9 +178,20 @@ var SignInFormKey = GlobalKey<FormState>();
       emit(CreateAccountFailed());
     });
   }
-
+void uploadProfilePhoto(){
+ FirebaseStorage.instance
+      .ref()
+      .child('profilePhoto/${file!.path.substring(0,10)}')
+      .putFile(File(file!.path))
+      .then((value) {
+    value.ref.getDownloadURL().then((value) {
+      profileUrl = value;
+    });
+  });
+}
   void getInfo(uid) {
     FirebaseFirestore.instance.collection("Users").doc(uid).get().then((value) {
+      print(value.data());
       user = UserModule.fromJson(value.data()!);
       // add subjects to list to use it in subject screen to show subjects to user and get all data of subject
       subjects.clear();
@@ -191,6 +211,7 @@ var SignInFormKey = GlobalKey<FormState>();
   }
 
   void signUp(context) {
+    print(" this is ${emailController.text}");
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(
             email: emailController.text, password: passwordController.text)
@@ -249,29 +270,30 @@ var SignInFormKey = GlobalKey<FormState>();
   }
 
   void ChooseSubject() {
-    print(Subject);
+    print(subjects.length);
     user = UserModule(
-      uid: user!.uid,
-      profileUrl: user!.profileUrl,
-      firstName: user!.firstName,
-      secondName: user!.secondName,
-      email: user!.email,
-      phone: user!.phone,
-      premium: user!.premium,
-      FirstSubjects: subjects[0].toJson(),
-      SecondSubjects: subjects[1].toJson(),
-      thirdSubjects: subjects[2].toJson(),
-      fourthSubjects: subjects[3].toJson(),
-      fiftySubjects: subjects[4].toJson(),
-      sixSubjects: subjects[5].toJson(),
-      sevenSubjects: subjects[6].toJson(),
-      semester: user!.semester,
-      pass: user!.pass,
+      uid: user.uid,
+      profileUrl: user.profileUrl,
+      firstName: user.firstName,
+      secondName: user.secondName,
+      email: user.email,
+      phone: user.phone,
+      premium: user.premium,
+      firstSubjects: subjects[0].toJson(),
+      secondSubjects:subjects.length>=2?subjects[1].toJson():null,
+      thirdSubjects:subjects.length>=3? subjects[2].toJson():  null,
+      fourthSubjects:subjects.length>=4? subjects[3].toJson():  null,
+      fiftySubjects: subjects.length>=5? subjects[4].toJson():  null,
+      sixSubjects: subjects.length>=6? subjects[5].toJson():  null,
+      sevenSubjects: subjects.length>=7? subjects[6].toJson():  null,
+      semester: user.semester,
+      pass: user.pass,
+      academicYear: user.academicYear,
     );
     FirebaseFirestore.instance
         .collection("Users")
         .doc(sherdprefrence.getdate(key: "token"))
-        .update(user!.toJson())
+        .update(user.toJson())
         .then((value) {
       getInfo(sherdprefrence.getdate(key: "token"));
       changeIndex(0);
@@ -283,26 +305,26 @@ var SignInFormKey = GlobalKey<FormState>();
   void updateProfile() {
     updatePassword();
     user = UserModule(
-      uid: user!.uid,
-      profileUrl: user!.profileUrl,
+      uid: user.uid,
+      profileUrl: user.profileUrl,
       firstName: usernameController.text,
       secondName: username2Controller.text,
-      email: user!.email,
+      email: user.email,
       phone: int.parse(userPhoneNumberController.text),
-      FirstSubjects: user!.FirstSubjects,
-      SecondSubjects: user!.SecondSubjects,
-      thirdSubjects: user!.thirdSubjects,
-      fourthSubjects: user!.fourthSubjects,
-      fiftySubjects: user!.fiftySubjects,
-      sixSubjects: user!.sixSubjects,
-      sevenSubjects: user!.sevenSubjects,
-      premium: user!.premium,
+      firstSubjects: user.firstSubjects,
+      secondSubjects: user.secondSubjects,
+      thirdSubjects: user.thirdSubjects,
+      fourthSubjects: user.fourthSubjects,
+      fiftySubjects: user.fiftySubjects,
+      sixSubjects: user.sixSubjects,
+      sevenSubjects: user.sevenSubjects,
+      premium: user.premium,
       pass: userPasswordController.text,
     );
     FirebaseFirestore.instance
         .collection("Users")
         .doc(sherdprefrence.getdate(key: "token"))
-        .update(user!.toJson())
+        .update(user.toJson())
         .then((value) {
       getInfo(sherdprefrence.getdate(key: "token"));
     }).catchError((onError) {});
@@ -310,35 +332,43 @@ var SignInFormKey = GlobalKey<FormState>();
 
   void updatePassword() {
     FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: user!.email!, password: user!.pass!)
+        .signInWithEmailAndPassword(email: user.email!, password: user.pass!)
         .then((value) {
       FirebaseAuth.instance.currentUser!
           .updatePassword(userPasswordController.text);
     });
   }
+
 // to add new subject into map to get it from data base
   void MakeMapSubject(String Year, String NameSubject, value, int index) {
     if (value == false) {
-   subjects.remove(subjects[index]);
+      subjects.remove(subjects[index]);
     } else {
-      subjects.insert(subjects.length, Subject(name: NameSubject, AcademicYear: Year,Semester: "first Semester",));
+      subjects.insert(
+          subjects.length,
+          Subject(
+            name: NameSubject,
+            AcademicYear: Year,
+            Semester: "first Semester",
+          ));
       print("add$subjects");
     }
     emit(MakeMapSubjectState());
   }
+
   // to make check box true or false
   bool SureSubject(String NameSubject) {
-    bool? check=false ;
-   // return Subject.containsKey(NameSubject);
-     subjects.forEach((element) {
+    bool? check = false;
+    // return Subject.containsKey(NameSubject);
+    subjects.forEach((element) {
       if (element.name == NameSubject) {
         check = true;
       }
-     });
+    });
 
-     return check!;
-
+    return check!;
   }
+
 // to get all subject name from data base to show it in choose subject screen
   void getAllSubject(year, semister) {
     FirebaseFirestore.instance
@@ -469,17 +499,17 @@ var SignInFormKey = GlobalKey<FormState>();
       required String week}) {
     getPhoto(
         academicYear: academicYear,
-        semester: user!.semester!,
+        semester: user.semester!,
         subjectName: subjectName,
         week: week);
     getVideo(
         academicYear: academicYear,
-        semester: user!.semester!,
+        semester: user.semester!,
         subjectName: subjectName,
         week: week);
     getPdf(
         academicYear: academicYear,
-        semester: user!.semester!,
+        semester: user.semester!,
         subjectName: subjectName,
         week: week);
 /*    print(video!.description);
@@ -493,7 +523,7 @@ var SignInFormKey = GlobalKey<FormState>();
   }
 
   void readQrCode(String qrCode) {
-    qrStar=qrCode;
+    qrStar = qrCode;
     emit((BrCodeReading()));
   }
 }

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
@@ -24,7 +23,7 @@ class SignupScreen extends StatelessWidget {
           child: Form(
             key: cubit.SignUpFormKey,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -47,7 +46,7 @@ class SignupScreen extends StatelessWidget {
                           textInputAction: TextInputAction.next,
                           labelText:  LocaleKeys.firstNameHint.tr(),
                         )),
-                      SizedBox(width: 5,),
+                      const SizedBox(width: 5,),
 
                       Expanded(
                           child: TheTextFiled(
@@ -67,7 +66,6 @@ class SignupScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-
                   SizedBox(height: size.height*0.02,),
                   DropdownButtonFormField(
                     decoration: InputDecoration(
@@ -75,7 +73,7 @@ class SignupScreen extends StatelessWidget {
                         contentPadding: const EdgeInsetsDirectional.fromSTEB(20, 0, 0,0),
                         hintStyle:const TextStyle(color: Colors.black),
                         labelStyle: const TextStyle(color: Colors.black),
-                        prefixIcon: Icon(Icons.event),
+                        prefixIcon: const Icon(Icons.event),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15.0),
                           borderSide: const BorderSide(color: Colors.black,),
@@ -160,8 +158,8 @@ class SignupScreen extends StatelessWidget {
                     labelText: LocaleKeys.password.tr(),
                     suffixIcon: IconButton(
                       icon: cubit.isObscureSignup
-                          ? Icon(Icons.visibility_off)
-                          : Icon(Icons.visibility),
+                          ? const Icon(Icons.visibility_off)
+                          : const Icon(Icons.visibility),
                       onPressed: () => cubit.changeObscureSignUp(),
                     ),
                     obscureText: cubit.isObscureSignup,
@@ -186,8 +184,8 @@ class SignupScreen extends StatelessWidget {
                     labelText:'${LocaleKeys.confirm.tr()} ${LocaleKeys.password.tr()}',
                     suffixIcon: IconButton(
                       icon: cubit.isObscureSignup
-                          ? Icon(Icons.visibility_off)
-                          : Icon(Icons.visibility),
+                          ? const Icon(Icons.visibility_off)
+                          : const Icon(Icons.visibility),
                       onPressed: () => cubit.changeObscureSignUp(),
                     ),
     onFieldSubmitted: (_){
@@ -202,7 +200,7 @@ class SignupScreen extends StatelessWidget {
                   SizedBox(height: size.height*0.02,),
                   MainButton(text: LocaleKeys.createAccount.tr(), fct: () {
                     if(cubit.SignUpFormKey.currentState!.validate()) {
-                      cubit.signIn(context);
+                      cubit.signUp(context);
                     }
                   },),
                   SizedBox(height: size.height*0.02,),

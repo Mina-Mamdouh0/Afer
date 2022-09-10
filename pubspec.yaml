@@ -11,22 +11,31 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
+  #icons
   iconly: ^1.0.1
+  #Bloc Package
   bloc: ^8.0.1
   flutter_bloc: ^8.0.0
-  motion_tab_bar_v2: ^0.2.3
+#video player
   flick_video_player: ^0.5.0
   video_player: ^2.4.6
+  #prevent screen recording
   flutter_windowmanager: ^0.2.0
+
   image_picker: ^0.8.5+3
+  #Firebase
   firebase_core: ^1.15.0
   firebase_auth: ^3.3.16
   cloud_firestore: ^3.1.13
+  firebase_storage: ^10.3.8
+  #local storage
   shared_preferences: ^2.0.11
+
   motion_toast: ^2.3.2
   conditional_builder_null_safety: ^0.0.6
   connection_notifier: ^0.0.1
   easy_localization: ^3.0.1
+  #Navigation
   sliding_clipped_nav_bar: ^3.1.0+3
   lottie: ^1.4.2
   barcode_widget: ^2.0.2
@@ -37,6 +46,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_launcher_icons: "^0.9.2"
+  flutter_lints: any
 
 flutter_icons:
   android: true

@@ -29,7 +29,6 @@ class SignScreen extends StatelessWidget {
           length: 2,
           child: Scaffold(
             appBar: AppBar(
-
               title:  Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -38,7 +37,7 @@ class SignScreen extends StatelessWidget {
                   cubit.indexRegisterScreen==0?
                   CircleAvatar(
                     radius: size.width*0.15,
-                    backgroundImage: AssetImage(PhotoManger.aferLogo),
+                    backgroundImage: const AssetImage(PhotoManger.aferLogo),
                     backgroundColor: Colors.transparent,
                   ): Stack(
                     alignment: Alignment.topRight,
@@ -46,7 +45,7 @@ class SignScreen extends StatelessWidget {
                       Container(
                         width:size.width*0.3,
                         height: size.width*0.3,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
                         ),
                         child: cubit.file==null?
@@ -75,9 +74,9 @@ class SignScreen extends StatelessWidget {
                                       InkWell(
                                         onTap: ()async{
                                           Navigator.pop(context);
-                                          XFile? _picked=await ImagePicker().pickImage(source: ImageSource.camera,maxHeight: 1080,maxWidth: 1080);
-                                          if(_picked !=null){
-                                            cubit.takeImage(_picked);
+                                          XFile? picked=await ImagePicker().pickImage(source: ImageSource.camera,maxHeight: 1080,maxWidth: 1080);
+                                          if(picked !=null){
+                                            cubit.takeImage(picked);
                                           }
                                         },
                                         child: Padding(
@@ -97,9 +96,9 @@ class SignScreen extends StatelessWidget {
                                       InkWell(
                                         onTap: ()async{
                                           Navigator.pop(context);
-                                          XFile? _picked=await ImagePicker().pickImage(source: ImageSource.gallery,maxHeight: 1080,maxWidth: 1080);
-                                          if(_picked !=null){
-                                            cubit.takeImage(_picked);
+                                          XFile? picked=await ImagePicker().pickImage(source: ImageSource.gallery,maxHeight: 1080,maxWidth: 1080);
+                                          if(picked !=null){
+                                            cubit.takeImage(picked);
                                           }
                                         },
                                         child: Padding(
@@ -177,10 +176,10 @@ class SignScreen extends StatelessWidget {
               ),
 
             ),
-            body: TabBarView(
+            body: const TabBarView(
                 children: [
                   LoginScreen(),
-                  const SignupScreen(),
+                  SignupScreen(),
                 ]),
           ),
         );
@@ -201,7 +200,7 @@ class LoginScreen extends StatelessWidget {
         var cubit = AppCubit.get(context);
         return SingleChildScrollView(
           child: Form(
-            key:cubit.SignInFormKey,
+            key:cubit.signInFormKey,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Column(
@@ -237,11 +236,11 @@ class LoginScreen extends StatelessWidget {
                     textInputAction: TextInputAction.done,
                     labelText: LocaleKeys.password.tr(),
                     suffixIcon: IconButton(
-                      icon:cubit.isObscureSignIn? Icon(Icons.visibility_off):Icon(Icons.visibility),
+                      icon:cubit.isObscureSignIn? const Icon(Icons.visibility_off):const Icon(Icons.visibility),
                       onPressed: ()=> cubit.changeObscureSignIn(),
                     ),
                     onFieldSubmitted: (value){
-                      if(cubit.SignInFormKey.currentState!.validate()) {
+                      if(cubit.signInFormKey.currentState!.validate()) {
                         cubit.signIn(context);
                       }
                     },
@@ -255,7 +254,7 @@ class LoginScreen extends StatelessWidget {
                       title: Text(LocaleKeys.rememberMe.tr())),
                   SizedBox(height: size.height*0.01,),
                   Align(
-                      alignment:context.locale==Locale('ar')? Alignment.centerLeft:Alignment.centerRight,
+                      alignment:context.locale==const Locale('ar')? Alignment.centerLeft:Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {},
                         child: Text(
@@ -271,7 +270,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   SizedBox(height: size.height*0.02,),
                   MainButton(text: LocaleKeys.signIn.tr(), fct: () {
-                    if(cubit.SignInFormKey.currentState!.validate()) {
+                    if(cubit.signInFormKey.currentState!.validate()) {
                       cubit.signIn(context);
                     }
                   },),

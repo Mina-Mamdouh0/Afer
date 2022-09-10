@@ -7,14 +7,16 @@ class UserModule {
   String? email;
   String? uid;
   String? pass;
-  Map? FirstSubjects;
-  Map? SecondSubjects;
+  Map? firstSubjects;
+  Map? secondSubjects;
   Map? thirdSubjects;
   Map? fourthSubjects;
   Map? fiftySubjects;
   Map? sixSubjects;
   Map? sevenSubjects;
   String? semester;
+  String? academicYear;
+  String? points;
   UserModule(
       {
         this.firstName,
@@ -23,8 +25,8 @@ class UserModule {
         this.uid,
         this.phone,
         this.premium,
-        this.FirstSubjects,
-        this.SecondSubjects,
+        this.firstSubjects,
+        this.secondSubjects,
         this.thirdSubjects,
         this.fourthSubjects,
         this.fiftySubjects,
@@ -33,7 +35,8 @@ class UserModule {
         this.pass,
         this.sevenSubjects,
         this.semester,
-
+        this.academicYear,
+        this.points,
       });
   UserModule.fromJson(Map<String, dynamic> json)
   {
@@ -43,16 +46,18 @@ class UserModule {
     phone = json['phone'];
     uid = json['uid'];
     premium = json['premium'];
-    FirstSubjects = json['FirstSubjects'];
-    SecondSubjects = json['SecondSubjects'];
-    thirdSubjects = json['thirdSubjects'];
-    fourthSubjects = json['fourthSubjects'];
-    fiftySubjects = json['fiftySubjects'];
-    sevenSubjects = json['sevenSubjects'];
-    sixSubjects = json['sixSubjects'];
-    profileUrl = json['profileUrl'];
+    firstSubjects = json['FirstSubjects']??{};
+    secondSubjects = json['SecondSubjects']??{};
+    thirdSubjects = json['thirdSubjects']??{};
+    fourthSubjects = json['fourthSubjects']??{};
+    fiftySubjects = json['fiftySubjects']??{};
+    sevenSubjects = json['sevenSubjects']??{};
+    sixSubjects = json['sixSubjects']??{};
+    profileUrl = json['profileUrl']??'';
     pass = json['password'];
     semester = json['semester'];
+    academicYear = json['academicYear'];
+    points = json['points'];
   }
   Map<String, dynamic> toJson()
   {
@@ -63,16 +68,19 @@ class UserModule {
       'phone': phone,
       'uid': uid,
       'premium': premium,
-      'FirstSubjects': FirstSubjects,
-      'SecondSubjects': SecondSubjects,
-      'thirdSubjects': thirdSubjects,
-      'fourthSubjects': fourthSubjects,
-      'fiftySubjects': fiftySubjects,
-      'sixSubjects': sixSubjects,
-      'profileUrl': profileUrl,
+      'FirstSubjects': firstSubjects??{},
+      'SecondSubjects': secondSubjects??{},
+      'thirdSubjects': thirdSubjects??{},
+      'fourthSubjects': fourthSubjects??{},
+      'fiftySubjects': fiftySubjects??{},
+      'sixSubjects': sixSubjects??{},
+      'profileUrl': profileUrl??'',
       'password': pass,
-      'sevenSubjects': sevenSubjects,
+      'sevenSubjects': sevenSubjects??{},
       'semester': semester,
+      'academicYear': academicYear,
+      'points': points??"0",
+
     };
   }
 }

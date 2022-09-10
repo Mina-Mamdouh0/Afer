@@ -1,6 +1,5 @@
 
 import 'package:afer/cuibt/app_cuibt.dart';
-import 'package:afer/screens/home_loyout.dart';
 import 'package:afer/screens/spalsh_screen.dart';
 import 'package:afer/translations/codegen_loader.g.dart';
 import 'package:connection_notifier/connection_notifier.dart';
@@ -9,22 +8,21 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afer/SheredPreferance/sheredHelper.dart';
-import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 
 void main()async {
  WidgetsFlutterBinding.ensureInitialized();
- await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+ //await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
  await Firebase.initializeApp();
  await sherdprefrence.init();
  await EasyLocalization.ensureInitialized();
 
  runApp(
    EasyLocalization(
-       supportedLocales: [Locale('en'), Locale('ar')],
+       supportedLocales: const [Locale('en'), Locale('ar')],
        path: 'Asset/translition',
-       fallbackLocale: Locale('en'),
-       assetLoader: CodegenLoader(),
-       child: MyApp()
+       fallbackLocale: const Locale('en'),
+       assetLoader: const CodegenLoader(),
+       child: const MyApp()
    )
  );
 }
@@ -46,7 +44,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.grey,
           ),
-          home:  SplashScreen() ,
+          home:  const SplashScreen() ,
         ),
       ),
     );
