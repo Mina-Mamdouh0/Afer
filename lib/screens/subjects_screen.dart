@@ -2,14 +2,15 @@
 
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
+import 'package:afer/model/Subject.dart';
 import 'package:afer/screens/week_details/lecture_screen.dart';
+import 'package:afer/widget/widget.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import '../const/photo_manger.dart';
+import '../model/lecture.dart';
 
 class SubjectsScreen extends StatelessWidget {
   const SubjectsScreen({Key? key}) : super(key: key);
@@ -21,21 +22,22 @@ class SubjectsScreen extends StatelessWidget {
       builder: (context, state) {
         var cubit = BlocProvider.of<AppCubit>(context);
         return ConditionalBuilder(
+
           builder: (context)=>
               ListView.builder(
-                itemCount: 7,
+                itemCount: cubit.subjects.length,
                 padding: const EdgeInsets.all(5.0),
-                itemBuilder:(context,index)=> SubjectWidget(),
+                itemBuilder:(context,index)=>  SubjectWidget(subject: cubit.subjects[index]),
               ),
           fallback:(context)=>  Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Lottie.asset('Asset/Image/emptysubject.json',fit: BoxFit.fill),
-              Text('Not found your Subjects please go setting to choose your subject',style: TextStyle(fontSize: 30),textAlign: TextAlign.center,),
+              const Text('Not found your Subjects please go setting to choose your subject',style: TextStyle(fontSize: 30),textAlign: TextAlign.center,),
             ],
           ),
-          condition:true//cubit.subjects.length > 0,
+          condition:cubit.subjects.isNotEmpty,
         );
 
 
@@ -43,43 +45,76 @@ class SubjectsScreen extends StatelessWidget {
     );
   }
 
-}
-class SubjectWidget extends StatelessWidget {
-  const SubjectWidget({Key? key}) : super(key: key);
+}class SubjectWidget extends StatefulWidget {
+  final Subject subject;
+  const SubjectWidget({Key? key, required this.subject}) : super(key: key);
 
+  @override
+  State<SubjectWidget> createState() => _SubjectWidgetState(subject: subject);
+}
+
+class _SubjectWidgetState extends State<SubjectWidget> {
+  _SubjectWidgetState({required this.subject});
+  final Subject subject;
+  List<Lecture> lectures = [];
+@override
+  void initState() {
+
+    AppCubit.get(context).getMyLectures(subject: subject).then((value) {
+      setState(() {
+        lectures = value;
+      });
+    });
+
+  print(lectures);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: ()=>Navigator.of(context).push(MaterialPageRoute(builder: (context)=>LectureScreen())),
+      onTap: () =>
+          navigator(context: context, returnPage: true, page: LectureScreen()),
       child: Container(
         width: double.infinity,
-        height: MediaQuery.of(context).size.height*0.25,
+        height: MediaQuery
+            .of(context)
+            .size
+            .height * 0.25,
         padding: const EdgeInsets.symmetric(horizontal: 5,),
         margin: const EdgeInsets.symmetric(vertical: 5,),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(context.locale==const Locale('ar')?'اساسيات المحاسبه الماليه':'Fundamentals of financial accounting',
+            Text(subject.name!,
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width*0.05,
+                  fontSize: MediaQuery
+                      .of(context)
+                      .size
+                      .width * 0.05,
                   fontWeight: FontWeight.bold,
                 )),
-            SizedBox(height:MediaQuery.of(context).size.height*0.01 ,),
+            SizedBox(height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.01,),
             Expanded(
               child: ListView.builder(
-                  itemCount: 10,
+                  itemCount: lectures.length,
                   scrollDirection: Axis.horizontal,
-                  itemBuilder: (context,index){
+                  itemBuilder: (context, index) {
                     return Card(
                       color: Colors.white,
                       elevation: 10,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Container(
-                        width: MediaQuery.of(context).size.width*0.6,
+                      child: SizedBox(
+                        width: MediaQuery
+                            .of(context)
+                            .size
+                            .width * 0.6,
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Column(
@@ -87,11 +122,16 @@ class SubjectWidget extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Align(
-                                alignment: context.locale==const Locale('ar')?Alignment.centerLeft:Alignment.centerRight,
-                                child: Text(context.locale==const Locale('ar')?'المحاضره الاولي':'Lecture One',
+                                alignment: context.locale == const Locale('ar')
+                                    ? Alignment.centerLeft
+                                    : Alignment.centerRight,
+                                child: Text(lectures[index].lectureName!,
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: MediaQuery.of(context).size.width*0.05,
+                                      fontSize: MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width * 0.05,
                                       fontWeight: FontWeight.bold,
                                       overflow: TextOverflow.visible,
                                     )),
@@ -101,24 +141,36 @@ class SubjectWidget extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   CircleAvatar(
-                                    radius: MediaQuery.of(context).size.width*0.08,
-                                    backgroundImage: AssetImage(PhotoManger.profilepic),
+                                    radius: MediaQuery
+                                        .of(context)
+                                        .size
+                                        .width * 0.08,
+                                    backgroundImage: NetworkImage(
+                                        subject.urlPhotoTeacher!),
                                     backgroundColor: Colors.white,
+                                    onBackgroundImageError: (exception,
+                                        stackTrace) {},
                                   ),
-                                  SizedBox(width: 10,),
+
+                                  const SizedBox(width: 10,),
                                   Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Text(context.locale==const Locale('ar')?'محمد حسني':'Mahomed Hosni',
+                                      Text(subject.teacherName!,
                                           style: TextStyle(
                                             color: Colors.grey.shade700,
-                                            fontSize: MediaQuery.of(context).size.width*0.045,
+                                            fontSize: MediaQuery
+                                                .of(context)
+                                                .size
+                                                .width * 0.045,
                                             fontWeight: FontWeight.bold,
                                             overflow: TextOverflow.visible,
                                           )),
                                       Row(
-                                        children: List.generate(5, (index) => Icon(Icons.star,
+                                        children: List.generate(5, (index) =>
+                                        const Icon(Icons.star,
                                           color: Colors.amber,
 
                                         )),
@@ -129,14 +181,20 @@ class SubjectWidget extends StatelessWidget {
                               ),
 
                               Expanded(
-                                child: Text(context.locale==const Locale('ar')?'مقدمه حتي معادله الميزانيه الميزانيه الميزانيه':'Introduction to the budget equation budget budget',
+                                child: Text(lectures[index].lectureDescription!,
                                     softWrap: true,
-                                    maxLines: context.locale==const Locale('ar')?1:2,
+                                    maxLines: context.locale ==
+                                        const Locale('ar') ? 1 : 2,
                                     style: TextStyle(
                                       color: Colors.black,
-                                      fontSize: MediaQuery.of(context).size.width*0.045,
+                                      fontSize: MediaQuery
+                                          .of(context)
+                                          .size
+                                          .width * 0.045,
                                       fontWeight: FontWeight.bold,
-                                      overflow: context.locale==const Locale('ar')?TextOverflow.visible:TextOverflow.ellipsis,
+                                      overflow: context.locale ==
+                                          const Locale('ar') ? TextOverflow
+                                          .visible : TextOverflow.ellipsis,
                                     )),
                               ),
                             ],

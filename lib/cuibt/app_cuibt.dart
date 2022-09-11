@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
 import 'package:afer/screens/week_details/show_lecture.dart';
@@ -15,6 +16,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../model/lecture.dart';
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -33,7 +35,7 @@ class AppCubit extends Cubit<AppState> {
   static AppCubit get(context) => BlocProvider.of(context);
 
   // Home Layout Screen variables
-  UserModule user=UserModule();
+  UserModule user = UserModule();
   List<Widget> screens = [
     SubjectsScreen(),
     MessageScreen(),
@@ -52,13 +54,11 @@ class AppCubit extends Cubit<AppState> {
   int indexRegisterScreen = 0;
   XFile? file;
   XFile? fileUpdate;
-String ?profileUrl;
+  String? profileUrl;
   void changeRegister(int newIndex) {
     indexRegisterScreen = newIndex;
     emit(ChangeRegisterScreen());
   }
-
-
 
   var qrStar = "let's Scan it";
   // Home Layout Screen Functions
@@ -93,15 +93,15 @@ String ?profileUrl;
   var emailSignInController = TextEditingController();
   var passwordSignInController = TextEditingController();
   bool rememberMe = false;
-  List secondYear = [];
-  List thirdYear = [];
-  List fourthYear = [];
+  List<Subject> secondYear = [];
+  List<Subject> thirdYear = [];
+  List<Subject> fourthYear = [];
   String academicYear = "First year";
   String semester = "First semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
   //Settings Screen variables
-  List firstYear = [];
+  List<Subject> firstYear = [];
   List<Subject> subjects = [];
   Video? video;
   Photo? photo;
@@ -141,29 +141,31 @@ String ?profileUrl;
     academicYear = year;
     emit(ChangeAcademicYear());
   }
+
   void takeImage(XFile? newFile) {
     file = newFile;
     uploadProfilePhoto();
     emit(TakeImageSignUp());
   }
+
   void updateImage(XFile? newFile) {
     fileUpdate = newFile;
     uploadProfilePhoto();
     emit(UpdateImage());
   }
+
   void createAccount(uid) {
     UserModule user = UserModule(
-        uid: uid,
-        firstName: nameController.text,
-        secondName: lastNameController.text,
-        email: emailController.text,
-        phone: int.parse(phoneNumberController.text),
-        premium: false,
-        profileUrl: profileUrl,
-        pass: passwordController.text,
-        semester: "First semester",
-    academicYear: academicYear,
-
+      uid: uid,
+      firstName: nameController.text,
+      secondName: lastNameController.text,
+      email: emailController.text,
+      phone: int.parse(phoneNumberController.text),
+      premium: false,
+      profileUrl: profileUrl,
+      pass: passwordController.text,
+      semester: "First semester",
+      academicYear: academicYear,
     );
     print(uid);
     FirebaseFirestore.instance
@@ -178,31 +180,58 @@ String ?profileUrl;
       emit(CreateAccountFailed());
     });
   }
-void uploadProfilePhoto(){
- FirebaseStorage.instance
-      .ref()
-      .child('profilePhoto/${file!.path.substring(0,10)}')
-      .putFile(File(file!.path))
-      .then((value) {
-    value.ref.getDownloadURL().then((value) {
-      profileUrl = value;
+
+  void uploadProfilePhoto() {
+    FirebaseStorage.instance
+        .ref()
+        .child('profilePhoto/${file!.path.substring(0, 10)}')
+        .putFile(File(file!.path))
+        .then((value) {
+      value.ref.getDownloadURL().then((value) {
+        profileUrl = value;
+      });
     });
-  });
-}
+  }
+
   void getInfo(uid) {
     FirebaseFirestore.instance.collection("Users").doc(uid).get().then((value) {
       print(value.data());
       user = UserModule.fromJson(value.data()!);
       // add subjects to list to use it in subject screen to show subjects to user and get all data of subject
       subjects.clear();
-      subjects.add(Subject.fromJson(value.data()!["FirstSubjects"]));
-      subjects.add(Subject.fromJson(value.data()!["SecondSubjects"]));
-      subjects.add(Subject.fromJson(value.data()!["thirdSubjects"]));
-      subjects.add(Subject.fromJson(value.data()!["fourthSubjects"]));
-      subjects.add(Subject.fromJson(value.data()!["fiftySubjects"]));
-      subjects.add(Subject.fromJson(value.data()!["sixSubjects"]));
-      subjects.add(Subject.fromJson(value.data()!["sevenSubjects"]));
-      print(subjects.first.toJson());
+
+      if (!user.firstSubjects!.containsValue(null) &&
+          user.firstSubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["FirstSubjects"]));
+      }
+      if (!user.secondSubjects!.containsValue(null) &&
+          user.secondSubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["SecondSubjects"]));
+      }
+      if (!user.thirdSubjects!.containsValue(null) &&
+          user.thirdSubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["ThirdSubjects"]));
+      }
+      if (!user.fourthSubjects!.containsValue(null) &&
+          user.fourthSubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["FourthSubjects"]));
+      }
+      if (!user.fiftySubjects!.containsValue(null) &&
+          user.fiftySubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["fiftySubjects"]));
+      }
+      if (!user.sixSubjects!.containsValue(null) &&
+          user.sixSubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["sixtySubjects"]));
+      }
+      if (!user.sevenSubjects!.containsValue(null) &&
+          user.sevenSubjects!.isNotEmpty) {
+        subjects.add(Subject.fromJson(value.data()!["seventySubjects"]));
+      }
+      for (var element in subjects) {
+        print(element.toJson());
+      }
+      print("this is ${subjects.length}");
       emit(GetUserInfoSuccess());
     }).catchError((error) {
       log(error.toString());
@@ -280,12 +309,12 @@ void uploadProfilePhoto(){
       phone: user.phone,
       premium: user.premium,
       firstSubjects: subjects[0].toJson(),
-      secondSubjects:subjects.length>=2?subjects[1].toJson():null,
-      thirdSubjects:subjects.length>=3? subjects[2].toJson():  null,
-      fourthSubjects:subjects.length>=4? subjects[3].toJson():  null,
-      fiftySubjects: subjects.length>=5? subjects[4].toJson():  null,
-      sixSubjects: subjects.length>=6? subjects[5].toJson():  null,
-      sevenSubjects: subjects.length>=7? subjects[6].toJson():  null,
+      secondSubjects: subjects.length >= 2 ? subjects[1].toJson() : {},
+      thirdSubjects: subjects.length >= 3 ? subjects[2].toJson() : {},
+      fourthSubjects: subjects.length >= 4 ? subjects[3].toJson() : {},
+      fiftySubjects: subjects.length >= 5 ? subjects[4].toJson() : {},
+      sixSubjects: subjects.length >= 6 ? subjects[5].toJson() : {},
+      sevenSubjects: subjects.length >= 7 ? subjects[6].toJson() : {},
       semester: user.semester,
       pass: user.pass,
       academicYear: user.academicYear,
@@ -340,31 +369,25 @@ void uploadProfilePhoto(){
   }
 
 // to add new subject into map to get it from data base
-  void MakeMapSubject(String Year, String NameSubject, value, int index) {
+  void MakeMapSubject(String Year, Subject subject, value, int index) {
+    print(value);
     if (value == false) {
       subjects.remove(subjects[index]);
     } else {
-      subjects.insert(
-          subjects.length,
-          Subject(
-            name: NameSubject,
-            AcademicYear: Year,
-            Semester: "first Semester",
-          ));
+      subjects.insert(subjects.length, subject);
       print("add$subjects");
     }
     emit(MakeMapSubjectState());
   }
 
   // to make check box true or false
-  bool SureSubject(String NameSubject) {
+  bool sureSubject(Subject subject) {
     bool? check = false;
-    // return Subject.containsKey(NameSubject);
-    subjects.forEach((element) {
-      if (element.name == NameSubject) {
+    for (var element in subjects) {
+      if (element.isEqutaple(subject)) {
         check = true;
       }
-    });
+    }
 
     return check!;
   }
@@ -377,26 +400,52 @@ void uploadProfilePhoto(){
         .collection(semister)
         .get()
         .then((value) {
-      value.docs.forEach((element) {
-        if (year == "First Year" && !firstYear.contains(element.get("name"))) {
-          firstYear.add(element.get("name"));
+      for (var element in value.docs) {
+        if (year == "First Year" &&
+            !firstYear
+                .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
+          firstYear.add(Subject.fromJson(element.data()));
         }
         if (year == "Second Year" &&
-            !secondYear.contains(element.get("name"))) {
-          secondYear.add(element.get("name"));
+            !secondYear
+                .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
+          secondYear.add(Subject.fromJson(element.data()));
         }
-        if (year == "Third Year" && !thirdYear.contains(element.get("name"))) {
-          thirdYear.add(element.get("name"));
+        if (year == "Third Year" &&
+            !thirdYear
+                .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
+          thirdYear.add(Subject.fromJson(element.data()));
         }
         if (year == "Fourth Year" &&
-            !fourthYear.contains(element.get("name"))) {
-          fourthYear.add(element.get("name"));
+            !fourthYear
+                .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
+          fourthYear.add(Subject.fromJson(element.data()));
+          print(element.data());
         }
-      });
+      }
       emit(GetAllSubject());
     });
   }
-// to get if user pay or not to this week
+
+  Future<List<Lecture>> getMyLectures({required Subject subject})async {
+    List<Lecture> lectures = [];
+    await FirebaseFirestore.instance
+        .collection("Academic year")
+        .doc(subject.academicYear)
+        .collection("First semester")
+        .doc(subject.name)
+        .collection("Lecture")
+        .get()
+        .then((value) {
+      print(value.docs.length);
+      for (var element in value.docs) {
+        lectures.add(Lecture.fromJson(element.data()));
+      }
+    }).catchError((onError) {
+      print(onError.toString());
+    });
+    return  lectures;
+  }
 
   bool beSurePayment({required int index, required bool week}) {
     if (index == 0 && week == true) {
@@ -413,8 +462,9 @@ void uploadProfilePhoto(){
     }
     if (index == 4 && week == true) {
       return true;
-    } else
+    } else {
       return false;
+    }
   }
 
   void getPhoto(

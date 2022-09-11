@@ -1,6 +1,7 @@
 import 'package:afer/const/constant_texts.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
+import 'package:afer/model/Subject.dart';
 import 'package:afer/screens/user_account_screen.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -207,7 +208,7 @@ class Setting extends StatelessWidget {
     );
   }
 
-  ExpansionTile generateSubExpansion(List year, title, nameYear) {
+  ExpansionTile generateSubExpansion(List <Subject> year, title, nameYear) {
     return ExpansionTile(
         onExpansionChanged: (value) {
           cubit.getAllSubject(nameYear, "First semester");
@@ -230,16 +231,16 @@ class Setting extends StatelessWidget {
   }
 
   CheckboxListTile generateCheckListTile(
-    String SubjectName,
+    Subject subject,
     String year,
       int index,
   ) {
     return CheckboxListTile(
-      value: cubit.SureSubject(SubjectName),
+      value: cubit.sureSubject(subject),
       onChanged: (value) {
-        cubit.MakeMapSubject(year, SubjectName, value,index);
+        cubit.MakeMapSubject(year, subject, value,index);
       },
-      title: Text(SubjectName, style: const TextStyle(fontSize: 15)),
+      title: Text(subject.name!, style: const TextStyle(fontSize: 15)),
       controlAffinity: ListTileControlAffinity.trailing,
       checkColor: Colors.black,
       activeColor: Colors.green,
