@@ -17,6 +17,7 @@ import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../model/lecture.dart';
+import '../screens/week_details/lecture_screen.dart';
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -37,16 +38,17 @@ class AppCubit extends Cubit<AppState> {
   // Home Layout Screen variables
   UserModule user = UserModule();
   List<Widget> screens = [
-    SubjectsScreen(),
+    const SubjectsScreen(),
     MessageScreen(),
     MessageScreen(),
     Setting()
   ];
+
   // Home Layout Screen variables
 
   List<Widget> lectureScreen = [
     ShowLecture(),
-    ShowVideo(),
+    const ShowVideo(),
     ShowSummery(),
     ShowQuestion(),
   ];
@@ -55,12 +57,14 @@ class AppCubit extends Cubit<AppState> {
   XFile? file;
   XFile? fileUpdate;
   String? profileUrl;
+
   void changeRegister(int newIndex) {
     indexRegisterScreen = newIndex;
     emit(ChangeRegisterScreen());
   }
 
   var qrStar = "let's Scan it";
+
   // Home Layout Screen Functions
   void weekTemplateChangeIndex(int index) {
     weekTemplateCurrentIndex = index;
@@ -100,12 +104,17 @@ class AppCubit extends Cubit<AppState> {
   String semester = "First semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
+
   //Settings Screen variables
   List<Subject> firstYear = [];
   List<Subject> subjects = [];
   Video? video;
   Photo? photo;
   Pdf? pdf;
+  bool videoLocked=false;
+  bool photoLocked=false;
+  bool pdfLocked=false;
+  List<bool>locked=[];
   bool isObscureEditInfo = true;
 
   //Settings Screen Functions
@@ -195,11 +204,10 @@ class AppCubit extends Cubit<AppState> {
 
   void getInfo(uid) {
     FirebaseFirestore.instance.collection("Users").doc(uid).get().then((value) {
-      print(value.data());
       user = UserModule.fromJson(value.data()!);
       // add subjects to list to use it in subject screen to show subjects to user and get all data of subject
       subjects.clear();
-
+// this condition to check if data base info is correct or not
       if (!user.firstSubjects!.containsValue(null) &&
           user.firstSubjects!.isNotEmpty) {
         subjects.add(Subject.fromJson(value.data()!["FirstSubjects"]));
@@ -228,10 +236,6 @@ class AppCubit extends Cubit<AppState> {
           user.sevenSubjects!.isNotEmpty) {
         subjects.add(Subject.fromJson(value.data()!["seventySubjects"]));
       }
-      for (var element in subjects) {
-        print(element.toJson());
-      }
-      print("this is ${subjects.length}");
       emit(GetUserInfoSuccess());
     }).catchError((error) {
       log(error.toString());
@@ -247,7 +251,7 @@ class AppCubit extends Cubit<AppState> {
         .then((value) {
       print(value.user!.uid);
       createAccount(value.user!.uid);
-      navigator(context: context, page: SignScreen(), returnPage: false);
+      navigator(context: context, page: const SignScreen(), returnPage: false);
     }).catchError((error) {
       log(error.toString());
       emit(CreateAccountFailed());
@@ -287,7 +291,7 @@ class AppCubit extends Cubit<AppState> {
 
   void signOut(context) {
     FirebaseAuth.instance.signOut().then((value) {
-      navigator(context: context, page: SignScreen(), returnPage: false);
+      navigator(context: context, page: const SignScreen(), returnPage: false);
       sherdprefrence.removedate(key: "token");
       emit(LogOut());
     });
@@ -299,7 +303,6 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void ChooseSubject() {
-    print(subjects.length);
     user = UserModule(
       uid: user.uid,
       profileUrl: user.profileUrl,
@@ -370,12 +373,10 @@ class AppCubit extends Cubit<AppState> {
 
 // to add new subject into map to get it from data base
   void MakeMapSubject(String Year, Subject subject, value, int index) {
-    print(value);
     if (value == false) {
       subjects.remove(subjects[index]);
     } else {
       subjects.insert(subjects.length, subject);
-      print("add$subjects");
     }
     emit(MakeMapSubjectState());
   }
@@ -427,7 +428,7 @@ class AppCubit extends Cubit<AppState> {
     });
   }
 
-  Future<List<Lecture>> getMyLectures({required Subject subject})async {
+  Future<List<Lecture>> getMyLectures({required Subject subject}) async {
     List<Lecture> lectures = [];
     await FirebaseFirestore.instance
         .collection("Academic year")
@@ -444,50 +445,33 @@ class AppCubit extends Cubit<AppState> {
     }).catchError((onError) {
       print(onError.toString());
     });
-    return  lectures;
-  }
-
-  bool beSurePayment({required int index, required bool week}) {
-    if (index == 0 && week == true) {
-      return true;
-    }
-    if (index == 1 && week == true) {
-      return true;
-    }
-    if (index == 2 && week == true) {
-      return true;
-    }
-    if (index == 3 && week == true) {
-      return true;
-    }
-    if (index == 4 && week == true) {
-      return true;
-    } else {
-      return false;
-    }
+    return lectures;
   }
 
   void getPhoto(
       {required String academicYear,
       required String semester,
       required String subjectName,
-      required String week}) {
-    FirebaseFirestore.instance
-        .collection("Academic year")
-        .doc(academicYear)
-        .collection(semester)
-        .doc(subjectName)
-        .collection("Photo")
-        .doc(week)
+      required String lectureName}) {
+    _dataReference(
+            academicYear: academicYear,
+            semester: semester,
+            subjectName: subjectName,
+            lectureName: lectureName,
+            type: 'photo')
         .get()
         .then((value) {
-      photo = Photo(
-        linkPhoto: value.get("link"),
-        description: value.get("description"),
-      );
+      photo = Photo.fromJson(value.docs.last.data()!);
+      photoLocked=value.docs.last.get("isPaid");
       emit(GetPhotoSuccessfully());
     }).catchError((onError) {
       log(onError.toString());
+      photo = Photo(
+          id: null,
+          isPaid: null,
+          description: null,
+          linkPhoto: null,
+          point: null);
       emit(GetPhotoFailed());
     });
   }
@@ -496,23 +480,25 @@ class AppCubit extends Cubit<AppState> {
       {required String academicYear,
       required String semester,
       required String subjectName,
-      required String week}) {
-    print("$academicYear $semester $subjectName $week");
-    FirebaseFirestore.instance
-        .collection("Academic year")
-        .doc(academicYear)
-        .collection(semester)
-        .doc(subjectName)
-        .collection("videos")
-        .doc(week)
+      required String lectureName}) {
+    _dataReference(
+            academicYear: academicYear,
+            semester: semester,
+            subjectName: subjectName,
+            lectureName: lectureName,
+            type: 'videos')
         .get()
         .then((value) {
-      video = Video(
-        linkVideo: value.get("link"),
-        description: value.get("description"),
-      );
+      video = Video.fromJson(value.docs.last.data()!);
+    videoLocked=value.docs.last.get("isPaid");
       emit(GetVideoSuccessfully());
     }).catchError((onError) {
+      video = Video(
+          id: null,
+          isPaid: null,
+          description: null,
+          linkVideo: null,
+          point: null);
       log(onError.toString());
       emit(GetVideoFailed());
     });
@@ -522,49 +508,55 @@ class AppCubit extends Cubit<AppState> {
       {required String academicYear,
       required String semester,
       required String subjectName,
-      required String week}) {
-    FirebaseFirestore.instance
-        .collection("Academic year")
-        .doc(academicYear)
-        .collection(semester)
-        .doc(subjectName)
-        .collection("Pdf")
-        .doc(week)
+      required String lectureName}) {
+    _dataReference(
+            academicYear: academicYear,
+            semester: semester,
+            subjectName: subjectName,
+            lectureName: lectureName,
+            type: 'pdf')
         .get()
         .then((value) {
-      pdf = Pdf(
-        linkPdf: value.get("link"),
-        description: value.get("description"),
-      );
+      pdf = Pdf.fromJson(value.docs.last.data()!);
+      pdfLocked=value.docs.last.get("isPaid");
+      locked=[pdfLocked,videoLocked,photoLocked,pdfLocked];
+
       emit(GetPdfSuccessfully());
     }).catchError((onError) {
       log(onError.toString());
+      pdf = Pdf(
+          id: null,
+          isPaid: null,
+          description: null,
+          linkPdf: null,
+          point: null);
       emit(GetPdfFailed());
     });
   }
 
-  void getWeekData(
+  void getLectureData(
       {required String academicYear,
       required String subjectName,
-      required String week}) {
+      required String lectureName,
+      required BuildContext context}) {
+    weekTemplateCurrentIndex = 0;
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,
         subjectName: subjectName,
-        week: week);
+        lectureName: lectureName);
     getVideo(
         academicYear: academicYear,
         semester: user.semester!,
         subjectName: subjectName,
-        week: week);
+        lectureName: lectureName);
     getPdf(
         academicYear: academicYear,
         semester: user.semester!,
         subjectName: subjectName,
-        week: week);
-/*    print(video!.description);
-    print(photo!.description);
-    print(pdf!.description);*/
+        lectureName: lectureName);
+print(locked);
+    navigator(context: context, returnPage: true, page: LectureScreen());
   }
 
   void changeLocale(BuildContext context, language) {
@@ -576,4 +568,21 @@ class AppCubit extends Cubit<AppState> {
     qrStar = qrCode;
     emit((BrCodeReading()));
   }
+
+  CollectionReference _dataReference(
+      {required String academicYear,
+      required String semester,
+      required String subjectName,
+      required String lectureName,
+      required String type}) {
+    return FirebaseFirestore.instance
+        .collection("Academic year")
+        .doc(academicYear)
+        .collection(semester)
+        .doc(subjectName)
+        .collection("Lecture")
+        .doc(lectureName)
+        .collection(type);
+  }
+
 }

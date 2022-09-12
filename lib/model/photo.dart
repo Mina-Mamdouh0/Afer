@@ -11,7 +11,7 @@ class Photo {
          this.point,
         this.id,
       });
-  Photo.fromJson(Map<String, dynamic> json)
+  Photo.fromJson( json)
   {
     linkPhoto = json['link'];
     description = json['description'];

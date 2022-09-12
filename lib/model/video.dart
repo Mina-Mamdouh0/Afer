@@ -11,7 +11,7 @@ class Video {
          this.point,
         this.id,
       });
-  Video.fromJson(Map<String, dynamic> json)
+  Video.fromJson( json)
   {
     linkVideo = json['link'];
     description = json['description'];

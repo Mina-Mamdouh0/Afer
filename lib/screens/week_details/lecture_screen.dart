@@ -3,6 +3,7 @@
 import 'package:afer/const/colors_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
+import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -40,7 +41,6 @@ class LectureScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Size size=MediaQuery.of(context).size;
     return BlocConsumer<AppCubit, AppState>(
         listener: (context, state) {},
         builder: (context, state) {
@@ -58,12 +58,12 @@ class LectureScreen extends StatelessWidget {
                   )),
             ),
             body: Container(
-                padding: EdgeInsets.only(top: 10.0),
+                padding: const EdgeInsets.only(top: 10.0),
                 child: Column(children: [
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children:
-                      List.generate(4, (index) => tabBuilder(index))),
+                      List.generate(4, (index) => tabBuilder(index,cubit,context))),
                   Expanded(
                     child: cubit.lectureScreen[cubit.weekTemplateCurrentIndex],
                   )
@@ -72,49 +72,49 @@ class LectureScreen extends StatelessWidget {
         });
   }
 
-  Widget tabBuilder(int index) {
+  Widget tabBuilder(int index,AppCubit cuibt,context) {
     return InkWell(
       onTap: () {
-        cubit.weekTemplateChangeIndex(index);
+          cubit.weekTemplateChangeIndex(index);
+
       },
       child: Stack(
         alignment: Alignment.topRight,
         children: [
-          Container(
-            child: Column(
-              children: [
-                (cubit.weekTemplateCurrentIndex == index)
-                    ? CircleAvatar(
-                        backgroundColor: Colors.orangeAccent,
-                        radius: 30,
-                        child: mainIcons[index],
-                      )
-                    : CircleAvatar(
-                        backgroundColor: Colors.black12,
-                        radius: 30,
-                        child: mainIcons[index],
-                      ),
-                SizedBox(
-                  height: 5,
-                ),
-                Text(
-                  weekDetails[index],
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              ],
-            ),
+          Column(
+            children: [
+              (cubit.weekTemplateCurrentIndex == index)
+                  ? CircleAvatar(
+                      backgroundColor: Colors.orangeAccent,
+                      radius: 30,
+                      child: mainIcons[index],
+                    )
+                  : CircleAvatar(
+                      backgroundColor: Colors.black12,
+                      radius: 30,
+                      child: mainIcons[index],
+                    ),
+              const SizedBox(
+                height: 5,
+              ),
+              Text(
+                weekDetails[index],
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              )
+            ],
           ),
-          Container(
-            width: 30,
-             height: 30,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.pink,
-            ),
-            child: Center(
-              child: Image.asset('Asset/Image/block.png',
-                fit: BoxFit.fill,),
-            ),
+          ConditionalBuilder(
+            condition:cuibt.locked[index],
+            fallback:(context) {
+              return const Center(
+                  child: Icon(Icons.lock_open_outlined,size: 20,)
+              );
+            } ,
+            builder: (context) {
+              return const Center(
+                child: Icon(Icons.lock_outline_rounded,size: 20,)
+              );
+            }
           )
         ],
       ),

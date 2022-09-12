@@ -11,7 +11,7 @@ class Pdf {
          this.point,
         this.id,
       });
-  Pdf.fromJson(Map<String, dynamic> json)
+  Pdf.fromJson( json)
   {
     linkPdf = json['link'];
     description = json['description'];

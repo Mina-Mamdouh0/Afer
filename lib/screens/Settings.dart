@@ -212,6 +212,7 @@ class Setting extends StatelessWidget {
     return ExpansionTile(
         onExpansionChanged: (value) {
           cubit.getAllSubject(nameYear, "First semester");
+          print(cubit.subjects.last.toJson());
         },
         title: Text(
           title,
@@ -238,8 +239,10 @@ class Setting extends StatelessWidget {
     return CheckboxListTile(
       value: cubit.sureSubject(subject),
       onChanged: (value) {
-        cubit.MakeMapSubject(year, subject, value,index);
+        //cubit.MakeMapSubject(year, subject, value,index);
+        print(subject.toJson());
       },
+
       title: Text(subject.name!, style: const TextStyle(fontSize: 15)),
       controlAffinity: ListTileControlAffinity.trailing,
       checkColor: Colors.black,
