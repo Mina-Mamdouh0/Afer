@@ -1,6 +1,8 @@
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
+import 'package:afer/screens/week_details/lecture_screen.dart';
+import 'package:afer/widget/widget.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -97,7 +99,7 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (context, index) {
                     return InkWell(
-                      onTap:() =>AppCubit.get(context).getLectureData( context: context,academicYear:subject.academicYear!,subjectName: subject.name!,lectureName:lectures[index].lectureName!),
+                      onTap:() =>navigator(context: context,returnPage: true,page: LectureScreen(academicYear:subject.academicYear!,subjectName: subject.name!,lectureName:lectures[index].lectureName!),),
                       child: Card(
                         color: Colors.white,
                         elevation: 10,

@@ -12,10 +12,7 @@ import 'package:motion_toast/resources/arrays.dart';
 import '../translations/locale_keys.g.dart';
 
 class Setting extends StatelessWidget {
-
   late AppCubit cubit;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -28,12 +25,14 @@ class Setting extends StatelessWidget {
             child: Column(
               children: [
                 buildItemSetting(
-                  text: LocaleKeys.profile.tr(),
-                  icons: Icons.perm_identity_rounded,
-                  fct: (){
-                    navigator(context: context, page: const UserAccountScreen(), returnPage: true);
-                  }
-                ),
+                    text: LocaleKeys.profile.tr(),
+                    icons: Icons.perm_identity_rounded,
+                    fct: () {
+                      navigator(
+                          context: context,
+                          page: const UserAccountScreen(),
+                          returnPage: true);
+                    }),
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Row(
@@ -43,11 +42,12 @@ class Setting extends StatelessWidget {
                               onExpansionChanged: (value) {
                                 if (value) {}
                               },
-                              tilePadding:
-                              const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
+                              tilePadding: const EdgeInsets.symmetric(
+                                  horizontal: 0.0, vertical: 0.0),
                               title: Text(
-            LocaleKeys.selectSubject.tr(),
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                                LocaleKeys.selectSubject.tr(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
                               ),
                               leading: CircleAvatar(
                                   radius: 18,
@@ -60,27 +60,32 @@ class Setting extends StatelessWidget {
                                         size: 15,
                                       ))),
                               children: [
-                                generateSubExpansion(
-                                    cubit.firstYear, LocaleKeys.firstYear.tr(), "First Year"),
-                                generateSubExpansion(cubit.secondYear,
-                                    LocaleKeys.secondyear.tr(), "Second Year"),
-                                generateSubExpansion(
-                                    cubit.thirdYear, LocaleKeys.thirdYear.tr(), "Third Year"),
-                                generateSubExpansion(cubit.fourthYear,
-                                    LocaleKeys.fourthYear.tr(), "Fourth Year"),
-
-                                MainButton(text:'تم',fct: () {
-                                  if (cubit.subjects.length<=7) {
+                            generateSubExpansion(cubit.firstYear,
+                                LocaleKeys.firstYear.tr(), "First Year"),
+                            generateSubExpansion(cubit.secondYear,
+                                LocaleKeys.secondyear.tr(), "Second Year"),
+                            generateSubExpansion(cubit.thirdYear,
+                                LocaleKeys.thirdYear.tr(), "Third Year"),
+                            generateSubExpansion(cubit.fourthYear,
+                                LocaleKeys.fourthYear.tr(), "Fourth Year"),
+                            MainButton(
+                                text: 'تم',
+                                fct: () {
+                                  if (cubit.subjects.length <= 7) {
                                     cubit.ChooseSubject();
                                   } else {
                                     MotionToast.error(
-                                      description: const Text("اعد اختيار موادك مره اخري"),
-                                      title: const Text("يجب ان يكون عدد المواد 7 مواد "),
+                                      description: const Text(
+                                          "اعد اختيار موادك مره اخري"),
+                                      title: const Text(
+                                          "يجب ان يكون عدد المواد 7 مواد "),
                                       height: 100,
                                       width: 350,
-                                      animationDuration: const Duration(milliseconds: 900),
+                                      animationDuration:
+                                          const Duration(milliseconds: 900),
                                       borderRadius: 25,
-                                      barrierColor: Colors.black.withOpacity(0.5),
+                                      barrierColor:
+                                          Colors.black.withOpacity(0.5),
                                       position: MotionToastPosition.bottom,
                                       toastDuration: const Duration(
                                         milliseconds: 600,
@@ -89,75 +94,65 @@ class Setting extends StatelessWidget {
                                     ).show(context);
                                   }
                                 })
-
-                              ]))
+                          ]))
                     ],
                   ),
                 ),
                 buildItemSetting(
                     text: LocaleKeys.share.tr(),
                     icons: Icons.share,
-                    fct: (){
-                    }
-                ),
+                    fct: () {}),
                 buildItemSetting(
                     text: LocaleKeys.technicalSupport.tr(),
                     icons: Icons.biotech,
-                    fct: (){
-                    }
-                ),
+                    fct: () {}),
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Row(
-                  children: [
-                  Expanded(
-                  child: ExpansionTile(
-            tilePadding:
-            const EdgeInsets.symmetric(horizontal: 0.0, vertical: 0.0),
-            title: Text(
-            LocaleKeys.languages.tr(),
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-            ),
-            leading: CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.deepPurpleAccent,
-            child: IconButton(
-            onPressed: () {},
-            icon: const Icon(
-            Icons.translate,
-            color: Colors.white,
-            size: 15,
-            ))),
-            children: List.generate(
-            2, (index) => generateLanguageListTile(context, index)))),
-            ],
-            ),
+                    children: [
+                      Expanded(
+                          child: ExpansionTile(
+                              tilePadding: const EdgeInsets.symmetric(
+                                  horizontal: 0.0, vertical: 0.0),
+                              title: Text(
+                                LocaleKeys.languages.tr(),
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 15),
+                              ),
+                              leading: CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Colors.deepPurpleAccent,
+                                  child: IconButton(
+                                      onPressed: () {},
+                                      icon: const Icon(
+                                        Icons.translate,
+                                        color: Colors.white,
+                                        size: 15,
+                                      ))),
+                              children: List.generate(
+                                  2,
+                                  (index) => generateLanguageListTile(
+                                      context, index)))),
+                    ],
+                  ),
                 ),
                 buildItemSetting(
                     text: LocaleKeys.signOut.tr(),
                     icons: Icons.logout,
-                    fct: (){
+                    fct: () {
                       cubit.signOut(context);
-                    }
-                ),
+                    }),
               ],
             ),
           );
         });
   }
 
-
-
-
-
-
-
-
   Widget buildItemSetting({
-  required IconData icons,
+    required IconData icons,
     required String text,
     required Function() fct,
-}){
+  }) {
     return InkWell(
       onTap: fct,
       child: Padding(
@@ -179,8 +174,8 @@ class Setting extends StatelessWidget {
             ),
             Expanded(
                 child: Text(text,
-                    style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15))),
             Icon(
               Icons.arrow_forward_ios_sharp,
               color: Colors.grey.shade700,
@@ -208,11 +203,10 @@ class Setting extends StatelessWidget {
     );
   }
 
-  ExpansionTile generateSubExpansion(List <Subject> year, title, nameYear) {
+  ExpansionTile generateSubExpansion(List<Subject> year, title, nameYear) {
     return ExpansionTile(
         onExpansionChanged: (value) {
           cubit.getAllSubject(nameYear, "First semester");
-          print(cubit.subjects.last.toJson());
         },
         title: Text(
           title,
@@ -225,7 +219,7 @@ class Setting extends StatelessWidget {
               width: 500,
               child: ListView.separated(
                   itemBuilder: (context, index) =>
-                      generateCheckListTile(year[index], title,index),
+                      generateCheckListTile(year[index], title, index),
                   separatorBuilder: (context, _) => const SizedBox(height: 5),
                   itemCount: year.length)),
         ]);
@@ -234,15 +228,13 @@ class Setting extends StatelessWidget {
   CheckboxListTile generateCheckListTile(
     Subject subject,
     String year,
-      int index,
+    int index,
   ) {
     return CheckboxListTile(
       value: cubit.sureSubject(subject),
       onChanged: (value) {
-        //cubit.MakeMapSubject(year, subject, value,index);
-        print(subject.toJson());
+        cubit.addSubject(year, subject, value, index);
       },
-
       title: Text(subject.name!, style: const TextStyle(fontSize: 15)),
       controlAffinity: ListTileControlAffinity.trailing,
       checkColor: Colors.black,

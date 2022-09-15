@@ -19,19 +19,19 @@ class _ShowVideoState extends State<ShowVideo> {
   @override
   void initState() {
     super.initState();
-    if (AppCubit.get(context).video!.linkVideo != null) {
+    if (AppCubit.get(context).video.linkVideo != null) {
       flickManager = FlickManager(
         videoPlayerController: VideoPlayerController.network(
-            AppCubit.get(context).video!.linkVideo!),
+            AppCubit.get(context).video.linkVideo!),
       );
     }
   }
 
   @override
   void dispose() {
-    if (AppCubit.get(context).video!.linkVideo != null) {
+
       flickManager.dispose();
-    }
+
     super.dispose();
   }
 
@@ -54,8 +54,8 @@ class _ShowVideoState extends State<ShowVideo> {
                     ),
                   ],
                 ),
-            condition: AppCubit.get(context).video!.linkVideo != null &&
-                AppCubit.get(context).video!.description != null,
+            condition: AppCubit.get(context).video.linkVideo != null &&
+                AppCubit.get(context).video.description != null,
             builder: (context) {
               return SingleChildScrollView(
                 child: Padding(
@@ -72,7 +72,7 @@ class _ShowVideoState extends State<ShowVideo> {
                         ),
                         Container(
                           padding: const EdgeInsetsDirectional.all(10),
-                          child: Text(AppCubit.get(context).video!.description!,
+                          child: Text(AppCubit.get(context).video.description!,
                               style: const TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold)),
                         )

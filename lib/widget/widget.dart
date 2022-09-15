@@ -63,15 +63,15 @@ class TheTextFiled extends StatelessWidget {
   final Widget? suffixIcon;
   final Function(String)? onFieldSubmitted;
   final bool? obscureText;
+final int? maxLength;
 
-
-  const TheTextFiled({Key? key, this.validator, required this.controller, required this.hintText, required this.prefix, required this.keyboardType, this.labelText, this.textInputAction, this.suffixIcon, this.onFieldSubmitted, this.obscureText, this.helperText}) : super(key: key);
+  const TheTextFiled({Key? key, this.validator, required this.controller, required this.hintText, required this.prefix, required this.keyboardType, this.labelText, this.textInputAction, this.suffixIcon, this.onFieldSubmitted, this.obscureText, this.helperText,this.maxLength}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
 
     return TextFormField(
-
+maxLength: maxLength,
       style: const TextStyle(color: Colors.black),
       controller: controller,
       obscureText: obscureText??false,

@@ -15,22 +15,22 @@ class ShowSummery extends StatelessWidget {
       children: [
         Text(
           LocaleKeys.serviceNot.tr(),
-          style: TextStyle(
+          style:  const TextStyle(
             fontSize: 25,
             fontWeight: FontWeight.bold,
           ),
           textAlign:  TextAlign.center,
         ),
-        SizedBox(height: 15,),
+        const SizedBox(height: 15,),
         Text(
           LocaleKeys.serviceSoon.tr(),
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(height: 15,),
-        Image(image: AssetImage(PhotoManger.sad),height: 100,width: 100,color: Colors.black),
+        const SizedBox(height: 15,),
+        const Image(image: AssetImage(PhotoManger.sad),height: 100,width: 100,color: Colors.black),
       ],
     );
   }

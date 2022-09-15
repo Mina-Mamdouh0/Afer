@@ -15,8 +15,8 @@ class Pdf {
   {
     linkPdf = json['link'];
     description = json['description'];
-    isPaid = json['isPaid'];
-    point = json['point'];
+    isPaid = json['isPaid']??false;
+    point = json['point']??"0";
     id = json['id'];
   }
   Map<String, dynamic> toJson()

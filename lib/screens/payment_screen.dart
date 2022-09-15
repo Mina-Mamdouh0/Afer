@@ -8,6 +8,7 @@ import 'package:afer/widget/widget.dart';
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
@@ -38,9 +39,9 @@ class PaymentScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Image(image: AssetImage(PhotoManger.coins),width: 50,),
-                          Text('your coins now',style: TextStyle(color: Colors.red,fontSize: 22),)
+                        children:  [
+                          const Image(image: AssetImage(PhotoManger.coins),width: 50,),
+                          Text(BlocProvider.of<AppCubit>(context).user.points!,style: TextStyle(color: Colors.red,fontSize: 22),)
                         ],),
                       const Spacer(),
                       BarcodeWidget(
@@ -53,13 +54,14 @@ class PaymentScreen extends StatelessWidget {
                       const Spacer(),
                       MainButton(
                     fct: (){
-                      /*try{
+                      try{
                                 FlutterBarcodeScanner.scanBarcode('#2A99CF', 'cancel', true, ScanMode.QR).then((value){
                                   BlocProvider.of<AppCubit>(context).readQrCode(value);
+
                                 });
                               }catch(e){
                                 BlocProvider.of<AppCubit>(context).readQrCode('unable to read this');
-                              }*/
+                              }
                     },
                     text:'Scan barcode' ,
                   ),

@@ -25,7 +25,10 @@ class WeekTemplateChangeIndex extends AppState{
 }
 class ChangeLocale extends AppState{}
 class BrCodeReading extends AppState{}
-
 class ChangeRegisterScreen extends AppState{}
 class TakeImageSignUp extends AppState{}
 class UpdateImage extends AppState{}
+class SecureDataSuccessfully extends AppState{}
+class SecureDataFailed extends AppState{}
+class LosePointsSuccessfully extends AppState{}
+class LosePointsFailed extends AppState{}

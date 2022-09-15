@@ -1,6 +1,7 @@
 
 import 'dart:io';
 
+import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/const/colors_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
@@ -53,13 +54,13 @@ class UserAccountScreen extends StatelessWidget {
                     Container(
                       width:size.width*0.3,
                       height: size.width*0.3,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                       ),
-                      child: cubit.fileUpdate==null?
-                      Image.network('https://media.istockphoto.com/photos/businessman-silhouette-as-avatar-or-default-profile-picture-picture-id476085198?s=612x612',
+                      child: cubit.file==null?
+                      Image.network(cubit.user.profileUrl??"https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE=",
                         fit: BoxFit.fill,):
-                      Image.file(File(cubit.fileUpdate!.path),
+                      Image.file(File(cubit.file!.path),
                         fit: BoxFit.fill,),
                     ),
                     GestureDetector(
@@ -82,9 +83,9 @@ class UserAccountScreen extends StatelessWidget {
                                     InkWell(
                                       onTap: ()async{
                                         Navigator.pop(context);
-                                        XFile? _picked=await ImagePicker().pickImage(source: ImageSource.camera,maxHeight: 1080,maxWidth: 1080);
-                                        if(_picked !=null){
-                                          cubit.updateImage(_picked);
+                                        XFile? picked=await ImagePicker().pickImage(source: ImageSource.camera,maxHeight: 1080,maxWidth: 1080);
+                                        if(picked !=null){
+                                          cubit.updateImage(picked);
                                         }
                                       },
                                       child: Padding(
@@ -104,9 +105,9 @@ class UserAccountScreen extends StatelessWidget {
                                     InkWell(
                                       onTap: ()async{
                                         Navigator.pop(context);
-                                        XFile? _picked=await ImagePicker().pickImage(source: ImageSource.gallery,maxHeight: 1080,maxWidth: 1080);
-                                        if(_picked !=null){
-                                          cubit.updateImage(_picked);
+                                        XFile? picked=await ImagePicker().pickImage(source: ImageSource.gallery,maxHeight: 1080,maxWidth: 1080);
+                                        if(picked !=null){
+                                          cubit.updateImage(picked);
                                         }
                                       },
                                       child: Padding(
@@ -165,7 +166,7 @@ class UserAccountScreen extends StatelessWidget {
                        return null;
                      })
                  ),
-                 SizedBox(
+                 const SizedBox(
                    width: 10,
                  ),
                  Expanded(
@@ -183,7 +184,7 @@ class UserAccountScreen extends StatelessWidget {
                    )
                ],
              ),
-             SizedBox(
+             const SizedBox(
                height: 20,
              ),
              TheTextFiled(
@@ -191,13 +192,26 @@ class UserAccountScreen extends StatelessWidget {
                  controller:cubit.userPasswordController ,
                  keyboardType: TextInputType.text,
                  prefix: Icons.password,
-                 validator: (value) {
-                   if (value!.isEmpty) {
-                     return "Please enter a password";
-                   }
-                   return null;
-                 }),
-             SizedBox(
+               validator: (value) {
+                 if (value!.isPassword) {
+                   return 'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number';
+                 }
+                 return null;
+               },
+               textInputAction: TextInputAction.next,
+               labelText: LocaleKeys.password.tr(),
+               suffixIcon: IconButton(
+                 icon: cubit.isObscureSignup
+                     ? const Icon(Icons.visibility_off)
+                     : const Icon(Icons.visibility),
+                 onPressed: () => cubit.changeObscureSignUp(),
+               ),
+               obscureText: cubit.isObscureSignup,
+               helperText:
+               'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number',
+
+             ),
+             const SizedBox(
                height: 20,
              ),
 
@@ -206,13 +220,30 @@ class UserAccountScreen extends StatelessWidget {
                  controller:cubit.userConfirmPasswordController ,
                  keyboardType: TextInputType.text,
                  prefix: Icons.password,
-                 validator: (value) {
-                   if (value!.isEmpty) {
-                     return "Please enter a password";
-                   }
-                   return null;
-                 }),
-             SizedBox(
+               validator: (value) {
+                 if (value != cubit.userPasswordController.text) {
+                   return 'Password not match';
+                 }
+                 return null;
+               },
+               textInputAction: TextInputAction.done,
+               labelText:'${LocaleKeys.confirm.tr()} ${LocaleKeys.password.tr()}',
+               suffixIcon: IconButton(
+                 icon: cubit.isObscureSignup
+                     ? const Icon(Icons.visibility_off)
+                     : const Icon(Icons.visibility),
+                 onPressed: () => cubit.changeObscureSignUp(),
+               ),
+               onFieldSubmitted: (_){
+                 if (cubit.SignUpFormKey.currentState!.validate()) {
+                   cubit.signUp(context);
+                 }},
+               obscureText: cubit.isObscureSignup,
+               helperText:
+               'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number',
+
+             ),
+             const SizedBox(
                height: 20,
              ),
 
@@ -221,13 +252,17 @@ class UserAccountScreen extends StatelessWidget {
                  controller:cubit.userPhoneNumberController ,
                  keyboardType: TextInputType.number,
                  prefix: Icons.phone,
-                 validator: (value) {
-                   if (value!.isEmpty) {
-                     return "Please enter a Phone";
-                   }
-                   return null;
-                 }),
-             SizedBox(
+               validator: (value) {
+                 if (value!.isPhoneNumber) {
+                   return "not valid must be like this 01*********";
+                 }
+                 return null;
+               },
+               maxLength: 11,
+               textInputAction: TextInputAction.next,
+               labelText: LocaleKeys.WhatsAppHint.tr(),
+                 ),
+             const SizedBox(
                height: 20,
              ),
 

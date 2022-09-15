@@ -139,6 +139,7 @@ class SignupScreen extends StatelessWidget {
                     },
                     keyboardType:TextInputType.phone ,
                     prefix: Icons.phone,
+                    maxLength: 11,
                     textInputAction: TextInputAction.next,
                     labelText: LocaleKeys.WhatsAppHint.tr(),
                   ),

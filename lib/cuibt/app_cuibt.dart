@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
@@ -13,11 +14,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:internet_file/internet_file.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../model/lecture.dart';
-import '../screens/week_details/lecture_screen.dart';
+import '../screens/payid.dart';
+
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -51,6 +54,7 @@ class AppCubit extends Cubit<AppState> {
     const ShowVideo(),
     ShowSummery(),
     ShowQuestion(),
+    const NotPayed(),
   ];
   int currentIndex = 0;
   int indexRegisterScreen = 0;
@@ -67,8 +71,11 @@ class AppCubit extends Cubit<AppState> {
 
   // Home Layout Screen Functions
   void weekTemplateChangeIndex(int index) {
-    weekTemplateCurrentIndex = index;
-    emit(WeekTemplateChangeIndex());
+    if (weekTemplateCurrentIndex != index) {
+      weekTemplateCurrentIndex = index;
+      print(weekTemplateCurrentIndex);
+      emit(WeekTemplateChangeIndex());
+    }
   }
 
   int weekTemplateCurrentIndex = 0;
@@ -83,7 +90,7 @@ class AppCubit extends Cubit<AppState> {
   var phoneNumberController = TextEditingController();
   bool isObscureSignup = true;
   var SignUpFormKey = GlobalKey<FormState>();
-
+  int points = 0;
   //user Screen variables
   var userEmailController = TextEditingController();
   var usernameController = TextEditingController();
@@ -101,20 +108,21 @@ class AppCubit extends Cubit<AppState> {
   List<Subject> thirdYear = [];
   List<Subject> fourthYear = [];
   String academicYear = "First year";
-  String semester = "First semester";
+  String semester = DateTime.now().month >= 9 ? "First semester" : "Second semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
 
   //Settings Screen variables
   List<Subject> firstYear = [];
   List<Subject> subjects = [];
-  Video? video;
-  Photo? photo;
-  Pdf? pdf;
-  bool videoLocked=false;
-  bool photoLocked=false;
-  bool pdfLocked=false;
-  List<bool>locked=[];
+  Video video = Video();
+  Photo photo = Photo();
+  Pdf pdf = Pdf();
+  Uint8List? bytes;
+  bool videoLocked = false;
+  bool photoLocked = false;
+  bool pdfLocked = false;
+  List<bool> locked = [false, false, false, true];
   bool isObscureEditInfo = true;
 
   //Settings Screen Functions
@@ -158,7 +166,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void updateImage(XFile? newFile) {
-    fileUpdate = newFile;
+    file = newFile;
     uploadProfilePhoto();
     emit(UpdateImage());
   }
@@ -193,7 +201,18 @@ class AppCubit extends Cubit<AppState> {
   void uploadProfilePhoto() {
     FirebaseStorage.instance
         .ref()
-        .child('profilePhoto/${file!.path.substring(0, 10)}')
+        .child('profilePhoto/${user.uid}')
+        .putFile(File(file!.path))
+        .then((value) {
+      value.ref.getDownloadURL().then((value) {
+        profileUrl = value;
+      });
+    });
+  }
+  void updateProfilePhoto() {
+    FirebaseStorage.instance
+        .ref()
+        .child('profilePhoto/${user.uid}')
         .putFile(File(file!.path))
         .then((value) {
       value.ref.getDownloadURL().then((value) {
@@ -214,31 +233,33 @@ class AppCubit extends Cubit<AppState> {
       }
       if (!user.secondSubjects!.containsValue(null) &&
           user.secondSubjects!.isNotEmpty) {
-        subjects.add(Subject.fromJson(value.data()!["SecondSubjects"]));
+        subjects.add(Subject.fromJson(value.get("SecondSubjects")));
       }
       if (!user.thirdSubjects!.containsValue(null) &&
           user.thirdSubjects!.isNotEmpty) {
-        subjects.add(Subject.fromJson(value.data()!["ThirdSubjects"]));
+        subjects.add(Subject.fromJson(value.get("thirdSubjects")));
       }
       if (!user.fourthSubjects!.containsValue(null) &&
           user.fourthSubjects!.isNotEmpty) {
-        subjects.add(Subject.fromJson(value.data()!["FourthSubjects"]));
+        subjects.add(Subject.fromJson(value.get("fourthSubjects")));
       }
       if (!user.fiftySubjects!.containsValue(null) &&
           user.fiftySubjects!.isNotEmpty) {
-        subjects.add(Subject.fromJson(value.data()!["fiftySubjects"]));
+        subjects.add(Subject.fromJson(value.get("fiftySubjects")));
       }
       if (!user.sixSubjects!.containsValue(null) &&
           user.sixSubjects!.isNotEmpty) {
-        subjects.add(Subject.fromJson(value.data()!["sixtySubjects"]));
+        subjects.add(Subject.fromJson(value.get("sixSubjects")));
       }
       if (!user.sevenSubjects!.containsValue(null) &&
           user.sevenSubjects!.isNotEmpty) {
-        subjects.add(Subject.fromJson(value.data()!["seventySubjects"]));
+        subjects.add(Subject.fromJson(value.get("sevenSubjects")));
       }
+      changeIndex(0);
+
       emit(GetUserInfoSuccess());
     }).catchError((error) {
-      log(error.toString());
+      print("this is $error");
       emit(GetUserInfoFailed());
     });
   }
@@ -321,6 +342,7 @@ class AppCubit extends Cubit<AppState> {
       semester: user.semester,
       pass: user.pass,
       academicYear: user.academicYear,
+      points: user.points,
     );
     FirebaseFirestore.instance
         .collection("Users")
@@ -328,7 +350,6 @@ class AppCubit extends Cubit<AppState> {
         .update(user.toJson())
         .then((value) {
       getInfo(sherdprefrence.getdate(key: "token"));
-      changeIndex(0);
     }).catchError((onError) {
       log(onError.toString());
     });
@@ -337,8 +358,9 @@ class AppCubit extends Cubit<AppState> {
   void updateProfile() {
     updatePassword();
     user = UserModule(
+
       uid: user.uid,
-      profileUrl: user.profileUrl,
+      profileUrl:profileUrl??user.profileUrl ,
       firstName: usernameController.text,
       secondName: username2Controller.text,
       email: user.email,
@@ -352,6 +374,9 @@ class AppCubit extends Cubit<AppState> {
       sevenSubjects: user.sevenSubjects,
       premium: user.premium,
       pass: userPasswordController.text,
+      points: user.points,
+      semester: user.semester,
+      academicYear: user.academicYear,
     );
     FirebaseFirestore.instance
         .collection("Users")
@@ -372,9 +397,10 @@ class AppCubit extends Cubit<AppState> {
   }
 
 // to add new subject into map to get it from data base
-  void MakeMapSubject(String Year, Subject subject, value, int index) {
+  void addSubject(String Year, Subject subject, value, int index) {
     if (value == false) {
-      subjects.remove(subjects[index]);
+     var itemIndex= subjects.indexWhere((element) => element.isEqutaple(subject));
+      subjects.removeAt(itemIndex);
     } else {
       subjects.insert(subjects.length, subject);
     }
@@ -421,7 +447,6 @@ class AppCubit extends Cubit<AppState> {
             !fourthYear
                 .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
           fourthYear.add(Subject.fromJson(element.data()));
-          print(element.data());
         }
       }
       emit(GetAllSubject());
@@ -462,7 +487,7 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) {
       photo = Photo.fromJson(value.docs.last.data()!);
-      photoLocked=value.docs.last.get("isPaid");
+      getIfPhotoPayed(uidPhoto: photo.id!);
       emit(GetPhotoSuccessfully());
     }).catchError((onError) {
       log(onError.toString());
@@ -490,7 +515,7 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) {
       video = Video.fromJson(value.docs.last.data()!);
-    videoLocked=value.docs.last.get("isPaid");
+      getIfVideoPayed(uidVideo: video.id!);
       emit(GetVideoSuccessfully());
     }).catchError((onError) {
       video = Video(
@@ -516,10 +541,12 @@ class AppCubit extends Cubit<AppState> {
             lectureName: lectureName,
             type: 'pdf')
         .get()
-        .then((value) {
+        .then((value) async {
       pdf = Pdf.fromJson(value.docs.last.data()!);
-      pdfLocked=value.docs.last.get("isPaid");
-      locked=[pdfLocked,videoLocked,photoLocked,pdfLocked];
+      getIfPdfPayed(uidPdf: pdf.id!);
+      bytes = await InternetFile.get(
+        pdf.linkPdf!,
+      );
 
       emit(GetPdfSuccessfully());
     }).catchError((onError) {
@@ -534,11 +561,11 @@ class AppCubit extends Cubit<AppState> {
     });
   }
 
-  void getLectureData(
-      {required String academicYear,
-      required String subjectName,
-      required String lectureName,
-      required BuildContext context}) {
+  Future<void> getLectureData({
+    required String academicYear,
+    required String subjectName,
+    required String lectureName,
+  }) async {
     weekTemplateCurrentIndex = 0;
     getPhoto(
         academicYear: academicYear,
@@ -555,8 +582,8 @@ class AppCubit extends Cubit<AppState> {
         semester: user.semester!,
         subjectName: subjectName,
         lectureName: lectureName);
-print(locked);
-    navigator(context: context, returnPage: true, page: LectureScreen());
+    weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
+    print(locked);
   }
 
   void changeLocale(BuildContext context, language) {
@@ -566,6 +593,7 @@ print(locked);
 
   void readQrCode(String qrCode) {
     qrStar = qrCode;
+    pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
     emit((BrCodeReading()));
   }
 
@@ -585,4 +613,175 @@ print(locked);
         .collection(type);
   }
 
+  void getIfVideoPayed({required String uidVideo}) {
+    getSecureReference(type: "video", uidItem: uidVideo).then((value) {
+      locked[1] = value;
+      print("this vidoe $value");
+    });
+  }
+
+  void getIfPdfPayed({required String uidPdf}) {
+    getSecureReference(type: "Pdf", uidItem: uidPdf).then((value) {
+      locked[0] = value;
+      print(value);
+    });
+  }
+
+  void getIfPhotoPayed({required String uidPhoto}) {
+    getSecureReference(type: "photo", uidItem: uidPhoto)
+        .then((value) => locked[2] = value);
+  }
+
+  bool getIfExamPayed({required String uidExam}) {
+    bool isPayed = false;
+    getSecureReference(type: "exam", uidItem: uidExam)
+        .then((value) => isPayed = isPayed);
+    return isPayed;
+  }
+
+  Future<bool> getSecureReference(
+      {required String uidItem, required String type}) async {
+    return await FirebaseFirestore.instance
+        .collection("secure")
+        .doc(type)
+        .collection(uidItem)
+        .doc(user.uid)
+        .get()
+        .then((value) {
+      if (value.exists) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  }
+
+  DocumentReference secureDataReference(
+      {required String uidItem, required String type}) {
+    return FirebaseFirestore.instance
+        .collection("secure")
+        .doc(type)
+        .collection(uidItem)
+        .doc(user.uid!);
+  }
+
+  void secureDataVideo({videoId}) {
+    secureDataReference(uidItem: videoId, type: "video")
+        .set({"uid": user.uid!, "videoId": videoId}).then((value) {
+      losePoints(point: int.tryParse(video.point!) ?? 0);
+      emit(SecureDataSuccessfully());
+    }).catchError((onError) => emit(SecureDataFailed()));
+  }
+
+  void secureDataPdf({pdfId}) {
+    secureDataReference(uidItem: pdfId, type: "Pdf")
+        .set({"uid": user.uid, "pdfId": pdfId}).then((value) {
+      losePoints(point: int.tryParse(pdf.point!) ?? 0);
+      emit(SecureDataSuccessfully());
+    }).catchError((onError) => emit(SecureDataFailed()));
+  }
+
+  void secureDataPhoto({photoId}) {
+    secureDataReference(uidItem: photoId, type: "photo")
+        .set({"uid": user.uid, "photoId": photoId}).then((value) {
+      losePoints(point: int.tryParse(pdf.point!) ?? 0);
+      emit(SecureDataSuccessfully());
+    }).catchError((onError) => emit(SecureDataFailed()));
+  }
+
+  void secureDataExam({examId}) {
+    secureDataReference(uidItem: examId, type: "exam")
+        .set({"uid": user.uid, "examId": examId}).then((value) {
+      losePoints(point: int.parse(video.point!));
+      emit(SecureDataSuccessfully());
+    }).catchError((onError) => emit(SecureDataFailed()));
+  }
+
+  void losePoints({required int point}) {
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user.uid)
+        .update({"points": (int.parse(user.points!) - point).toString()})
+        .then((value) => emit(LosePointsSuccessfully()))
+        .catchError((onError) => emit(LosePointsFailed()));
+    getInfo(user.uid!);
+  }
+
+  void pointsIncrease({required int point}) {
+    print("this is point $point");
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user.uid)
+        .update({"points": (int.parse(user.points!) + point).toString()})
+        .then((value) => emit(LosePointsSuccessfully()))
+        .catchError((onError) => emit(LosePointsFailed()));
+    getInfo(user.uid!);
+  }
+
+  void secure({required int index,required context}) {
+    if(getPoint(index)<int.parse(user.points!)) {
+      if (index == 0) {
+        secureDataPdf(pdfId: pdf.id!);
+      }
+      if (index == 1) {
+        secureDataVideo(videoId: video.id!);
+      }
+      if (index == 2) {
+        secureDataPhoto(photoId: photo.id!);
+      }
+      getAllSucre();
+      getInfo(user.uid!);
+    }else{
+      print("you don't have enough points");
+      MotionToast.error(
+        description: const Text("You don't have enough points"),
+        title:
+        const Text("Error while paying"),
+        height: 100,
+        width: 350,
+        animationDuration: const Duration(milliseconds: 900),
+        borderRadius: 25,
+        barrierColor: Colors.black.withOpacity(0.5),
+        position: MotionToastPosition.bottom,
+        toastDuration: const Duration(
+          milliseconds: 600,
+        ),
+        animationType: AnimationType.fromBottom,
+
+      ).show(context);
+    }
+  }
+
+  int getPoint(index) {
+
+    if (index == 0) {
+      return int.tryParse(pdf.point!) ?? 0;
+    }
+    if (index == 1) {
+      return int.tryParse(video.point!) ?? 0;
+    }
+    if (index == 2) {
+      return int.tryParse(photo.point!)?? 0;
+    } else {
+      return 0;
+    }
+  }
+bool getIfPayed(index){
+    if(index==0){
+      return pdf.isPaid??false;
+    }
+    if(index==1){
+      return video.isPaid??false;
+    }
+    if(index==2){
+      return photo.isPaid??false;}
+    else{
+      return false;
+    }
+}
+  void getAllSucre() {
+    getIfPdfPayed(uidPdf: pdf.id!);
+    getIfVideoPayed(uidVideo: video.id!);
+    getIfPhotoPayed(uidPhoto: photo.id!);
+  }
 }

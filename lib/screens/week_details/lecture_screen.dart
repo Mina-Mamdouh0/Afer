@@ -1,5 +1,3 @@
-
-
 import 'package:afer/const/colors_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
@@ -11,9 +9,28 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../const/photo_manger.dart';
 import '../../translations/locale_keys.g.dart';
 
-class LectureScreen extends StatelessWidget {
-  LectureScreen({Key? key}) : super(key: key);
-  List<String> weekDetails = [LocaleKeys.lecture.tr(),LocaleKeys.video.tr(), LocaleKeys.Summary.tr(), LocaleKeys.questions.tr()];
+class LectureScreen extends StatefulWidget {
+  final String subjectName;
+  final String academicYear;
+  final String lectureName;
+
+  LectureScreen({Key? key, required this.subjectName, required this.academicYear, required this.lectureName}) : super(key: key);
+
+  @override
+  State<LectureScreen> createState() => _LectureScreenState(lectureName: lectureName, subjectName: subjectName, academicYear: academicYear);
+}
+
+class _LectureScreenState extends State<LectureScreen> {
+  _LectureScreenState({required this.subjectName, required this.academicYear,required this.lectureName});
+  final String subjectName;
+  final String academicYear;
+  final String lectureName;
+  List<String> weekDetails = [
+    LocaleKeys.lecture.tr(),
+    LocaleKeys.video.tr(),
+    LocaleKeys.Summary.tr(),
+    LocaleKeys.questions.tr()
+  ];
 
   List<Image> mainIcons = const [
     Image(
@@ -37,8 +54,14 @@ class LectureScreen extends StatelessWidget {
       width: 30,
     ),
   ];
-  late AppCubit cubit;
 
+  late AppCubit cubit;
+@override
+  void initState() {
+  AppCubit.get(context).getLectureData(subjectName:subjectName,academicYear:academicYear ,lectureName: lectureName );
+
+super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppState>(
@@ -54,29 +77,96 @@ class LectureScreen extends StatelessWidget {
               title: Text(LocaleKeys.lecture.tr(),
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: MediaQuery.of(context).size.width*0.06
-                  )),
+                      fontSize: MediaQuery.of(context).size.width * 0.06)),
             ),
-            body: Container(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Column(children: [
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children:
-                      List.generate(4, (index) => tabBuilder(index,cubit,context))),
-                  Expanded(
-                    child: cubit.lectureScreen[cubit.weekTemplateCurrentIndex],
-                  )
-                ])),
+            body: ConditionalBuilder(
+              condition: cubit.pdf.linkPdf != null||cubit.video.linkVideo != null,
+              fallback: (context) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+              builder: (context) {
+                return Container(
+                    padding: const EdgeInsets.only(top: 10.0),
+                    child: Column(children: [
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: List.generate(
+                              4, (index) => tabBuilder(index, cubit, context))),
+                      Expanded(
+                        child: cubit.lectureScreen[cubit.weekTemplateCurrentIndex],
+                      )
+                    ]));
+              }
+            ),
           );
         });
   }
-
-  Widget tabBuilder(int index,AppCubit cuibt,context) {
+@override
+  void dispose() {
+cubit.locked=[false,false,false,true];
+    super.dispose();
+  }
+  Widget tabBuilder(int index, AppCubit cuibt, context) {
     return InkWell(
       onTap: () {
+        if (cuibt.locked[index] == true) {
           cubit.weekTemplateChangeIndex(index);
-
+        } else {
+          if(cuibt.getIfPayed(index)==true) {
+            showDialog(
+            context: context,
+            builder: (context)=> AlertDialog(
+              title: const Text(
+                'pay it for unlock',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 25,
+                  color: Colors.teal,
+                ),
+              ),
+              elevation: 10,
+              content:  Text(
+                'you will pay ${cuibt.getPoint(index)} point to unlock this lecture',
+                style: const TextStyle(
+                  fontWeight: FontWeight.normal,
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+              ),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      cubit.secure(index: index,context: context);
+                    },
+                    child: const Text(
+                      'Ok',
+                      style: TextStyle(
+                        color: Colors.teal,
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    )),
+              ],
+            ),
+          );
+          }
+          else {
+            cubit.weekTemplateChangeIndex(index);
+          }
+        }
       },
       child: Stack(
         alignment: Alignment.topRight,
@@ -104,18 +194,21 @@ class LectureScreen extends StatelessWidget {
             ],
           ),
           ConditionalBuilder(
-            condition:cuibt.locked[index],
-            fallback:(context) {
-              return const Center(
-                  child: Icon(Icons.lock_open_outlined,size: 20,)
-              );
-            } ,
-            builder: (context) {
-              return const Center(
-                child: Icon(Icons.lock_outline_rounded,size: 20,)
-              );
-            }
-          )
+              condition: !cuibt.locked[index],
+              fallback: (context) {
+                return const Center(
+                    child: Icon(
+                  Icons.lock_open_outlined,
+                  size: 20,
+                ));
+              },
+              builder: (context) {
+                return const Center(
+                    child: Icon(
+                  Icons.lock_outline_rounded,
+                  size: 20,
+                ));
+              })
         ],
       ),
     );

@@ -40,8 +40,9 @@ dependencies:
   lottie: ^1.4.2
   barcode_widget: ^2.0.2
   flutter_barcode_scanner: ^2.0.0
-
-
+#to get pdf from url and show it
+  internet_file: ^1.2.0
+  pdfx: ^2.2.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
