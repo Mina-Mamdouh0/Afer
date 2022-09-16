@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ConnectionNotifier(
+
       child:  BlocProvider(
         create: (BuildContext context) => AppCubit(),
         child: MaterialApp(

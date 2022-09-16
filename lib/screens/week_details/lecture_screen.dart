@@ -79,13 +79,7 @@ super.initState();
                       fontWeight: FontWeight.bold,
                       fontSize: MediaQuery.of(context).size.width * 0.06)),
             ),
-            body: ConditionalBuilder(
-              condition: cubit.pdf.linkPdf != null||cubit.video.linkVideo != null,
-              fallback: (context) => const Center(
-                child: CircularProgressIndicator(),
-              ),
-              builder: (context) {
-                return Container(
+            body: Container(
                     padding: const EdgeInsets.only(top: 10.0),
                     child: Column(children: [
                       Row(
@@ -95,9 +89,8 @@ super.initState();
                       Expanded(
                         child: cubit.lectureScreen[cubit.weekTemplateCurrentIndex],
                       )
-                    ]));
-              }
-            ),
+                    ]))
+
           );
         });
   }

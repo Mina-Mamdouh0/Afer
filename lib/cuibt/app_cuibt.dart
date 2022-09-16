@@ -20,7 +20,6 @@ import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../model/lecture.dart';
 import '../screens/payid.dart';
-
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -108,7 +107,8 @@ class AppCubit extends Cubit<AppState> {
   List<Subject> thirdYear = [];
   List<Subject> fourthYear = [];
   String academicYear = "First year";
-  String semester = DateTime.now().month >= 9 ? "First semester" : "Second semester";
+  String semester =
+      DateTime.now().month >= 9 ? "First semester" : "Second semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
 
@@ -209,6 +209,7 @@ class AppCubit extends Cubit<AppState> {
       });
     });
   }
+
   void updateProfilePhoto() {
     FirebaseStorage.instance
         .ref()
@@ -255,7 +256,6 @@ class AppCubit extends Cubit<AppState> {
           user.sevenSubjects!.isNotEmpty) {
         subjects.add(Subject.fromJson(value.get("sevenSubjects")));
       }
-      changeIndex(0);
 
       emit(GetUserInfoSuccess());
     }).catchError((error) {
@@ -358,9 +358,8 @@ class AppCubit extends Cubit<AppState> {
   void updateProfile() {
     updatePassword();
     user = UserModule(
-
       uid: user.uid,
-      profileUrl:profileUrl??user.profileUrl ,
+      profileUrl: profileUrl ?? user.profileUrl,
       firstName: usernameController.text,
       secondName: username2Controller.text,
       email: user.email,
@@ -398,13 +397,18 @@ class AppCubit extends Cubit<AppState> {
 
 // to add new subject into map to get it from data base
   void addSubject(String Year, Subject subject, value, int index) {
+    print("this is $value");
     if (value == false) {
-     var itemIndex= subjects.indexWhere((element) => element.isEqutaple(subject));
+      var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
       subjects.removeAt(itemIndex);
+      print("this is $subjects");
+      emit(MakeMapSubjectState());
+
     } else {
       subjects.insert(subjects.length, subject);
+      emit(MakeMapSubjectState());
+
     }
-    emit(MakeMapSubjectState());
   }
 
   // to make check box true or false
@@ -718,8 +722,8 @@ class AppCubit extends Cubit<AppState> {
     getInfo(user.uid!);
   }
 
-  void secure({required int index,required context}) {
-    if(getPoint(index)<int.parse(user.points!)) {
+  void secure({required int index, required context}) {
+    if (getPoint(index) < int.parse(user.points!)) {
       if (index == 0) {
         secureDataPdf(pdfId: pdf.id!);
       }
@@ -731,12 +735,11 @@ class AppCubit extends Cubit<AppState> {
       }
       getAllSucre();
       getInfo(user.uid!);
-    }else{
+    } else {
       print("you don't have enough points");
       MotionToast.error(
         description: const Text("You don't have enough points"),
-        title:
-        const Text("Error while paying"),
+        title: const Text("Error while paying"),
         height: 100,
         width: 350,
         animationDuration: const Duration(milliseconds: 900),
@@ -747,13 +750,11 @@ class AppCubit extends Cubit<AppState> {
           milliseconds: 600,
         ),
         animationType: AnimationType.fromBottom,
-
       ).show(context);
     }
   }
 
   int getPoint(index) {
-
     if (index == 0) {
       return int.tryParse(pdf.point!) ?? 0;
     }
@@ -761,24 +762,26 @@ class AppCubit extends Cubit<AppState> {
       return int.tryParse(video.point!) ?? 0;
     }
     if (index == 2) {
-      return int.tryParse(photo.point!)?? 0;
+      return int.tryParse(photo.point!) ?? 0;
     } else {
       return 0;
     }
   }
-bool getIfPayed(index){
-    if(index==0){
-      return pdf.isPaid??false;
+
+  bool getIfPayed(index) {
+    if (index == 0) {
+      return pdf.isPaid ?? false;
     }
-    if(index==1){
-      return video.isPaid??false;
+    if (index == 1) {
+      return video.isPaid ?? false;
     }
-    if(index==2){
-      return photo.isPaid??false;}
-    else{
+    if (index == 2) {
+      return photo.isPaid ?? false;
+    } else {
       return false;
     }
-}
+  }
+
   void getAllSucre() {
     getIfPdfPayed(uidPdf: pdf.id!);
     getIfVideoPayed(uidVideo: video.id!);

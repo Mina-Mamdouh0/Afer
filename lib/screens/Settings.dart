@@ -73,6 +73,8 @@ class Setting extends StatelessWidget {
                                 fct: () {
                                   if (cubit.subjects.length <= 7) {
                                     cubit.ChooseSubject();
+                                    cubit.changeIndex(0);
+
                                   } else {
                                     MotionToast.error(
                                       description: const Text(
@@ -206,7 +208,8 @@ class Setting extends StatelessWidget {
   ExpansionTile generateSubExpansion(List<Subject> year, title, nameYear) {
     return ExpansionTile(
         onExpansionChanged: (value) {
-          cubit.getAllSubject(nameYear, "First semester");
+          cubit.getAllSubject(nameYear,cubit.semester);
+          print("i changed");
         },
         title: Text(
           title,
