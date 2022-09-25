@@ -1,12 +1,15 @@
 import 'package:afer/const/colors_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
+import 'package:afer/model/pdf.dart';
+import 'package:afer/model/video.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../const/photo_manger.dart';
+import '../../model/photo.dart';
 import '../../translations/locale_keys.g.dart';
 
 class LectureScreen extends StatefulWidget {
@@ -97,6 +100,7 @@ super.initState();
 @override
   void dispose() {
 cubit.locked=[false,false,false,true];
+
     super.dispose();
   }
   Widget tabBuilder(int index, AppCubit cuibt, context) {

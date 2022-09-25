@@ -118,7 +118,7 @@ class AppCubit extends Cubit<AppState> {
   Video video = Video();
   Photo photo = Photo();
   Pdf pdf = Pdf();
-  Uint8List? bytes;
+  Uint8List bytes=Uint8List(0);
   bool videoLocked = false;
   bool photoLocked = false;
   bool pdfLocked = false;
@@ -402,13 +402,10 @@ class AppCubit extends Cubit<AppState> {
       var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
       subjects.removeAt(itemIndex);
       print("this is $subjects");
-      emit(MakeMapSubjectState());
-
     } else {
       subjects.insert(subjects.length, subject);
-      emit(MakeMapSubjectState());
-
     }
+    emit(MakeMapSubjectState());
   }
 
   // to make check box true or false
@@ -571,6 +568,10 @@ class AppCubit extends Cubit<AppState> {
     required String lectureName,
   }) async {
     weekTemplateCurrentIndex = 0;
+    pdf=Pdf(point: "0", linkPdf: '', description: '', id: '',isPaid: false);
+    video=Video(point: "0", linkVideo:  '', description: '', id: '',isPaid: false);
+    photo=Photo(point: "0", linkPhoto:  '', description: '', id: '',isPaid: false);
+    bytes = Uint8List(0);
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,
@@ -587,7 +588,6 @@ class AppCubit extends Cubit<AppState> {
         subjectName: subjectName,
         lectureName: lectureName);
     weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
-    print(locked);
   }
 
   void changeLocale(BuildContext context, language) {
