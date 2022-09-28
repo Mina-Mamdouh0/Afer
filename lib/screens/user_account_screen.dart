@@ -235,7 +235,7 @@ class UserAccountScreen extends StatelessWidget {
                  onPressed: () => cubit.changeObscureSignUp(),
                ),
                onFieldSubmitted: (_){
-                 if (cubit.SignUpFormKey.currentState!.validate()) {
+                 if (cubit.signUpFormKey.currentState!.validate()) {
                    cubit.signUp(context);
                  }},
                obscureText: cubit.isObscureSignup,
@@ -265,9 +265,7 @@ class UserAccountScreen extends StatelessWidget {
              const SizedBox(
                height: 20,
              ),
-
-
-             MainButton(text: LocaleKeys.update,
+             MainButton(text: LocaleKeys.editInformation.tr(),
                  fct: () {
                    if(cubit.userFormKey.currentState!.validate()) {
                      cubit.updateProfile();

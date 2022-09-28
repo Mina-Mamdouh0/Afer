@@ -1,6 +1,9 @@
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
+import 'package:afer/translations/locale_keys.g.dart';
+import 'package:afer/widget/widget.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -75,7 +78,30 @@ class _ShowVideoState extends State<ShowVideo> {
                           child: Text(AppCubit.get(context).video.description!,
                               style: const TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold)),
-                        )
+                        ),
+                        BlocProvider.of<AppCubit>(context).showImageUnderVideo?
+                        ListView.builder(
+                            itemCount: 10,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index){
+                              return Container(
+                                margin: const EdgeInsets.all(10),
+                                width: double.infinity,
+                                height: 200,
+                                color: Colors.pinkAccent,
+                              );
+                            }):
+                        SizedBox(
+                          width: 120,
+                          child: MainButton(
+                            fct: (){
+                              BlocProvider.of<AppCubit>(context).showImageVideo();
+                            },
+                            text:LocaleKeys.summary.tr() ,
+                          ),
+                        ),
+
                       ]),
                     )),
               );

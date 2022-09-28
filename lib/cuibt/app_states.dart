@@ -32,3 +32,4 @@ class SecureDataSuccessfully extends AppState{}
 class SecureDataFailed extends AppState{}
 class LosePointsSuccessfully extends AppState{}
 class LosePointsFailed extends AppState{}
+class ShowImageUnderVideo extends AppState{}

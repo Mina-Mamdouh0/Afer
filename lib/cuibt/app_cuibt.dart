@@ -4,9 +4,10 @@ import 'dart:typed_data';
 import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
+import 'package:afer/screens/week_details/feedback_screen.dart';
+import 'package:afer/screens/week_details/show_alerts.dart';
 import 'package:afer/screens/week_details/show_lecture.dart';
 import 'package:afer/screens/week_details/show_question.dart';
-import 'package:afer/screens/week_details/show_summary.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -19,7 +20,7 @@ import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../model/lecture.dart';
-import '../screens/payid.dart';
+
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -49,11 +50,11 @@ class AppCubit extends Cubit<AppState> {
   // Home Layout Screen variables
 
   List<Widget> lectureScreen = [
-    ShowLecture(),
+    const ShowLecture(),
     const ShowVideo(),
-    ShowSummery(),
     ShowQuestion(),
-    const NotPayed(),
+    const ShowAlerts(),
+    FeedBackScreen(),
   ];
   int currentIndex = 0;
   int indexRegisterScreen = 0;
@@ -72,7 +73,6 @@ class AppCubit extends Cubit<AppState> {
   void weekTemplateChangeIndex(int index) {
     if (weekTemplateCurrentIndex != index) {
       weekTemplateCurrentIndex = index;
-      print(weekTemplateCurrentIndex);
       emit(WeekTemplateChangeIndex());
     }
   }
@@ -88,7 +88,7 @@ class AppCubit extends Cubit<AppState> {
   var confirmPasswordController = TextEditingController();
   var phoneNumberController = TextEditingController();
   bool isObscureSignup = true;
-  var SignUpFormKey = GlobalKey<FormState>();
+  var signUpFormKey = GlobalKey<FormState>();
   int points = 0;
   //user Screen variables
   var userEmailController = TextEditingController();
@@ -122,13 +122,12 @@ class AppCubit extends Cubit<AppState> {
   bool videoLocked = false;
   bool photoLocked = false;
   bool pdfLocked = false;
-  List<bool> locked = [false, false, false, true];
+  List<bool> locked = [false, false, false, true,false];
   bool isObscureEditInfo = true;
 
   //Settings Screen Functions
 
   void changeObscure() {
-    print(isObscureEditInfo);
     isObscureEditInfo = !isObscureEditInfo;
     emit(ChangeObscureState());
   }
@@ -184,13 +183,11 @@ class AppCubit extends Cubit<AppState> {
       semester: "First semester",
       academicYear: academicYear,
     );
-    print(uid);
     FirebaseFirestore.instance
         .collection("Users")
         .doc(uid)
         .set(user.toJson())
         .then((value) {
-      print("user created");
       emit(CreateAccountSuccess());
     }).catchError((error) {
       log(error.toString());
@@ -259,20 +256,18 @@ class AppCubit extends Cubit<AppState> {
 
       emit(GetUserInfoSuccess());
     }).catchError((error) {
-      print("this is $error");
       emit(GetUserInfoFailed());
     });
   }
 
   void signUp(context) {
-    print(" this is ${emailController.text}");
+    //print(" this is ${emailController.text}");
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(
             email: emailController.text, password: passwordController.text)
         .then((value) {
-      print(value.user!.uid);
       createAccount(value.user!.uid);
-      navigator(context: context, page: const SignScreen(), returnPage: false);
+      navigator(context: context, page: const AuthScreen(), returnPage: false);
     }).catchError((error) {
       log(error.toString());
       emit(CreateAccountFailed());
@@ -312,7 +307,7 @@ class AppCubit extends Cubit<AppState> {
 
   void signOut(context) {
     FirebaseAuth.instance.signOut().then((value) {
-      navigator(context: context, page: const SignScreen(), returnPage: false);
+      navigator(context: context, page: const AuthScreen(), returnPage: false);
       sherdprefrence.removedate(key: "token");
       emit(LogOut());
     });
@@ -323,7 +318,7 @@ class AppCubit extends Cubit<AppState> {
     emit(ToggleRememberMe());
   }
 
-  void ChooseSubject() {
+  void chooseSubject() {
     user = UserModule(
       uid: user.uid,
       profileUrl: user.profileUrl,
@@ -396,12 +391,10 @@ class AppCubit extends Cubit<AppState> {
   }
 
 // to add new subject into map to get it from data base
-  void addSubject(String Year, Subject subject, value, int index) {
-    print("this is $value");
+  void addSubject(String year, Subject subject, value, int index) {
     if (value == false) {
       var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
       subjects.removeAt(itemIndex);
-      print("this is $subjects");
     } else {
       subjects.insert(subjects.length, subject);
     }
@@ -464,12 +457,12 @@ class AppCubit extends Cubit<AppState> {
         .collection("Lecture")
         .get()
         .then((value) {
-      print(value.docs.length);
+      //print(value.docs.length);
       for (var element in value.docs) {
         lectures.add(Lecture.fromJson(element.data()));
       }
     }).catchError((onError) {
-      print(onError.toString());
+     // print(onError.toString());
     });
     return lectures;
   }
@@ -620,14 +613,14 @@ class AppCubit extends Cubit<AppState> {
   void getIfVideoPayed({required String uidVideo}) {
     getSecureReference(type: "video", uidItem: uidVideo).then((value) {
       locked[1] = value;
-      print("this vidoe $value");
+      //print("this vidoe $value");
     });
   }
 
   void getIfPdfPayed({required String uidPdf}) {
     getSecureReference(type: "Pdf", uidItem: uidPdf).then((value) {
       locked[0] = value;
-      print(value);
+      //print(value);
     });
   }
 
@@ -674,7 +667,9 @@ class AppCubit extends Cubit<AppState> {
         .set({"uid": user.uid!, "videoId": videoId}).then((value) {
       losePoints(point: int.tryParse(video.point!) ?? 0);
       emit(SecureDataSuccessfully());
-    }).catchError((onError) => emit(SecureDataFailed()));
+    }).catchError((onError) {
+      emit(SecureDataFailed());
+    });
   }
 
   void secureDataPdf({pdfId}) {
@@ -682,7 +677,9 @@ class AppCubit extends Cubit<AppState> {
         .set({"uid": user.uid, "pdfId": pdfId}).then((value) {
       losePoints(point: int.tryParse(pdf.point!) ?? 0);
       emit(SecureDataSuccessfully());
-    }).catchError((onError) => emit(SecureDataFailed()));
+    }).catchError((onError) {
+      emit(SecureDataFailed());
+    });
   }
 
   void secureDataPhoto({photoId}) {
@@ -690,7 +687,9 @@ class AppCubit extends Cubit<AppState> {
         .set({"uid": user.uid, "photoId": photoId}).then((value) {
       losePoints(point: int.tryParse(pdf.point!) ?? 0);
       emit(SecureDataSuccessfully());
-    }).catchError((onError) => emit(SecureDataFailed()));
+    }).catchError((onError) {
+      emit(SecureDataFailed());
+    });
   }
 
   void secureDataExam({examId}) {
@@ -698,7 +697,9 @@ class AppCubit extends Cubit<AppState> {
         .set({"uid": user.uid, "examId": examId}).then((value) {
       losePoints(point: int.parse(video.point!));
       emit(SecureDataSuccessfully());
-    }).catchError((onError) => emit(SecureDataFailed()));
+    }).catchError((onError){
+      emit(SecureDataFailed());
+    });
   }
 
   void losePoints({required int point}) {
@@ -712,7 +713,7 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void pointsIncrease({required int point}) {
-    print("this is point $point");
+    //print("this is point $point");
     FirebaseFirestore.instance
         .collection("Users")
         .doc(user.uid)
@@ -736,7 +737,7 @@ class AppCubit extends Cubit<AppState> {
       getAllSucre();
       getInfo(user.uid!);
     } else {
-      print("you don't have enough points");
+      //print("you don't have enough points");
       MotionToast.error(
         description: const Text("You don't have enough points"),
         title: const Text("Error while paying"),
@@ -786,5 +787,11 @@ class AppCubit extends Cubit<AppState> {
     getIfPdfPayed(uidPdf: pdf.id!);
     getIfVideoPayed(uidVideo: video.id!);
     getIfPhotoPayed(uidPhoto: photo.id!);
+  }
+
+  bool showImageUnderVideo=false;
+  void showImageVideo(){
+    showImageUnderVideo=true;
+    emit(ShowImageUnderVideo());
   }
 }

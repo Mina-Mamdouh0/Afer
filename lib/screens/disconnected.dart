@@ -19,8 +19,7 @@ class _DisConnectedState extends State<DisConnected> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children:  [
-Lottie.asset(PhotoManger.lostConnection),
-
+           Lottie.asset(PhotoManger.lostConnection),
         ],
       ),
     );

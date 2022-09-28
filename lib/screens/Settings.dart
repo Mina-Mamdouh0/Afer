@@ -49,30 +49,28 @@ class Setting extends StatelessWidget {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 15),
                               ),
-                              leading: CircleAvatar(
+                              leading: const CircleAvatar(
                                   radius: 18,
                                   backgroundColor: Colors.deepPurpleAccent,
-                                  child: IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(
-                                        Icons.settings,
-                                        color: Colors.white,
-                                        size: 15,
-                                      ))),
+                                  child: Icon(
+                                    Icons.settings,
+                                    color: Colors.white,
+                                    size: 15,
+                                  )),
                               children: [
                             generateSubExpansion(cubit.firstYear,
                                 LocaleKeys.firstYear.tr(), "First Year"),
                             generateSubExpansion(cubit.secondYear,
-                                LocaleKeys.secondyear.tr(), "Second Year"),
+                                LocaleKeys.secondYear.tr(), "Second Year"),
                             generateSubExpansion(cubit.thirdYear,
                                 LocaleKeys.thirdYear.tr(), "Third Year"),
                             generateSubExpansion(cubit.fourthYear,
                                 LocaleKeys.fourthYear.tr(), "Fourth Year"),
                             MainButton(
-                                text: 'تم',
+                                text: LocaleKeys.confirm,
                                 fct: () {
                                   if (cubit.subjects.length <= 7) {
-                                    cubit.ChooseSubject();
+                                    cubit.chooseSubject();
                                     cubit.changeIndex(0);
 
                                   } else {
@@ -121,16 +119,14 @@ class Setting extends StatelessWidget {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 15),
                               ),
-                              leading: CircleAvatar(
+                              leading: const CircleAvatar(
                                   radius: 18,
                                   backgroundColor: Colors.deepPurpleAccent,
-                                  child: IconButton(
-                                      onPressed: () {},
-                                      icon: const Icon(
-                                        Icons.translate,
-                                        color: Colors.white,
-                                        size: 15,
-                                      ))),
+                                  child: Icon(
+                                    Icons.translate,
+                                    color: Colors.white,
+                                    size: 15,
+                                  )),
                               children: List.generate(
                                   2,
                                   (index) => generateLanguageListTile(
@@ -142,7 +138,44 @@ class Setting extends StatelessWidget {
                     text: LocaleKeys.signOut.tr(),
                     icons: Icons.logout,
                     fct: () {
-                      cubit.signOut(context);
+                      showDialog(
+                          context: context,
+                          builder: (context){
+                            return AlertDialog(
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children:const  [
+                                  Icon(Icons.logout,color: Colors.deepPurpleAccent,),
+                                  SizedBox(width: 5,),
+                                  Text('Sign out',style: TextStyle(
+                                      fontSize: 18,
+                                      fontStyle: FontStyle.italic
+                                  ),),
+                                ],
+                              ),
+                              content:const Text('Do you wanna Sign out ? ',
+                                style: TextStyle(
+                                    fontSize: 15
+                                ),),
+                              actions: [
+                                TextButton(onPressed: (){
+                                  Navigator.canPop(context)?Navigator.pop(context):null;
+                                },
+                                    child:const Text('Cancel',
+                                      style: TextStyle(
+                                          color: Colors.deepPurpleAccent,
+                                      ),)),
+                                TextButton(onPressed: (){
+                                  cubit.signOut(context);
+                                },
+                                    child:const Text('ok',
+                                      style: TextStyle(
+                                          color: Colors.red
+                                      ),))
+                              ],
+                            );
+                          });
+
                     }),
               ],
             ),
@@ -164,13 +197,11 @@ class Setting extends StatelessWidget {
             CircleAvatar(
                 radius: 18,
                 backgroundColor: Colors.deepPurpleAccent,
-                child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      icons,
-                      color: Colors.white,
-                      size: 20,
-                    ))),
+                child: Icon(
+                  icons,
+                  color: Colors.white,
+                  size: 20,
+                )),
             const SizedBox(
               width: 20,
             ),
@@ -191,7 +222,7 @@ class Setting extends StatelessWidget {
 
   ListTile generateLanguageListTile(BuildContext context, index) {
     return ListTile(
-      selectedTileColor: Colors.teal,
+      selectedTileColor: Colors.deepPurpleAccent,
       selected: context.locale.toString() == "ar" ? index == 0 : index == 1,
       title: Text(languages[index],
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
@@ -209,7 +240,6 @@ class Setting extends StatelessWidget {
     return ExpansionTile(
         onExpansionChanged: (value) {
           cubit.getAllSubject(nameYear,cubit.semester);
-          print("i changed");
         },
         title: Text(
           title,

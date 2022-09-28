@@ -2,20 +2,82 @@ import 'package:afer/const/colors_manger.dart';
 import 'package:afer/const/photo_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
+import 'package:afer/screens/Settings.dart';
 import 'package:afer/screens/disconnected.dart';
+import 'package:afer/screens/message_screen.dart';
 import 'package:afer/screens/payment_screen.dart';
+import 'package:afer/screens/subjects_screen.dart';
 import 'package:afer/widget/widget.dart';
+import 'package:circular_bottom_navigation/circular_bottom_navigation.dart';
+import 'package:circular_bottom_navigation/tab_item.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:connection_notifier/connection_notifier.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconly/iconly.dart';
-import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import '../translations/locale_keys.g.dart';
 
-class HomeLayout extends StatelessWidget {
+class HomeLayout extends StatefulWidget {
 
+  @override
+  State<HomeLayout> createState() => _HomeLayoutState();
+}
+
+class _HomeLayoutState extends State<HomeLayout> {
+
+  int selectedPos = 0;
+
+  double bottomNavBarHeight = 60;
+
+  List<TabItem> tabItems = List.of([
+  TabItem(
+  IconlyLight.home,
+    'الرئيسية',
+  Colors.blue,
+  labelStyle: const TextStyle(
+  color: Colors.blue,
+  fontWeight: FontWeight.normal,
+  )),
+  TabItem(
+   IconlyLight.activity,
+    'الاخبار',
+  Colors.orange,
+  labelStyle: const TextStyle(
+  color: Colors.orange,
+  fontWeight: FontWeight.normal,
+  ),
+  ),
+  TabItem(
+    IconlyLight.message,
+   'الرسائل',
+  Colors.red,
+      labelStyle: const TextStyle(
+        color: Colors.red,
+        fontWeight: FontWeight.normal,
+      )
+  ),
+  TabItem(
+    IconlyLight.setting,
+    'الإعدادات',
+  Colors.cyan,
+      labelStyle: const TextStyle(
+        color: Colors.cyan,
+        fontWeight: FontWeight.normal,
+      )
+  ),
+  ]);
+
+
+
+
+  late CircularBottomNavigationController _navigationController;
+
+  @override
+  void initState() {
+  super.initState();
+  _navigationController = CircularBottomNavigationController(selectedPos);
+  }
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -33,6 +95,7 @@ class HomeLayout extends StatelessWidget {
                builder: (context) {
                  return ConnectionNotifierToggler(
                    connected: Scaffold(
+                     backgroundColor: Colors.white,
                       appBar:AppBar(
                         elevation: 0,
                         centerTitle: true,
@@ -71,17 +134,20 @@ class HomeLayout extends StatelessWidget {
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.normal,
+                                            fontFamily: 'Stoor',
                                             fontSize: size.width*0.035,
                                           ),),
                                           Text(cubit.user.academicYear!,
                                             style: TextStyle(
                                                 color: Colors.white,
+                                              fontFamily: 'Stoor',
                                                 fontWeight: FontWeight.normal,
                                                 fontSize: size.width*0.035,
                                             ),),
                                           Text(cubit.user.points!,
                                             style: TextStyle(
                                                 color: Colors.white,
+                                              fontFamily: 'Stoor',
                                                 fontWeight: FontWeight.normal,
                                                 fontSize: size.width*0.035,
                                             ),)
@@ -101,13 +167,13 @@ class HomeLayout extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-
-
                                     ],
                                   ),
                                 ),
                                 Expanded(
-                                  child: Container(),
+                                  child: Container(
+                                    color: Colors.white,
+                                  ),
                                 ),
 
                               ],
@@ -132,46 +198,85 @@ class HomeLayout extends StatelessWidget {
                           ],
                         ),
                       ),
-                       body: cubit.screens[cubit.currentIndex],
-                       bottomNavigationBar:SlidingClippedNavBar(
-                       activeColor: ColorsManger.iconsBackgroundColor,
-                       barItems: [
-                          BarItem(
-                            icon: IconlyLight.home,
-                            title: LocaleKeys.home.tr(),
-                          ),
-                          BarItem(
-                            icon: IconlyLight.activity,
-                           title: LocaleKeys.news.tr(),
-                          ),
-                          BarItem(
-                            icon: IconlyLight.message,
-                            title: LocaleKeys.messages.tr(),
-                          ),
-                          BarItem(
-                            icon: IconlyLight.setting,
-                            title: LocaleKeys.setting.tr(),
-                          ),
-                        ],
-                       onButtonPressed: (index) {
-                         cubit.changeIndex(index);
-                       },
-                       selectedIndex: cubit.currentIndex,
-                       backgroundColor: Colors.white,
-                       inactiveColor: ColorsManger.appbarColor,
-                       fontSize: 20,
-                       fontWeight: FontWeight.bold,
-                       iconSize: 35,
 
-                     )
+
+                       body: Stack(
+                         children: <Widget>[
+                           Padding(
+                             padding: EdgeInsets.only(bottom: bottomNavBarHeight),
+                             child:bodyContainer(),
+                           ),
+
+                           Align(alignment: Alignment.bottomCenter, child: bottomNav())
+                         ],
+                       ),
+
                     ),
                    disconnected: const DisConnected(),
-
-
                  );
                }
              );
             });
   }
 
+  Widget bodyContainer() {
+    Widget screen;
+    switch (selectedPos) {
+      case 0:
+        screen = const SubjectsScreen();
+        break;
+      case 1:
+        screen = MessageScreen();
+        break;
+      case 2:
+        screen = MessageScreen();
+        break;
+      case 3:
+        screen = Setting();
+        break;
+      default:
+        screen = Container();
+        break;
+    }
+
+    return GestureDetector(
+      child: screen,
+      onTap: () {
+        if (_navigationController.value == tabItems.length - 1) {
+          _navigationController.value = 0;
+        } else {
+          _navigationController.value = _navigationController.value! + 1;
+        }
+      },
+    );
+  }
+
+  Widget bottomNav() {
+    return CircularBottomNavigation(
+      tabItems,
+      controller: _navigationController,
+      selectedPos: selectedPos,
+      barHeight: bottomNavBarHeight,
+      barBackgroundColor: Colors.white,
+      backgroundBoxShadow: const <BoxShadow>[
+        BoxShadow(color: Colors.black45, blurRadius: 10.0),
+      ],
+      animationDuration: const Duration(milliseconds: 300),
+      selectedCallback: (int? selectedPos) {
+        setState(() {
+          this.selectedPos = selectedPos ?? 0;
+        });
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _navigationController.dispose();
+  }
 }
+
+
+
+

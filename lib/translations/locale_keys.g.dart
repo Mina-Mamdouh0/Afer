@@ -25,7 +25,6 @@ abstract class  LocaleKeys {
   static const points = 'points';
   static const scanParCode = 'scanParCode';
   static const serviceNot = 'serviceNot';
-  static const serviceSoon = 'serviceSoon';
   static const week = 'week';
   static const firstWeek = 'firstWeek';
   static const second = 'second';
@@ -36,17 +35,18 @@ abstract class  LocaleKeys {
   static const moneyHint = 'moneyHint';
   static const moneyHint1 = 'moneyHint1';
   static const weeks = 'weeks';
-  static const  lecture = ' lecture';
-  static const video = 'video';
-  static const Summary = 'Summary';
-  static const questions = 'questions';
-  static const secondyear = 'secondyear';
+  static const read = 'read';
+  static const listen = 'listen';
+  static const feedback = 'feedback';
+  static const training = 'training';
+  static const alerts = 'alerts';
+  static const summary = 'summary';
+  static const secondYear = 'secondyear';
   static const  thirdYear = ' thirdYear';
   static const firstYear = 'firstYear';
   static const fourthYear = 'fourthYear';
   static const rememberMe = 'rememberMe';
   static const technicalSupport = 'technicalSupport';
   static const editInformation = 'editInformation';
-  static const update = 'update';
 
 }

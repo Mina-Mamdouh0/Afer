@@ -1,4 +1,6 @@
 
+import 'dart:io';
+
 import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
@@ -6,6 +8,7 @@ import 'package:afer/widget/widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../translations/locale_keys.g.dart';
 
 class SignupScreen extends StatelessWidget {
@@ -21,7 +24,7 @@ class SignupScreen extends StatelessWidget {
         var cubit = AppCubit.get(context);
         return SingleChildScrollView(
           child: Form(
-            key: cubit.SignUpFormKey,
+            key: cubit.signUpFormKey,
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Column(
@@ -31,7 +34,7 @@ class SignupScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
+                      Flexible(
                         child: TheTextFiled(
                           controller:cubit.nameController ,
                           hintText:  LocaleKeys.firstNameHint.tr(),
@@ -47,24 +50,120 @@ class SignupScreen extends StatelessWidget {
                           labelText:  LocaleKeys.firstNameHint.tr(),
                         )),
                       const SizedBox(width: 5,),
-
-                      Expanded(
-                          child: TheTextFiled(
-                            controller:cubit.lastNameController ,
-                            hintText:  LocaleKeys.secondNameHint.tr(),
-                            validator: (value) {
-                              if (value!.isEmpty) {
-                                return "Please Enter Your second Name";
-                              }
-                              return null;
-                            },
-                            keyboardType:TextInputType.text ,
-                            prefix: Icons.perm_identity_rounded,
-                            textInputAction: TextInputAction.next,
-                            labelText:  LocaleKeys.secondNameHint.tr(),
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          Container(
+                            width:70,
+                            height: kBottomNavigationBarHeight,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                            ),
+                            child: cubit.file==null?
+                            Image.network('https://media.istockphoto.com/photos/businessman-silhouette-as-avatar-or-default-profile-picture-picture-id476085198?s=612x612',
+                              fit: BoxFit.fill,):
+                            Image.file(File(cubit.file!.path),
+                              fit: BoxFit.fill,),
                           ),
-                      ),
+                          GestureDetector(
+                            onTap: (){
+                              showDialog(context: context,
+                                  builder: (context){
+                                    return AlertDialog(
+                                      title:const  Text(
+                                        'Please choose an option',
+                                        style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold
+                                        ),
+                                      ),
+
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          InkWell(
+                                            onTap: ()async{
+                                              Navigator.pop(context);
+                                              XFile? picked=await ImagePicker().pickImage(source: ImageSource.camera,maxHeight: 1080,maxWidth: 1080);
+                                              if(picked !=null){
+                                                cubit.takeImage(picked);
+                                              }
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                children: const [
+                                                  Icon(Icons.photo,color: Colors.purple,),
+                                                  SizedBox(width: 10,),
+                                                  Text('Camera',
+                                                    style: TextStyle(
+                                                        color: Colors.purple,fontSize: 20
+                                                    ),)
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          InkWell(
+                                            onTap: ()async{
+                                              Navigator.pop(context);
+                                              XFile? picked=await ImagePicker().pickImage(source: ImageSource.gallery,maxHeight: 1080,maxWidth: 1080);
+                                              if(picked !=null){
+                                                cubit.takeImage(picked);
+                                              }
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(8.0),
+                                              child: Row(
+                                                children: const [
+                                                  Icon(Icons.camera,color: Colors.purple,),
+                                                  SizedBox(width: 10,),
+                                                  Text('Gallery',
+                                                    style: TextStyle(
+                                                        color: Colors.purple,fontSize: 20
+                                                    ),)
+                                                ],
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    );
+                                  });
+                            },
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(width: 2,
+                                      color: Colors.white),
+                                  color: Colors.pink
+                              ),
+                              child: Icon(cubit.file==null?Icons.camera_alt:Icons.edit,
+                                color: Colors.white,
+                                size: 20,),
+
+                            ),
+                          )
+                        ],
+                      )
                     ],
+                  ),
+                  SizedBox(height: size.height*0.02,),
+                  TheTextFiled(
+                    controller:cubit.lastNameController ,
+                    hintText:  LocaleKeys.secondNameHint.tr(),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return "Please Enter Your second Name";
+                      }
+                      return null;
+                    },
+                    keyboardType:TextInputType.text ,
+                    prefix: Icons.perm_identity_rounded,
+                    textInputAction: TextInputAction.next,
+                    labelText:  LocaleKeys.secondNameHint.tr(),
                   ),
                   SizedBox(height: size.height*0.02,),
                   DropdownButtonFormField(
@@ -98,7 +197,7 @@ class SignupScreen extends StatelessWidget {
                       ),
                       DropdownMenuItem(
                         value: "Second year",
-                        child: Text(LocaleKeys.secondyear.tr()),
+                        child: Text(LocaleKeys.secondYear.tr()),
                       ),
                       DropdownMenuItem(
                         value: "Third Year",
@@ -190,7 +289,7 @@ class SignupScreen extends StatelessWidget {
                       onPressed: () => cubit.changeObscureSignUp(),
                     ),
     onFieldSubmitted: (_){
-    if (cubit.SignUpFormKey.currentState!.validate()) {
+    if (cubit.signUpFormKey.currentState!.validate()) {
     cubit.signUp(context);
     }},
                     obscureText: cubit.isObscureSignup,
@@ -200,7 +299,7 @@ class SignupScreen extends StatelessWidget {
                   ),
                   SizedBox(height: size.height*0.02,),
                   MainButton(text: LocaleKeys.createAccount.tr(), fct: () {
-                    if(cubit.SignUpFormKey.currentState!.validate()) {
+                    if(cubit.signUpFormKey.currentState!.validate()) {
                       cubit.signUp(context);
                     }
                   },),

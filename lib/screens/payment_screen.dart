@@ -10,6 +10,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 
 
 class PaymentScreen extends StatelessWidget {
@@ -22,6 +23,7 @@ class PaymentScreen extends StatelessWidget {
             listener: (context,state){},
             builder: (context,state) {
               return Scaffold(
+                backgroundColor: Colors.white,
                 appBar: AppBar(
                   elevation: 0,
                   centerTitle: true,
@@ -44,13 +46,11 @@ class PaymentScreen extends StatelessWidget {
                           Text(BlocProvider.of<AppCubit>(context).user.points!,style: TextStyle(color: Colors.red,fontSize: 22),)
                         ],),
                       const Spacer(),
-                      BarcodeWidget(
-                        data:'minaminaminaminaminaminaminaminaminaminamina',
-                        barcode: Barcode.qrCode(),
-                        color: Colors.black,
-                        height: size.width*0.5,
-                        width:  size.width*0.5,
-                      ),
+
+                      Lottie.asset(PhotoManger.qrCode,
+                      fit: BoxFit.fill,
+                        height: size.width*0.8,
+                        width:  size.width*0.8,),
                       const Spacer(),
                       MainButton(
                     fct: (){

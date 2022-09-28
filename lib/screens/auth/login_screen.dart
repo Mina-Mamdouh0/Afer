@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
@@ -7,12 +6,11 @@ import 'package:afer/widget/widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:image_picker/image_picker.dart';
 import '../../const/photo_manger.dart';
 import '../../translations/locale_keys.g.dart';
 
-class SignScreen extends StatelessWidget {
-  const SignScreen({super.key});
+class AuthScreen extends StatelessWidget {
+  const AuthScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,123 +27,31 @@ class SignScreen extends StatelessWidget {
           length: 2,
           child: Scaffold(
             appBar: AppBar(
-              title:  Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  cubit.indexRegisterScreen==0?
-                  CircleAvatar(
-                    radius: size.width*0.15,
-                    backgroundImage: const AssetImage(PhotoManger.aferLogo),
-                    backgroundColor: Colors.transparent,
-                  ): Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Container(
-                        width:size.width*0.3,
-                        height: size.width*0.3,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                        ),
-                        child: cubit.file==null?
-                        Image.network('https://media.istockphoto.com/photos/businessman-silhouette-as-avatar-or-default-profile-picture-picture-id476085198?s=612x612',
-                          fit: BoxFit.fill,):
-                        Image.file(File(cubit.file!.path),
-                          fit: BoxFit.fill,),
+              flexibleSpace:SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: size.width*0.125,
+                      backgroundImage: const AssetImage(PhotoManger.logo),
+                      backgroundColor: Colors.transparent,
+                    ),
+                    Expanded(
+                      child: Text(
+                        LocaleKeys.welcome.tr(),
+                        softWrap: true,
+                        overflow: TextOverflow.visible,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: size.width*0.08,),
                       ),
-                      GestureDetector(
-                        onTap: (){
-                          showDialog(context: context,
-                              builder: (context){
-                                return AlertDialog(
-                                  title:const  Text(
-                                    'Please choose an option',
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold
-                                    ),
-                                  ),
-
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      InkWell(
-                                        onTap: ()async{
-                                          Navigator.pop(context);
-                                          XFile? picked=await ImagePicker().pickImage(source: ImageSource.camera,maxHeight: 1080,maxWidth: 1080);
-                                          if(picked !=null){
-                                            cubit.takeImage(picked);
-                                          }
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            children: const [
-                                              Icon(Icons.photo,color: Colors.purple,),
-                                              SizedBox(width: 10,),
-                                              Text('Camera',
-                                                style: TextStyle(
-                                                    color: Colors.purple,fontSize: 20
-                                                ),)
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      InkWell(
-                                        onTap: ()async{
-                                          Navigator.pop(context);
-                                          XFile? picked=await ImagePicker().pickImage(source: ImageSource.gallery,maxHeight: 1080,maxWidth: 1080);
-                                          if(picked !=null){
-                                            cubit.takeImage(picked);
-                                          }
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Row(
-                                            children: const [
-                                              Icon(Icons.camera,color: Colors.purple,),
-                                              SizedBox(width: 10,),
-                                              Text('Gallery',
-                                                style: TextStyle(
-                                                    color: Colors.purple,fontSize: 20
-                                                ),)
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              });
-                        },
-                        child: Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(width: 2,
-                                  color: Colors.white),
-                              color: Colors.pink
-                          ),
-                          child: Icon(cubit.file==null?Icons.camera_alt:Icons.edit,
-                            color: Colors.white,
-                            size: 20,),
-
-                        ),
-                      )
-                    ],
-                  ),
-                  Text(
-                    LocaleKeys.welcome.tr(),
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: size.width*0.08,),
-                  )
-                ],
-              ),
+                    )
+                  ],
+                ),
+              ) ,
               centerTitle: true,
               backgroundColor: const Color(0xFFEEEEEE),
               elevation: 0,
@@ -162,19 +68,18 @@ class SignScreen extends StatelessWidget {
                     LocaleKeys.signIn.tr(),
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: size.width*0.04,
+                        fontSize: size.width*0.05,
                         fontWeight: FontWeight.bold),
                   ),
                   Text(
                     LocaleKeys.signUp.tr(),
                     style: TextStyle(
                         color: Colors.black,
-                        fontSize: size.width*0.04,
+                        fontSize: size.width*0.05,
                         fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-
             ),
             body: const TabBarView(
                 children: [

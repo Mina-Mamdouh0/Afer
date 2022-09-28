@@ -56,7 +56,7 @@ class SubjectWidget extends StatefulWidget {
 class _SubjectWidgetState extends State<SubjectWidget> {
   _SubjectWidgetState({required this.subject});
   final Subject subject;
-  List<Lecture> lectures = [];
+  late List<Lecture> lectures = [];
   @override
   void initState() {
     AppCubit.get(context).getMyLectures(subject: subject).then((value) {
@@ -64,36 +64,50 @@ class _SubjectWidgetState extends State<SubjectWidget> {
         lectures = value;
       });
     });
-
-    print(lectures);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      color: Colors.white,
         width: double.infinity,
-        height: MediaQuery.of(context).size.height * 0.25,
-        padding: const EdgeInsets.symmetric(
-          horizontal: 5,
+        height: 200,
+        padding: const EdgeInsets.symmetric(horizontal: 5,
         ),
-        margin: const EdgeInsets.symmetric(
-          vertical: 5,
+        margin: const EdgeInsets.symmetric(vertical: 5,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(subject.name!,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: MediaQuery.of(context).size.width * 0.05,
-                  fontWeight: FontWeight.bold,
-                )),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.01,
+            Stack(
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: MediaQuery.of(context).size.height * 0.045,
+                  width: MediaQuery.of(context).size.height * 0.045,
+                  decoration: BoxDecoration(
+                    color: Colors.amber.withOpacity(0.4),
+                    shape: BoxShape.circle
+                  ),
+                ),
+                Text(subject.name!,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontFamily: 'Stoor',
+                      fontSize: MediaQuery.of(context).size.width * 0.065,
+                      fontWeight: FontWeight.normal,
+                      decoration: TextDecoration.underline
+                    )),
+              ],
             ),
-            Expanded(
+            const SizedBox(
+              height: 5,
+            ),
+            lectures.isEmpty?const Center(
+              child: CircularProgressIndicator(),
+            ):Expanded(
               child: ListView.builder(
                   itemCount: lectures.length,
                   scrollDirection: Axis.horizontal,
@@ -102,12 +116,12 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                       onTap:() =>navigator(context: context,returnPage: true,page: LectureScreen(academicYear:subject.academicYear!,subjectName: subject.name!,lectureName:lectures[index].lectureName!),),
                       child: Card(
                         color: Colors.white,
-                        elevation: 10,
+                        elevation: 5,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.6,
+                          width: MediaQuery.of(context).size.width * 0.62,
                           child: Padding(
                             padding: const EdgeInsets.all(10.0),
                             child: Column(
@@ -121,9 +135,10 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                   child: Text(lectures[index].lectureName!,
                                       style: TextStyle(
                                         color: Colors.black,
+                                        fontFamily: 'Rajab',
                                         fontSize:
                                             MediaQuery.of(context).size.width *
-                                                0.05,
+                                                0.055,
                                         fontWeight: FontWeight.bold,
                                         overflow: TextOverflow.visible,
                                       )),
@@ -155,16 +170,21 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                               fontSize: MediaQuery.of(context)
                                                       .size
                                                       .width *
-                                                  0.045,
-                                              fontWeight: FontWeight.bold,
+                                                  0.04,
+                                              fontFamily: 'Stoor',
+                                              fontWeight: FontWeight.normal,
                                               overflow: TextOverflow.visible,
                                             )),
                                         Row(
                                           children: List.generate(
                                               5,
-                                              (index) => const Icon(
+                                              (index) =>  Icon(
                                                     Icons.star,
                                                     color: Colors.amber,
+                                                size: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                    0.045,
                                                   )),
                                         )
                                       ],
@@ -172,23 +192,29 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                   ],
                                 ),
                                 Expanded(
-                                  child: Text(lectures[index].lectureDescription!,
-                                      softWrap: true,
-                                      maxLines:
-                                          context.locale == const Locale('ar')
-                                              ? 1
-                                              : 2,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.045,
-                                        fontWeight: FontWeight.bold,
-                                        overflow:
+
+                                  child: Align(
+                                    alignment:Alignment.center,
+                                    child: Text(lectures[index].lectureDescription!,
+                                        softWrap: true,
+                                        textAlign: TextAlign.center,
+                                        maxLines:
                                             context.locale == const Locale('ar')
-                                                ? TextOverflow.visible
-                                                : TextOverflow.ellipsis,
-                                      )),
+                                                ? 1
+                                                : 2,
+                                        style: TextStyle(
+                                          color: Colors.grey.shade700,
+                                          fontSize:
+                                              MediaQuery.of(context).size.width *
+                                                  0.045,
+                                          fontWeight: FontWeight.normal,
+                                          fontFamily: 'Stoor',
+                                          overflow:
+                                              context.locale == const Locale('ar')
+                                                  ? TextOverflow.visible
+                                                  : TextOverflow.ellipsis,
+                                        )),
+                                  ),
                                 ),
                               ],
                             ),
