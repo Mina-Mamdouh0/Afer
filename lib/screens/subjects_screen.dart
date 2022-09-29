@@ -71,162 +71,181 @@ class _SubjectWidgetState extends State<SubjectWidget> {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
-        width: double.infinity,
-        height: 200,
-        padding: const EdgeInsets.symmetric(horizontal: 5,
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 5,
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  height: MediaQuery.of(context).size.height * 0.045,
-                  width: MediaQuery.of(context).size.height * 0.045,
-                  decoration: BoxDecoration(
+      width: double.infinity,
+      height: 200,
+      padding: const EdgeInsets.symmetric(
+        horizontal: 5,
+      ),
+      margin: const EdgeInsets.symmetric(
+        vertical: 5,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Stack(
+            children: [
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                height: MediaQuery.of(context).size.height * 0.045,
+                width: MediaQuery.of(context).size.height * 0.045,
+                decoration: BoxDecoration(
                     color: Colors.amber.withOpacity(0.4),
-                    shape: BoxShape.circle
-                  ),
-                ),
-                Text(subject.name!,
-                    style: TextStyle(
+                    shape: BoxShape.circle),
+              ),
+              Text(subject.name!,
+                  style: TextStyle(
                       color: Colors.black,
                       fontFamily: 'Stoor',
                       fontSize: MediaQuery.of(context).size.width * 0.065,
                       fontWeight: FontWeight.normal,
-                      decoration: TextDecoration.underline
-                    )),
-              ],
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            lectures.isEmpty?const Center(
-              child: CircularProgressIndicator(),
-            ):Expanded(
-              child: ListView.builder(
-                  itemCount: lectures.length,
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap:() =>navigator(context: context,returnPage: true,page: LectureScreen(academicYear:subject.academicYear!,subjectName: subject.name!,lectureName:lectures[index].lectureName!),),
-                      child: Card(
-                        color: Colors.white,
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: SizedBox(
-                          width: MediaQuery.of(context).size.width * 0.62,
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Align(
-                                  alignment: context.locale == const Locale('ar')
-                                      ? Alignment.centerLeft
-                                      : Alignment.centerRight,
-                                  child: Text(lectures[index].lectureName!,
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontFamily: 'Rajab',
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.055,
-                                        fontWeight: FontWeight.bold,
-                                        overflow: TextOverflow.visible,
-                                      )),
-                                ),
-                                Row(
+                      decoration: TextDecoration.underline)),
+            ],
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          lectures.isEmpty
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Expanded(
+                  child: ListView.builder(
+                      itemCount: lectures.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () => navigator(
+                            context: context,
+                            returnPage: true,
+                            page: LectureScreen(
+                                academicYear: subject.academicYear!,
+                                subjectName: subject.name!,
+                                lectureName: lectures[index].lectureName!),
+                          ),
+                          child: Card(
+                            color: Colors.white,
+                            elevation: 5,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.62,
+                              child: Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    CircleAvatar(
-                                      radius: MediaQuery.of(context).size.width *
-                                          0.08,
-                                      backgroundImage:
-                                          NetworkImage(subject.urlPhotoTeacher!),
-                                      backgroundColor: Colors.white,
-                                      onBackgroundImageError:
-                                          (exception, stackTrace) {},
+                                    Align(
+                                      alignment:
+                                          context.locale == const Locale('ar')
+                                              ? Alignment.centerLeft
+                                              : Alignment.centerRight,
+                                      child: Text(lectures[index].lectureName!,
+                                          style: TextStyle(
+                                            color: Colors.black,
+                                            fontFamily: 'Rajab',
+                                            fontSize: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.055,
+                                            fontWeight: FontWeight.bold,
+                                            overflow: TextOverflow.visible,
+                                          )),
                                     ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                    Column(
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text(subject.teacherName!,
+                                        CircleAvatar(
+                                          radius: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.08,
+                                          backgroundImage: NetworkImage(
+                                              subject.urlPhotoTeacher!),
+                                          backgroundColor: Colors.white,
+                                          onBackgroundImageError:
+                                              (exception, stackTrace) {},
+                                        ),
+                                        const SizedBox(
+                                          width: 10,
+                                        ),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(subject.teacherName!,
+                                                style: TextStyle(
+                                                  color: Colors.grey.shade700,
+                                                  fontSize:
+                                                      MediaQuery.of(context)
+                                                              .size
+                                                              .width *
+                                                          0.04,
+                                                  fontFamily: 'Stoor',
+                                                  fontWeight: FontWeight.normal,
+                                                  overflow:
+                                                      TextOverflow.visible,
+                                                )),
+                                            Row(
+                                              children: List.generate(
+                                                  5,
+                                                  (index) => Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                        size: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.045,
+                                                      )),
+                                            )
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                    Expanded(
+                                      child: Align(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                            lectures[index].lectureDescription!,
+                                            softWrap: true,
+                                            textAlign: TextAlign.center,
+                                            maxLines: context.locale ==
+                                                    const Locale('ar')
+                                                ? 1
+                                                : 2,
                                             style: TextStyle(
                                               color: Colors.grey.shade700,
                                               fontSize: MediaQuery.of(context)
                                                       .size
                                                       .width *
-                                                  0.04,
-                                              fontFamily: 'Stoor',
-                                              fontWeight: FontWeight.normal,
-                                              overflow: TextOverflow.visible,
-                                            )),
-                                        Row(
-                                          children: List.generate(
-                                              5,
-                                              (index) =>  Icon(
-                                                    Icons.star,
-                                                    color: Colors.amber,
-                                                size: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                    0.045,
-                                                  )),
-                                        )
-                                      ],
-                                    )
-                                  ],
-                                ),
-                                Expanded(
-
-                                  child: Align(
-                                    alignment:Alignment.center,
-                                    child: Text(lectures[index].lectureDescription!,
-                                        softWrap: true,
-                                        textAlign: TextAlign.center,
-                                        maxLines:
-                                            context.locale == const Locale('ar')
-                                                ? 1
-                                                : 2,
-                                        style: TextStyle(
-                                          color: Colors.grey.shade700,
-                                          fontSize:
-                                              MediaQuery.of(context).size.width *
                                                   0.045,
-                                          fontWeight: FontWeight.normal,
-                                          fontFamily: 'Stoor',
-                                          overflow:
-                                              context.locale == const Locale('ar')
+                                              fontWeight: FontWeight.normal,
+                                              fontFamily: 'Stoor',
+                                              overflow: context.locale ==
+                                                      const Locale('ar')
                                                   ? TextOverflow.visible
                                                   : TextOverflow.ellipsis,
-                                        )),
-                                  ),
+                                            )),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  }),
-            ),
-          ],
-        ),
-      );
-
+                        );
+                      }),
+                ),
+        ],
+      ),
+    );
   }
 }

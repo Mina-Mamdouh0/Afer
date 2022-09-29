@@ -1,8 +1,10 @@
-
 import 'package:afer/const/colors_manger.dart';
+import 'package:afer/cuibt/app_cuibt.dart';
+import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/widget/widget.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+List<bool> buttonsStates = [false, false, false, false];
 
 class ShowQuestion extends StatefulWidget {
   @override
@@ -10,13 +12,10 @@ class ShowQuestion extends StatefulWidget {
 }
 
 class _ShowQuestionState extends State<ShowQuestion> {
-
   int pageIndex = 1;
-  List<bool> buttonsStates = [false, false, false];
 
   @override
   Widget build(BuildContext context) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Column(
@@ -30,7 +29,6 @@ class _ShowQuestionState extends State<ShowQuestion> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 30,
-
                 ),
               ),
               const SizedBox(width: 10),
@@ -42,23 +40,31 @@ class _ShowQuestionState extends State<ShowQuestion> {
                   color: ColorsManger.appbarColor.withOpacity(0.8),
                 ),
               ),
-              const Padding(
-                padding:  EdgeInsets.only(top: 10, right: 10),
-                child: Text(
-                  "/ 3",
-                  style: TextStyle(color: Colors.grey, fontSize: 15),
-                ),
+              BlocBuilder<AppCubit, AppState>(
+                builder: (context, state) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 10, right: 10),
+                    child: Text(
+                      AppCubit.get(context).questions.length.toString(),
+                      style: const TextStyle(color: Colors.grey, fontSize: 15),
+                    ),
+                  );
+                },
               ),
             ],
           ),
           const SizedBox(height: 25),
-          const Text(
-            "ما هو خذا السوال",
-            maxLines: 2,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 19,
-            ),
+          BlocBuilder<AppCubit, AppState>(
+            builder: (context, state) {
+              return Text(
+                AppCubit.get(context).questions[pageIndex - 1].question!,
+                maxLines: 2,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 19,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 20),
           InkWell(
@@ -67,12 +73,16 @@ class _ShowQuestionState extends State<ShowQuestion> {
                 buttonsStates[0] = true;
                 buttonsStates[1] = false;
                 buttonsStates[2] = false;
+                buttonsStates[3] = false;
               });
             },
             child: QuestionCard(
-              text:
-              "سسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسسةل الاةل",
-              ischecked: buttonsStates[0],
+              text: AppCubit.get(context).questions[pageIndex - 1].answer1!,
+              isChecked: buttonsStates[0],
+              isCorrect: AppCubit.get(context)
+                      .questions[pageIndex - 1]
+                      .answer1 ==
+                  AppCubit.get(context).questions[pageIndex - 1].correctAnswer,
             ),
           ),
           const SizedBox(height: 15),
@@ -82,12 +92,16 @@ class _ShowQuestionState extends State<ShowQuestion> {
                 buttonsStates[0] = false;
                 buttonsStates[1] = true;
                 buttonsStates[2] = false;
+                buttonsStates[3] = false;
               });
             },
             child: QuestionCard(
-              text:
-              "The user experience is how the user feels about interacting with or experiencing a product.",
-              ischecked: buttonsStates[1],
+              text: AppCubit.get(context).questions[pageIndex - 1].answer2!,
+              isChecked: buttonsStates[1],
+              isCorrect: AppCubit.get(context)
+                      .questions[pageIndex - 1]
+                      .answer2 ==
+                  AppCubit.get(context).questions[pageIndex - 1].correctAnswer,
             ),
           ),
           const SizedBox(height: 15),
@@ -97,12 +111,35 @@ class _ShowQuestionState extends State<ShowQuestion> {
                 buttonsStates[0] = false;
                 buttonsStates[1] = false;
                 buttonsStates[2] = true;
+                buttonsStates[3] = false;
               });
             },
             child: QuestionCard(
-              text:
-              "The user experience is the attitude the UX designer has about a product.",
-              ischecked: buttonsStates[2],
+              text: AppCubit.get(context).questions[pageIndex - 1].answer3!,
+              isChecked: buttonsStates[2],
+              isCorrect: AppCubit.get(context)
+                      .questions[pageIndex - 1]
+                      .answer3 ==
+                  AppCubit.get(context).questions[pageIndex - 1].correctAnswer,
+            ),
+          ),
+          const SizedBox(height: 30),
+          InkWell(
+            onTap: () {
+              setState(() {
+                buttonsStates[0] = false;
+                buttonsStates[1] = false;
+                buttonsStates[2] = false;
+                buttonsStates[3] = true;
+              });
+            },
+            child: QuestionCard(
+              text: AppCubit.get(context).questions[pageIndex - 1].answer4!,
+              isChecked: buttonsStates[3],
+              isCorrect: AppCubit.get(context)
+                      .questions[pageIndex - 1]
+                      .answer4 ==
+                  AppCubit.get(context).questions[pageIndex - 1].correctAnswer,
             ),
           ),
           const SizedBox(height: 30),
@@ -111,27 +148,42 @@ class _ShowQuestionState extends State<ShowQuestion> {
               pageIndex == 1
                   ? Expanded(flex: 1, child: Container())
                   : Expanded(
-                flex: 1,
-                child: MainButton(
-                  text: "السابق",
-                  fct: () {
-                    setState(() {
-                      pageIndex--;
-                    });
-                  },
-                ),
-              ),
+                      flex: 1,
+                      child: MainButton(
+                        text: "السابق",
+                        fct: () {
+                          setState(() {
+                            buttonsStates[0] = false;
+                            buttonsStates[1] = false;
+                            buttonsStates[2] = false;
+                            buttonsStates[3] = false;
+                            pageIndex--;
+                          });
+                        },
+                      ),
+                    ),
               const SizedBox(width: 15),
               Expanded(
                 flex: 1,
                 child: MainButton(
-                  text: pageIndex >= 3 ? "انهاء" : "التالي",
-
+                  text: pageIndex >= AppCubit.get(context).questions.length
+                      ? "انهاء"
+                      : "التالي",
                   fct: () {
-                    if (pageIndex >= 3) {
-                      //routes to screen
+                    if (pageIndex >= AppCubit.get(context).questions.length) {
+                      setState(() {
+                        buttonsStates[0] = false;
+                        buttonsStates[1] = false;
+                        buttonsStates[2] = false;
+                        buttonsStates[3] = false;
+                      });
+Navigator.pop(context);
                     } else {
                       setState(() {
+                        buttonsStates[0] = false;
+                        buttonsStates[1] = false;
+                        buttonsStates[2] = false;
+                        buttonsStates[3] = false;
                         pageIndex++;
                       });
                     }
@@ -148,18 +200,32 @@ class _ShowQuestionState extends State<ShowQuestion> {
 
 class QuestionCard extends StatelessWidget {
   String text;
-  bool ischecked;
-  QuestionCard({required this.text, required this.ischecked});
+  bool isChecked;
+  bool isCorrect;
+
+  QuestionCard({
+    required this.text,
+    required this.isChecked,
+    this.isCorrect = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(
-        border: Border.all(color: ColorsManger.appbarColor.withOpacity(0.8), width: 2),
-        color: const Color.fromRGBO(252, 252, 252, 1),
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: isChecked
+          ? BoxDecoration(
+              border: Border.all(
+                  color: ColorsManger.appbarColor.withOpacity(0.8), width: 2),
+              color: isCorrect ? Colors.teal : Colors.red,
+              borderRadius: BorderRadius.circular(10),
+            )
+          : BoxDecoration(
+              border: Border.all(
+                  color: ColorsManger.appbarColor.withOpacity(0.8), width: 2),
+              color: isCorrect &&buttonsStates.contains(true)? Colors.teal : Colors.white,
+              borderRadius: BorderRadius.circular(10),
+            ),
       child: Row(
         children: [
           Flexible(
@@ -177,15 +243,15 @@ class QuestionCard extends StatelessWidget {
                   size: 30,
                   color: ColorsManger.appbarColor.withOpacity(0.8),
                 ),
-                ischecked
+                isChecked
                     ? Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Icon(
-                    Icons.brightness_1_rounded,
-                    color: ColorsManger.appbarColor.withOpacity(0.8),
-                    size: 20,
-                  ),
-                )
+                        padding: const EdgeInsets.all(5.0),
+                        child: Icon(
+                          Icons.brightness_1_rounded,
+                          color: ColorsManger.appbarColor.withOpacity(0.8),
+                          size: 20,
+                        ),
+                      )
                     : Container(),
               ],
             ),

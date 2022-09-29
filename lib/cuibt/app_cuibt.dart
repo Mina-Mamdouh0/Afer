@@ -19,6 +19,7 @@ import 'package:internet_file/internet_file.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import '../model/exam.dart';
 import '../model/lecture.dart';
 
 import '../screens/week_details/show_video.dart';
@@ -118,11 +119,12 @@ class AppCubit extends Cubit<AppState> {
   Video video = Video();
   Photo photo = Photo();
   Pdf pdf = Pdf();
-  Uint8List bytes=Uint8List(0);
+  List<Question> questions = [];
+  Uint8List bytes = Uint8List(0);
   bool videoLocked = false;
   bool photoLocked = false;
   bool pdfLocked = false;
-  List<bool> locked = [false, false, false, true,false];
+  List<bool> locked = [false, false, false, true, false];
   bool isObscureEditInfo = true;
 
   //Settings Screen Functions
@@ -393,7 +395,8 @@ class AppCubit extends Cubit<AppState> {
 // to add new subject into map to get it from data base
   void addSubject(String year, Subject subject, value, int index) {
     if (value == false) {
-      var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
+      var itemIndex =
+          subjects.indexWhere((element) => element.isEqutaple(subject));
       subjects.removeAt(itemIndex);
     } else {
       subjects.insert(subjects.length, subject);
@@ -462,7 +465,7 @@ class AppCubit extends Cubit<AppState> {
         lectures.add(Lecture.fromJson(element.data()));
       }
     }).catchError((onError) {
-     // print(onError.toString());
+      // print(onError.toString());
     });
     return lectures;
   }
@@ -555,16 +558,48 @@ class AppCubit extends Cubit<AppState> {
     });
   }
 
+  void getQuestion(
+      {required String academicYear,
+      required String semester,
+      required String subjectName,
+      required String lectureName}) {
+    questions.clear();
+    _dataReference(
+            academicYear: academicYear,
+            semester: semester,
+            subjectName: subjectName,
+            lectureName: lectureName,
+            type: 'Question')
+        .get()
+        .then((value) {
+/*          value.docs.map((e) {
+            questions.add(Question.fromJson(e.data()!));
+          });*/
+      questions.addAll(value.docs.map((e) => Question.fromJson(e.data()!)));
+      print(questions.length);
+    });
+  }
+void uploadNotes({required String notes}){
+  FirebaseFirestore.instance.collection("Users").doc(user.uid).collection("Notes").add({
+    "notes":notes
+  }).then((value) {
+    emit(UploadNotesSuccessfully());
+  }).catchError((onError) {
+    emit(UploadNotesFailed());
+  });
+}
   Future<void> getLectureData({
     required String academicYear,
     required String subjectName,
     required String lectureName,
   }) async {
     weekTemplateCurrentIndex = 0;
-    pdf=Pdf(point: "0", linkPdf: '', description: '', id: '',isPaid: false);
-    video=Video(point: "0", linkVideo:  '', description: '', id: '',isPaid: false);
-    photo=Photo(point: "0", linkPhoto:  '', description: '', id: '',isPaid: false);
-    bytes = Uint8List(0);
+    pdf = Pdf(point: "0", linkPdf: '', description: '', id: '', isPaid: false);
+    video = Video(
+        point: "0", linkVideo: '', description: '', id: '', isPaid: false);
+    photo = Photo(
+        point: "0", linkPhoto: '', description: '', id: '', isPaid: false);
+
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,
@@ -580,6 +615,11 @@ class AppCubit extends Cubit<AppState> {
         semester: user.semester!,
         subjectName: subjectName,
         lectureName: lectureName);
+    getQuestion(
+        academicYear: academicYear,
+        semester: user.semester!,
+        subjectName: subjectName,
+        lectureName: lectureName);
     weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
   }
 
@@ -588,9 +628,26 @@ class AppCubit extends Cubit<AppState> {
     emit(ChangeLocale());
   }
 
-  void readQrCode(String qrCode) {
+  void readQrCode(String qrCode,context) {
     qrStar = qrCode;
-    pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
+    FirebaseFirestore.instance.collection("qrcode").doc(qrCode).get().then((value) {
+      if (value.exists) {
+        pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
+        FirebaseFirestore.instance.collection("qrcode").doc("money").get().then((value) {
+          var money =int.tryParse(value.data()!["money"]) ?? 0;
+          FirebaseFirestore.instance.collection("qrcode").doc("money").update({
+            "money":(money+int.tryParse(qrCode.split(" ").last)!).toString()
+          });
+        });
+        FirebaseFirestore.instance.collection("qrcode").doc(qrCode).delete();
+      } else {
+MotionToast.warning(description: const Text("don't  try this because that maybe block your account"),title: const Text("this qr code is not valid"),).show(context);
+
+      }
+    }).catchError((onError) {
+      MotionToast.warning(description: const Text("don't try this again because that maybe block your account"),title: const Text("this qr code is not valid"),).show(context);
+
+    });
     emit((BrCodeReading()));
   }
 
@@ -697,7 +754,7 @@ class AppCubit extends Cubit<AppState> {
         .set({"uid": user.uid, "examId": examId}).then((value) {
       losePoints(point: int.parse(video.point!));
       emit(SecureDataSuccessfully());
-    }).catchError((onError){
+    }).catchError((onError) {
       emit(SecureDataFailed());
     });
   }
@@ -786,12 +843,12 @@ class AppCubit extends Cubit<AppState> {
   void getAllSucre() {
     getIfPdfPayed(uidPdf: pdf.id!);
     getIfVideoPayed(uidVideo: video.id!);
-    getIfPhotoPayed(uidPhoto: photo.id!);
+    getIfExamPayed(uidExam: "");
   }
 
-  bool showImageUnderVideo=false;
-  void showImageVideo(){
-    showImageUnderVideo=true;
+  bool showImageUnderVideo = false;
+  void showImageVideo() {
+    showImageUnderVideo = !showImageUnderVideo;
     emit(ShowImageUnderVideo());
   }
 }

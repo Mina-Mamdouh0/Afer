@@ -32,7 +32,7 @@ class _ShowVideoState extends State<ShowVideo> {
 
   @override
   void dispose() {
-
+    BlocProvider.of<AppCubit>(context).showImageUnderVideo= false;
       flickManager.dispose();
 
     super.dispose();
@@ -68,6 +68,7 @@ class _ShowVideoState extends State<ShowVideo> {
                       child: Column(children: [
                         ClipRect(
                           child: AspectRatio(
+
                             aspectRatio: flickManager.flickVideoManager!
                                 .videoPlayerValue!.aspectRatio,
                             child: FlickVideoPlayer(flickManager: flickManager),
@@ -79,19 +80,6 @@ class _ShowVideoState extends State<ShowVideo> {
                               style: const TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold)),
                         ),
-                        BlocProvider.of<AppCubit>(context).showImageUnderVideo?
-                        ListView.builder(
-                            itemCount: 10,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index){
-                              return Container(
-                                margin: const EdgeInsets.all(10),
-                                width: double.infinity,
-                                height: 200,
-                                color: Colors.pinkAccent,
-                              );
-                            }):
                         SizedBox(
                           width: 120,
                           child: MainButton(
@@ -101,6 +89,20 @@ class _ShowVideoState extends State<ShowVideo> {
                             text:LocaleKeys.summary.tr() ,
                           ),
                         ),
+                        if(BlocProvider.of<AppCubit>(context).showImageUnderVideo)
+                          Container(
+                                margin: const EdgeInsets.all(10),
+                                width: double.infinity,
+                                height: 200,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: NetworkImage(AppCubit.get(context).photo.linkPhoto!),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                              )
+
+
 
                       ]),
                     )),
