@@ -10,7 +10,6 @@ class MessageScreen extends StatelessWidget {
     return Center(
       child: Text(
         LocaleKeys.serviceNot.tr(),
-
         style: const TextStyle(
           fontSize: 22,
           fontFamily: 'Stoor',

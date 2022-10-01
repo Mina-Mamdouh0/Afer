@@ -32,9 +32,8 @@ class _ShowVideoState extends State<ShowVideo> {
 
   @override
   void dispose() {
-    BlocProvider.of<AppCubit>(context).showImageUnderVideo= false;
-      flickManager.dispose();
 
+      flickManager.dispose();
     super.dispose();
   }
 
@@ -80,6 +79,7 @@ class _ShowVideoState extends State<ShowVideo> {
                               style: const TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold)),
                         ),
+                        if(AppCubit.get(context).photo.linkPhoto!=null)
                         SizedBox(
                           width: 120,
                           child: MainButton(

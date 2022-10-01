@@ -124,7 +124,7 @@ class AppCubit extends Cubit<AppState> {
   bool videoLocked = false;
   bool photoLocked = false;
   bool pdfLocked = false;
-  List<bool> locked = [false, false, false, true, false];
+  List<bool> locked = [false, false,true,true,true];
   bool isObscureEditInfo = true;
 
   //Settings Screen Functions
@@ -530,7 +530,8 @@ class AppCubit extends Cubit<AppState> {
       {required String academicYear,
       required String semester,
       required String subjectName,
-      required String lectureName}) {
+      required String lectureName,
+      required BuildContext context}) {
     _dataReference(
             academicYear: academicYear,
             semester: semester,
@@ -579,19 +580,24 @@ class AppCubit extends Cubit<AppState> {
       print(questions.length);
     });
   }
-void uploadNotes({required String notes}){
-  FirebaseFirestore.instance.collection("Users").doc(user.uid).collection("Notes").add({
-    "notes":notes
-  }).then((value) {
-    emit(UploadNotesSuccessfully());
-  }).catchError((onError) {
-    emit(UploadNotesFailed());
-  });
-}
+
+  void uploadNotes({required String notes}) {
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user.uid)
+        .collection("Notes")
+        .add({"notes": notes}).then((value) {
+      emit(UploadNotesSuccessfully());
+    }).catchError((onError) {
+      emit(UploadNotesFailed());
+    });
+  }
+
   Future<void> getLectureData({
     required String academicYear,
     required String subjectName,
     required String lectureName,
+    required BuildContext context,
   }) async {
     weekTemplateCurrentIndex = 0;
     pdf = Pdf(point: "0", linkPdf: '', description: '', id: '', isPaid: false);
@@ -614,7 +620,8 @@ void uploadNotes({required String notes}){
         academicYear: academicYear,
         semester: user.semester!,
         subjectName: subjectName,
-        lectureName: lectureName);
+        lectureName: lectureName,
+        context: context);
     getQuestion(
         academicYear: academicYear,
         semester: user.semester!,
@@ -628,25 +635,39 @@ void uploadNotes({required String notes}){
     emit(ChangeLocale());
   }
 
-  void readQrCode(String qrCode,context) {
+  void readQrCode(String qrCode, context) {
     qrStar = qrCode;
-    FirebaseFirestore.instance.collection("qrcode").doc(qrCode).get().then((value) {
+    FirebaseFirestore.instance
+        .collection("qrcode")
+        .doc(qrCode)
+        .get()
+        .then((value) {
       if (value.exists) {
         pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
-        FirebaseFirestore.instance.collection("qrcode").doc("money").get().then((value) {
-          var money =int.tryParse(value.data()!["money"]) ?? 0;
+        FirebaseFirestore.instance
+            .collection("qrcode")
+            .doc("money")
+            .get()
+            .then((value) {
+          var money = int.tryParse(value.data()!["money"]) ?? 0;
           FirebaseFirestore.instance.collection("qrcode").doc("money").update({
-            "money":(money+int.tryParse(qrCode.split(" ").last)!).toString()
+            "money": (money + int.tryParse(qrCode.split(" ").last)!).toString()
           });
         });
         FirebaseFirestore.instance.collection("qrcode").doc(qrCode).delete();
       } else {
-MotionToast.warning(description: const Text("don't  try this because that maybe block your account"),title: const Text("this qr code is not valid"),).show(context);
-
+        MotionToast.warning(
+          description: const Text(
+              "don't  try this because that maybe block your account"),
+          title: const Text("this qr code is not valid"),
+        ).show(context);
       }
     }).catchError((onError) {
-      MotionToast.warning(description: const Text("don't try this again because that maybe block your account"),title: const Text("this qr code is not valid"),).show(context);
-
+      MotionToast.warning(
+        description: const Text(
+            "don't try this again because that maybe block your account"),
+        title: const Text("this qr code is not valid"),
+      ).show(context);
     });
     emit((BrCodeReading()));
   }
@@ -788,9 +809,6 @@ MotionToast.warning(description: const Text("don't  try this because that maybe 
       if (index == 1) {
         secureDataVideo(videoId: video.id!);
       }
-      if (index == 2) {
-        secureDataPhoto(photoId: photo.id!);
-      }
       getAllSucre();
       getInfo(user.uid!);
     } else {
@@ -818,9 +836,6 @@ MotionToast.warning(description: const Text("don't  try this because that maybe 
     }
     if (index == 1) {
       return int.tryParse(video.point!) ?? 0;
-    }
-    if (index == 2) {
-      return int.tryParse(photo.point!) ?? 0;
     } else {
       return 0;
     }
@@ -832,9 +847,6 @@ MotionToast.warning(description: const Text("don't  try this because that maybe 
     }
     if (index == 1) {
       return video.isPaid ?? false;
-    }
-    if (index == 2) {
-      return photo.isPaid ?? false;
     } else {
       return false;
     }
@@ -843,12 +855,40 @@ MotionToast.warning(description: const Text("don't  try this because that maybe 
   void getAllSucre() {
     getIfPdfPayed(uidPdf: pdf.id!);
     getIfVideoPayed(uidVideo: video.id!);
-    getIfExamPayed(uidExam: "");
   }
 
   bool showImageUnderVideo = false;
   void showImageVideo() {
     showImageUnderVideo = !showImageUnderVideo;
     emit(ShowImageUnderVideo());
+  }
+
+  showLoaderDialog(BuildContext context) {
+    AlertDialog alert = AlertDialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      content: SizedBox(
+        height: 100,
+        width: 100,
+        child: Column(children: const [
+          CircularProgressIndicator(color: Colors.blue),
+          SizedBox(
+            height: 10,
+          ),
+          Text(
+            "Loading...",
+            style: TextStyle(
+                fontSize: 25, fontWeight: FontWeight.w700, color: Colors.blue),
+          )
+        ]),
+      ),
+    );
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }

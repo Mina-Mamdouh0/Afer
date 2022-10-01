@@ -1,11 +1,13 @@
-import 'dart:typed_data';
 
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pdfx/pdfx.dart';
+
+import '../../translations/locale_keys.g.dart';
 
 class ShowLecture extends StatefulWidget {
   const ShowLecture({Key? key}) : super(key: key);
@@ -37,7 +39,7 @@ class _ShowLectureState extends State<ShowLecture> {
   @override
   Widget build(BuildContext context) {
     return ConditionalBuilder(
-      condition: AppCubit.get(context).bytes != Uint8List(0),
+      condition: AppCubit.get(context).pdf.linkPdf != null,
       builder: (context)=>Scaffold(
           backgroundColor: Colors.white,
           appBar: AppBar(
@@ -106,7 +108,15 @@ class _ShowLectureState extends State<ShowLecture> {
               }
           ),
         ),
-      fallback: (context)=>const Center(child: CircularProgressIndicator()),
+      fallback: (context)=> Center(child: Text(
+        LocaleKeys.noPdfYet.tr(),
+        style: const TextStyle(
+          fontSize: 22,
+          fontFamily: 'Stoor',
+          fontWeight: FontWeight.normal,
+        ),
+        textAlign:  TextAlign.center,
+      ),),
 
     );
   }

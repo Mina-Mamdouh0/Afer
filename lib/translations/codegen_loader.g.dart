@@ -67,6 +67,8 @@ class CodegenLoader extends AssetLoader{
   "technicalSupport": "الدعم الفني",
   "editInformation": "تحديث المعلومات",
     'signOut':'تسجيل الخروج',
+    "noQuestionsYet": "لا يوجد اسئله حتي الان",
+    "noPdfYet": "لا يوجد ملفات حتي الان",
 };
 static const Map<String,dynamic> en = {
   "welcome": "Welcome",
@@ -116,7 +118,8 @@ static const Map<String,dynamic> en = {
   "rememberMe": "remember Me",
   "technicalSupport": "Technical support",
   "editInformation": "Update information",
-
+"noQuestionsYet": "No questions yet",
+  "noPdfYet": "No files yet",
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": ar, "en": en};
 }
