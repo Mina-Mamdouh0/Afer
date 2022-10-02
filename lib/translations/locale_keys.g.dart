@@ -41,8 +41,8 @@ abstract class  LocaleKeys {
   static const training = 'training';
   static const alerts = 'alerts';
   static const summary = 'summary';
-  static const secondYear = 'secondyear';
-  static const  thirdYear = ' thirdYear';
+  static const secondYear = 'secondYear';
+  static const  thirdYear = 'thirdYear';
   static const firstYear = 'firstYear';
   static const fourthYear = 'fourthYear';
   static const rememberMe = 'rememberMe';
