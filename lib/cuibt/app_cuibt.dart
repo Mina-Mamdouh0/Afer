@@ -452,7 +452,6 @@ class AppCubit extends Cubit<AppState> {
           fourthYear.add(Subject.fromJson(element.data()));
         }
       }
-      print(firstYear[0].urlPhotoTeacher);
       emit(GetAllSubject());
     });
   }
@@ -579,9 +578,7 @@ class AppCubit extends Cubit<AppState> {
             type: 'Question')
         .get()
         .then((value) {
-/*          value.docs.map((e) {
-            questions.add(Question.fromJson(e.data()!));
-          });*/
+
       questions.addAll(value.docs.map((e) => Question.fromJson(e.data()!)));
       print(questions.length);
     });
@@ -650,26 +647,26 @@ class AppCubit extends Cubit<AppState> {
     emit(ChangeLocale());
   }
 
-  void readQrCode(String qrCode, context) {
+  void readQrCode(String qrCode, context)async {
     qrStar = qrCode;
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection("qrcode")
         .doc(qrCode)
         .get()
-        .then((value) {
+        .then((value) async{
       if (value.exists) {
-        pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
+         pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
         FirebaseFirestore.instance
             .collection("qrcode")
             .doc("money")
             .get()
-            .then((value) {
+            .then((value)async {
           var money = int.tryParse(value.data()!["money"]) ?? 0;
-          FirebaseFirestore.instance.collection("qrcode").doc("money").update({
+          await   FirebaseFirestore.instance.collection("qrcode").doc("money").update({
             "money": (money + int.tryParse(qrCode.split(" ").last)!).toString()
           });
         });
-        FirebaseFirestore.instance.collection("qrcode").doc(qrCode).delete();
+         await      FirebaseFirestore.instance.collection("qrcode").doc(qrCode).delete();
       } else {
         MotionToast.warning(
           description: const Text(
