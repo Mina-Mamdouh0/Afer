@@ -23,7 +23,11 @@ class _ShowQuestionState extends State<ShowQuestion> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
-      child: ConditionalBuilder(
+      child: BlocConsumer<AppCubit, AppState>(
+  listener: (context, state) {
+  },
+  builder: (context, state) {
+    return ConditionalBuilder(
         condition: AppCubit.get(context).questions.isNotEmpty,
         fallback: (context) => Center(child: Text(
           LocaleKeys.noQuestionsYet.tr(),
@@ -41,9 +45,9 @@ class _ShowQuestionState extends State<ShowQuestion> {
             children: [
               Row(
                 children: [
-                  const Text(
-                    "السؤال",
-                    style: TextStyle(
+                   Text(
+                    LocaleKeys.question.tr() ,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 30,
                     ),
@@ -75,7 +79,7 @@ class _ShowQuestionState extends State<ShowQuestion> {
                 builder: (context, state) {
                   return Text(
                     AppCubit.get(context).questions[pageIndex - 1].question!,
-                    maxLines: 2,
+                    maxLines: 5,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 19,
@@ -140,7 +144,7 @@ class _ShowQuestionState extends State<ShowQuestion> {
                       AppCubit.get(context).questions[pageIndex - 1].correctAnswer,
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 15),
               InkWell(
                 onTap: () {
                   setState(() {
@@ -212,7 +216,9 @@ class _ShowQuestionState extends State<ShowQuestion> {
             ],
           );
         }
-      ),
+      );
+  },
+),
     );
   }
 }
@@ -248,6 +254,7 @@ class QuestionCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Flexible(
             child: Text(

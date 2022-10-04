@@ -69,6 +69,14 @@ class CodegenLoader extends AssetLoader{
     'signOut':'تسجيل الخروج',
     "noQuestionsYet": "لا يوجد اسئله حتي الان",
     "noPdfYet": "لا يوجد ملفات حتي الان",
+    "NoNotes": "لا يوجد ملاحظات حتي الان",
+    "wantSignOut": "هل تريد تسجيل الخروج",
+    "cancel": "الغاء",
+    "yes": "نعم",
+    "ScanBarcode": "مسح الباركود",
+    "notFoundSubject": "لا يوجد مواد حتي الان من فضلك توجه الي صفحه الاعدادات لاضافه موادك",
+    "notFoundVideo": "لا يوجد فيديو حتي الان",
+    "question":"السؤال"
 };
 static const Map<String,dynamic> en = {
   "welcome": "Welcome",
@@ -120,6 +128,14 @@ static const Map<String,dynamic> en = {
   "editInformation": "Update information",
 "noQuestionsYet": "No questions yet",
   "noPdfYet": "No files yet",
+  "NoNotes": "No Notes",
+  "wantSignOut": "Do you want to Sign out ?",
+  "cancel": "Cancel",
+  "yes": "Yes",
+  "ScanBarcode": "Scan Barcode",
+  "notFoundSubject":"Not found your Subjects please go setting to choose your subjects",
+  "notFoundVideo":"Not found your Videos ",
+  "question":"question"
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": ar, "en": en};
 }

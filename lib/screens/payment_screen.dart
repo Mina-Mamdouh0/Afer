@@ -45,7 +45,7 @@ class PaymentScreen extends StatelessWidget {
                       ),
                       Text(
                         BlocProvider.of<AppCubit>(context).user.points!,
-                        style: TextStyle(color: Colors.red, fontSize: 22),
+                        style: const TextStyle(color: Colors.red, fontSize: 22),
                       )
                     ],
                   ),
@@ -71,7 +71,7 @@ class PaymentScreen extends StatelessWidget {
                             .readQrCode('unable to read this', context);
                       }
                     },
-                    text: 'Scan barcode',
+                    text:LocaleKeys.scanBarcode.tr(),
                   ),
                 ],
               ),

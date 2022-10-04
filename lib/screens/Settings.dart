@@ -67,12 +67,11 @@ class Setting extends StatelessWidget {
                             generateSubExpansion(cubit.fourthYear,
                                 LocaleKeys.fourthYear.tr(), "Fourth Year"),
                             MainButton(
-                                text: LocaleKeys.confirm,
+                                text: LocaleKeys.confirm.tr(),
                                 fct: () {
                                   if (cubit.subjects.length <= 7) {
                                     cubit.chooseSubject();
                                     cubit.changeIndex(0);
-
                                   } else {
                                     MotionToast.error(
                                       description: const Text(
@@ -140,42 +139,56 @@ class Setting extends StatelessWidget {
                     fct: () {
                       showDialog(
                           context: context,
-                          builder: (context){
+                          builder: (m) {
                             return AlertDialog(
                               title: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                children:const  [
-                                  Icon(Icons.logout,color: Colors.deepPurpleAccent,),
-                                  SizedBox(width: 5,),
-                                  Text('Sign out',style: TextStyle(
-                                      fontSize: 18,
-                                      fontStyle: FontStyle.italic
-                                  ),),
+                                children:  [
+                                  const     Icon(
+                                    Icons.logout,
+                                    color: Colors.deepPurpleAccent,
+                                  ),
+                                  const  SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    LocaleKeys.signOut.tr(),
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontStyle: FontStyle.italic),
+                                  ),
                                 ],
                               ),
-                              content:const Text('Do you wanna Sign out ? ',
-                                style: TextStyle(
-                                    fontSize: 15
-                                ),),
+                              content:  Text(
+                                LocaleKeys.wantSignOut.tr(),
+                                style:const TextStyle(fontSize: 15),
+                              ),
                               actions: [
-                                TextButton(onPressed: (){
-                                  Navigator.canPop(context)?Navigator.pop(context):null;
-                                },
-                                    child:const Text('Cancel',
-                                      style: TextStyle(
-                                          color: Colors.deepPurpleAccent,
-                                      ),)),
-                                TextButton(onPressed: (){
-                                  cubit.signOut(context);
-                                },
-                                    child:const Text('ok',
-                                      style: TextStyle(
-                                          color: Colors.red
-                                      ),))
+                                TextButton(
+                                    onPressed: () {
+                                      Navigator.canPop(m)
+                                          ? Navigator.pop(m)
+                                          : null;
+                                    },
+                                    child:  Text(
+                                      LocaleKeys.cancel.tr(),
+                                      style: const TextStyle(
+                                        color: Colors.deepPurpleAccent,
+                                      ),
+                                    )),
+                                TextButton(
+                                    onPressed: () {
+                                      cubit.signOut(context);
+                                      Navigator.pop(m);
+
+                                    },
+                                    child:  Text(
+                            LocaleKeys.yes.tr(),
+                                      style: const TextStyle(color: Colors.red),
+                                    ))
                               ],
                             );
                           });
-
                     }),
               ],
             ),
@@ -239,7 +252,7 @@ class Setting extends StatelessWidget {
   ExpansionTile generateSubExpansion(List<Subject> year, title, nameYear) {
     return ExpansionTile(
         onExpansionChanged: (value) {
-          cubit.getAllSubject(nameYear,cubit.semester);
+          cubit.getAllSubject(nameYear, cubit.semester);
         },
         title: Text(
           title,

@@ -1,3 +1,4 @@
+import 'package:afer/const/photo_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/translations/locale_keys.g.dart';
@@ -47,12 +48,17 @@ class _ShowVideoState extends State<ShowVideo> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Lottie.asset('Asset/Image/emptysubject.json',
+                    Lottie.asset(PhotoManger.notFound,
                         fit: BoxFit.fill),
-                    const Text(
-                      'Not found your Video Please contact technical support',
-                      style: TextStyle(fontSize: 30),
-                      textAlign: TextAlign.center,
+                     Text(
+                      LocaleKeys.notFoundVideo.tr(),
+                       style: const TextStyle(
+                         fontSize: 22,
+                         fontFamily: 'Stoor',
+                         fontWeight: FontWeight.normal,
+                       ),
+                       textAlign:  TextAlign.center,
+
                     ),
                   ],
                 ),

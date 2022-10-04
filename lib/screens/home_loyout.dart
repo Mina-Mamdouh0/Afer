@@ -19,204 +19,206 @@ import 'package:iconly/iconly.dart';
 import '../translations/locale_keys.g.dart';
 
 class HomeLayout extends StatefulWidget {
-
   @override
   State<HomeLayout> createState() => _HomeLayoutState();
 }
 
 class _HomeLayoutState extends State<HomeLayout> {
-
   int selectedPos = 0;
 
   double bottomNavBarHeight = 60;
-
-  List<TabItem> tabItems = List.of([
-  TabItem(
-  IconlyLight.home,
-    'الرئيسية',
-  Colors.blue,
-  labelStyle: const TextStyle(
-  color: Colors.blue,
-  fontWeight: FontWeight.normal,
-  )),
-  TabItem(
-   IconlyLight.activity,
-    'الاخبار',
-  Colors.orange,
-  labelStyle: const TextStyle(
-  color: Colors.orange,
-  fontWeight: FontWeight.normal,
-  ),
-  ),
-  TabItem(
-    IconlyLight.message,
-   'الرسائل',
-  Colors.red,
-      labelStyle: const TextStyle(
-        color: Colors.red,
-        fontWeight: FontWeight.normal,
-      )
-  ),
-  TabItem(
-    IconlyLight.setting,
-    'الإعدادات',
-  Colors.cyan,
-      labelStyle: const TextStyle(
-        color: Colors.cyan,
-        fontWeight: FontWeight.normal,
-      )
-  ),
-  ]);
-
-
-
-
+ late List<TabItem> tabItems;
   late CircularBottomNavigationController _navigationController;
 
   @override
   void initState() {
-  super.initState();
-  _navigationController = CircularBottomNavigationController(selectedPos);
+    super.initState();
+    _navigationController = CircularBottomNavigationController(selectedPos);
   }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit,AppState>
-      (
-     listener: (context,state){},
-     builder: (context,state)
-     {
-       var cubit=BlocProvider.of<AppCubit>(context);
-             return  ConditionalBuilder(
-               fallback: (context)=>Container(
-                   color: Colors.white,
-                   child: const Center(child: CircularProgressIndicator())),
-                condition: cubit.user.firstName!=null,
-               builder: (context) {
-                 return ConnectionNotifierToggler(
-                   connected: Scaffold(
-                     backgroundColor: Colors.white,
-                      appBar:AppBar(
-                        elevation: 0,
-                        centerTitle: true,
-                        toolbarHeight: size.height*0.14,
-                        leadingWidth: size.width * 0.18 ,
-                         foregroundColor: Colors.white,
-                         backgroundColor: Colors.white,
-                        flexibleSpace: Stack(
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                               mainAxisAlignment: MainAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Container(
-                                  height: size.height*0.135,
-                                  width: double.infinity,
-                                  decoration:   const BoxDecoration(
-                                      color: ColorsManger.appbarColor,
-                                    borderRadius: BorderRadius.only(
-                                       bottomRight: Radius.circular(10),
-                                       bottomLeft: Radius.circular(10),
-                                    ),
+    return BlocConsumer<AppCubit, AppState>(
+        listener: (context, state) {},
+        builder: (context, state) {
+        tabItems = List.of([
+            TabItem(IconlyLight.home, LocaleKeys.home.tr(), Colors.blue,
+                labelStyle: const TextStyle(
+                  color: Colors.blue,
+                  fontWeight: FontWeight.normal,
+                )),
+            TabItem(
+              IconlyLight.activity,
+              LocaleKeys.news.tr(),
+              Colors.orange,
+              labelStyle: const TextStyle(
+                color: Colors.orange,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            TabItem(IconlyLight.message,  LocaleKeys.messages.tr(), Colors.red,
+                labelStyle: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.normal,
+                )),
+            TabItem(IconlyLight.setting,  LocaleKeys.setting.tr(), Colors.cyan,
+                labelStyle: const TextStyle(
+                  color: Colors.cyan,
+                  fontWeight: FontWeight.normal,
+                )),
+          ]);
+          var cubit = BlocProvider.of<AppCubit>(context);
+          return ConditionalBuilder(
+              fallback: (context) => Container(
+                  color: Colors.white,
+                  child: const Center(child: CircularProgressIndicator())),
+              condition: cubit.user.firstName != null,
+              builder: (context) {
+                return ConnectionNotifierToggler(
+                  connected: Scaffold(
+                    backgroundColor: Colors.white,
+                    appBar: AppBar(
+                      elevation: 0,
+                      centerTitle: true,
+                      toolbarHeight: size.height * 0.14,
+                      leadingWidth: size.width * 0.18,
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.white,
+                      flexibleSpace: Stack(
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                height: size.height * 0.135,
+                                width: double.infinity,
+                                decoration: const BoxDecoration(
+                                  color: ColorsManger.appbarColor,
+                                  borderRadius: BorderRadius.only(
+                                    bottomRight: Radius.circular(10),
+                                    bottomLeft: Radius.circular(10),
                                   ),
-                                  child:
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      SizedBox(width: size.width*0.25,),
-                                      Column(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Spacer(),
-                                          Text("${cubit.user.firstName!} ${cubit.user.secondName!}",
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    SizedBox(
+                                      width: size.width * 0.25,
+                                    ),
+                                    Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        const Spacer(),
+                                        Text(
+                                          "${cubit.user.firstName!} ${cubit.user.secondName!}",
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.normal,
                                             fontFamily: 'Stoor',
-                                            fontSize: size.width*0.035,
-                                          ),),
-                                          Text(cubit.user.academicYear!,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                              fontFamily: 'Stoor',
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: size.width*0.035,
-                                            ),),
-                                          Text(cubit.user.points!,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                              fontFamily: 'Stoor',
-                                                fontWeight: FontWeight.normal,
-                                                fontSize: size.width*0.035,
-                                            ),)
-                                        ],
-                                      ),
-                                      const Spacer(),
-                                      InkWell(
-                                        onTap: (){
-                                          navigator(context: context, page: PaymentScreen(), returnPage: true);
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(15.0),
-                                          child: CircleAvatar(
-                                            radius: size.width*0.05,
-                                            backgroundImage: const AssetImage(PhotoManger.coins),
-                                            backgroundColor: Colors.transparent,
+                                            fontSize: size.width * 0.035,
                                           ),
                                         ),
+                                        Text(
+                                          cubit.user.academicYear!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Stoor',
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: size.width * 0.035,
+                                          ),
+                                        ),
+                                        Text(
+                                          cubit.user.points!,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Stoor',
+                                            fontWeight: FontWeight.normal,
+                                            fontSize: size.width * 0.035,
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    const Spacer(),
+                                    InkWell(
+                                      onTap: () {
+                                        navigator(
+                                            context: context,
+                                            page: PaymentScreen(),
+                                            returnPage: true);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(15.0),
+                                        child: CircleAvatar(
+                                          radius: size.width * 0.05,
+                                          backgroundImage: const AssetImage(
+                                              PhotoManger.coins),
+                                          backgroundColor: Colors.transparent,
+                                        ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Container(
-                                    color: Colors.white,
-                                  ),
-                                ),
-
-                              ],
-                            ),
-                            Positioned(
-                              bottom: size.height*0.01,
-                              right: context.locale==const Locale('en')?null:size.width*0.025,
-                              left:context.locale==const Locale('en')? size.width*0.025:null,
-                              child: CircleAvatar(
-                                radius: size.width*0.11,
-                                backgroundColor: ColorsManger.appbarColor,
-                                child: CircleAvatar(
-                                  radius: size.width*0.09,
-                                  backgroundImage:  NetworkImage(cubit.user.profileUrl!),
-                                  backgroundColor: Colors.white,
-                                  onBackgroundImageError: (exception, stackTrace) {
-                                  },
-                                  child: cubit.user.profileUrl==null?const Icon(Icons.person,size: 50,color: Colors.black,):null,
+                                    ),
+                                  ],
                                 ),
                               ),
-                            )
-                          ],
-                        ),
+                              Expanded(
+                                child: Container(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Positioned(
+                            bottom: size.height * 0.01,
+                            right: context.locale == const Locale('en')
+                                ? null
+                                : size.width * 0.025,
+                            left: context.locale == const Locale('en')
+                                ? size.width * 0.025
+                                : null,
+                            child: CircleAvatar(
+                              radius: size.width * 0.11,
+                              backgroundColor: ColorsManger.appbarColor,
+                              child: CircleAvatar(
+                                radius: size.width * 0.09,
+                                backgroundImage:
+                                    NetworkImage(cubit.user.profileUrl!),
+                                backgroundColor: Colors.white,
+                                onBackgroundImageError:
+                                    (exception, stackTrace) {},
+                                child: cubit.user.profileUrl == null
+                                    ? const Icon(
+                                        Icons.person,
+                                        size: 50,
+                                        color: Colors.black,
+                                      )
+                                    : null,
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-
-
-                       body: Stack(
-                         children: <Widget>[
-                           Padding(
-                             padding: EdgeInsets.only(bottom: bottomNavBarHeight),
-                             child:bodyContainer(),
-                           ),
-
-                           Align(alignment: Alignment.bottomCenter, child: bottomNav())
-                         ],
-                       ),
-
                     ),
-                   disconnected: const DisConnected(),
-                 );
-               }
-             );
-            });
+                    body: Stack(
+                      children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(bottom: bottomNavBarHeight),
+                          child: bodyContainer(),
+                        ),
+                        Align(
+                            alignment: Alignment.bottomCenter,
+                            child: bottomNav())
+                      ],
+                    ),
+                  ),
+                  disconnected: const DisConnected(),
+                );
+              });
+        });
   }
 
   Widget bodyContainer() {
@@ -276,7 +278,3 @@ class _HomeLayoutState extends State<HomeLayout> {
     _navigationController.dispose();
   }
 }
-
-
-
-

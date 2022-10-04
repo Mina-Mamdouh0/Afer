@@ -1,4 +1,3 @@
-
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
@@ -38,95 +37,102 @@ class _ShowLectureState extends State<ShowLecture> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<AppCubit, AppState>(
+  listener: (context, state) {
+  },
+  builder: (context, state) {
     return ConditionalBuilder(
-      condition: AppCubit.get(context).pdf.linkPdf != null,
-      builder: (context)=>Scaffold(
+      condition: AppCubit.get(context).pdf.linkPdf != null &&
+          AppCubit.get(context).pdf.linkPdf!.isNotEmpty &&
+          AppCubit.get(context).bytes.isNotEmpty,
+      builder: (context) => Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(
           backgroundColor: Colors.white,
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            elevation: 0,
-             leading: const SizedBox(),
-            actions:[
-              IconButton(
-                icon: const Icon(Icons.navigate_before),
-                onPressed: () {
-                  _pdfController.previousPage(
-                    curve: Curves.ease,
-                    duration: const Duration(milliseconds: 100),
-                  );
-                },
-              ),
-              PdfPageNumber(
-                controller: _pdfController,
-                builder: (_, loadingState, page, pagesCount) => Container(
-                  alignment: Alignment.center,
-                  child: Text(
-                    '$page/${pagesCount ?? 0}',
-                    style: const TextStyle(fontSize: 22),
-                  ),
+          elevation: 0,
+          leading: const SizedBox(),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.navigate_before),
+              onPressed: () {
+                _pdfController.previousPage(
+                  curve: Curves.ease,
+                  duration: const Duration(milliseconds: 100),
+                );
+              },
+            ),
+            PdfPageNumber(
+              controller: _pdfController,
+              builder: (_, loadingState, page, pagesCount) => Container(
+                alignment: Alignment.center,
+                child: Text(
+                  '$page/${pagesCount ?? 0}',
+                  style: const TextStyle(fontSize: 22),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.navigate_next),
-                onPressed: () {
-                  _pdfController.nextPage(
-                    curve: Curves.ease,
-                    duration: const Duration(milliseconds: 100),
-                  );
-                },
-              ),
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {
-                  if (_isSampleDoc) {
-                    _pdfController.loadDocument(
-                        PdfDocument.openData(AppCubit.get(context).bytes));
-                  } else {
-                    _pdfController
-                        .loadDocument(PdfDocument.openData(AppCubit.get(context).bytes));
-                  }
-                  _isSampleDoc = !_isSampleDoc;
-                },
-              ),
-            ],
-          ),
-
-          body: BlocConsumer<AppCubit,AppState>(
-              listener: (context, state) {},
-              builder: (context,state) {
-                return PdfView(
-                  builders: PdfViewBuilders<DefaultBuilderOptions>(
-                    options: const DefaultBuilderOptions(),
-                    documentLoaderBuilder: (_) =>
-                    const Center(child: CircularProgressIndicator()),
-                    pageLoaderBuilder: (_) =>
-                    const Center(child: CircularProgressIndicator()),
-                    pageBuilder: _pageBuilder,
-                  ),
-                  controller: _pdfController,
+            ),
+            IconButton(
+              icon: const Icon(Icons.navigate_next),
+              onPressed: () {
+                _pdfController.nextPage(
+                  curve: Curves.ease,
+                  duration: const Duration(milliseconds: 100),
                 );
-              }
+              },
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () {
+                if (_isSampleDoc) {
+                  _pdfController.loadDocument(
+                      PdfDocument.openData(AppCubit.get(context).bytes));
+                } else {
+                  _pdfController.loadDocument(
+                      PdfDocument.openData(AppCubit.get(context).bytes));
+                }
+                _isSampleDoc = !_isSampleDoc;
+              },
+            ),
+          ],
+        ),
+        body: BlocConsumer<AppCubit, AppState>(
+            listener: (context, state) {},
+            builder: (context, state) {
+              return PdfView(
+                builders: PdfViewBuilders<DefaultBuilderOptions>(
+                  options: const DefaultBuilderOptions(),
+                  documentLoaderBuilder: (_) =>
+                      const Center(child: CircularProgressIndicator()),
+                  pageLoaderBuilder: (_) =>
+                      const Center(child: CircularProgressIndicator()),
+                  pageBuilder: _pageBuilder,
+                ),
+                controller: _pdfController,
+              );
+            }),
+      ),
+      fallback: (context) => Center(
+        child: Text(
+          LocaleKeys.noPdfYet.tr(),
+          style: const TextStyle(
+            fontSize: 22,
+            fontFamily: 'Stoor',
+            fontWeight: FontWeight.normal,
           ),
+          textAlign: TextAlign.center,
         ),
-      fallback: (context)=> Center(child: Text(
-        LocaleKeys.noPdfYet.tr(),
-        style: const TextStyle(
-          fontSize: 22,
-          fontFamily: 'Stoor',
-          fontWeight: FontWeight.normal,
-        ),
-        textAlign:  TextAlign.center,
-      ),),
-
+      ),
     );
+  },
+);
   }
 
   PhotoViewGalleryPageOptions _pageBuilder(
-      BuildContext context,
-      Future<PdfPageImage> pageImage,
-      int index,
-      PdfDocument document,
-      ) {
+    BuildContext context,
+    Future<PdfPageImage> pageImage,
+    int index,
+    PdfDocument document,
+  ) {
     return PhotoViewGalleryPageOptions(
       imageProvider: PdfPageImageProvider(
         pageImage,

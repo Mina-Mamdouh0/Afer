@@ -2,12 +2,14 @@ import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/model/Subject.dart';
 import 'package:afer/screens/week_details/lecture_screen.dart';
+import 'package:afer/translations/locale_keys.g.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import '../const/photo_manger.dart';
 import '../model/lecture.dart';
 
 class SubjectsScreen extends StatelessWidget {
@@ -30,10 +32,10 @@ class SubjectsScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Lottie.asset('Asset/Image/emptysubject.json', fit: BoxFit.fill),
-              const Text(
-                'Not found your Subjects please go setting to choose your subject',
-                style: TextStyle(fontSize: 30),
+              Lottie.asset(PhotoManger.notFound, fit: BoxFit.fill),
+               Text(
+              LocaleKeys.notFoundSubject.tr(),
+                style: const TextStyle(fontSize: 30),
                 textAlign: TextAlign.center,
               ),
             ],

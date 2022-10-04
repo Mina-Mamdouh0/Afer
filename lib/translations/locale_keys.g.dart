@@ -50,5 +50,14 @@ abstract class  LocaleKeys {
   static const editInformation = 'editInformation';
   static const noQuestionsYet = 'noQuestionsYet';
   static const noPdfYet = 'noPdfYet';
+  static const noNotes = 'NoNotes';
+  static const wantSignOut = 'wantSignOut';
+  static const yes = 'yes';
+  static const cancel = 'cancel';
+  static const scanBarcode = 'ScanBarcode';
+  static const notFoundSubject = 'notFoundSubject';
+  static const notFoundVideo = 'notFoundVideo';
+  static const question = 'question';
+
 
 }

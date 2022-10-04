@@ -70,7 +70,8 @@ class _LectureScreenState extends State<LectureScreen> {
         academicYear: academicYear,
         lectureName: lectureName,
         context: context);
-
+    AppCubit.get(context).subjectName= subjectName;
+    AppCubit.get(context).lectureName= lectureName;
     super.initState();
   }
 
@@ -227,7 +228,7 @@ class _LectureScreenState extends State<LectureScreen> {
   @override
   void dispose() {
     cubit.locked = [false, false, true, true, true];
-
+cubit.studentNotes="";
     super.dispose();
   }
 

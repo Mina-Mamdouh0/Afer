@@ -47,7 +47,11 @@ class AppCubit extends Cubit<AppState> {
     MessageScreen(),
     Setting()
   ];
+  String subjectNotes = "";
+  String studentNotes = "";
 
+  String subjectName = "";
+  String lectureName = "";
   // Home Layout Screen variables
 
   List<Widget> lectureScreen = [
@@ -124,7 +128,7 @@ class AppCubit extends Cubit<AppState> {
   bool videoLocked = false;
   bool photoLocked = false;
   bool pdfLocked = false;
-  List<bool> locked = [false, false,true,true,true];
+  List<bool> locked = [false, false, true, true, true];
   bool isObscureEditInfo = true;
 
   //Settings Screen Functions
@@ -400,6 +404,7 @@ class AppCubit extends Cubit<AppState> {
       subjects.removeAt(itemIndex);
     } else {
       subjects.insert(subjects.length, subject);
+      print(subject.toJson());
     }
     emit(MakeMapSubjectState());
   }
@@ -425,6 +430,7 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) {
       for (var element in value.docs) {
+
         if (year == "First Year" &&
             !firstYear
                 .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
@@ -446,6 +452,7 @@ class AppCubit extends Cubit<AppState> {
           fourthYear.add(Subject.fromJson(element.data()));
         }
       }
+      print(firstYear[0].urlPhotoTeacher);
       emit(GetAllSubject());
     });
   }
@@ -484,7 +491,6 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) {
       photo = Photo.fromJson(value.docs.last.data()!);
-      getIfPhotoPayed(uidPhoto: photo.id!);
       emit(GetPhotoSuccessfully());
     }).catchError((onError) {
       log(onError.toString());
@@ -581,15 +587,17 @@ class AppCubit extends Cubit<AppState> {
     });
   }
 
-  void uploadNotes({required String notes}) {
+  void uploadNotes({
+    required String notes,
+  }) {
     FirebaseFirestore.instance
         .collection("Users")
         .doc(user.uid)
         .collection("Notes")
+        .doc(subjectName)
+        .collection(lectureName)
         .add({"notes": notes}).then((value) {
       emit(UploadNotesSuccessfully());
-    }).catchError((onError) {
-      emit(UploadNotesFailed());
     });
   }
 
@@ -605,17 +613,6 @@ class AppCubit extends Cubit<AppState> {
         point: "0", linkVideo: '', description: '', id: '', isPaid: false);
     photo = Photo(
         point: "0", linkPhoto: '', description: '', id: '', isPaid: false);
-
-    getPhoto(
-        academicYear: academicYear,
-        semester: user.semester!,
-        subjectName: subjectName,
-        lectureName: lectureName);
-    getVideo(
-        academicYear: academicYear,
-        semester: user.semester!,
-        subjectName: subjectName,
-        lectureName: lectureName);
     getPdf(
         academicYear: academicYear,
         semester: user.semester!,
@@ -627,6 +624,24 @@ class AppCubit extends Cubit<AppState> {
         semester: user.semester!,
         subjectName: subjectName,
         lectureName: lectureName);
+    getTeacherNotes(
+      academicYear: academicYear,
+      semester: user.semester!,
+      subjectName: subjectName,
+      lectureName: lectureName,
+    );
+    getNote(subjectName, lectureName);
+    getPhoto(
+        academicYear: academicYear,
+        semester: user.semester!,
+        subjectName: subjectName,
+        lectureName: lectureName);
+    getVideo(
+        academicYear: academicYear,
+        semester: user.semester!,
+        subjectName: subjectName,
+        lectureName: lectureName);
+
     weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
   }
 
@@ -700,18 +715,6 @@ class AppCubit extends Cubit<AppState> {
       locked[0] = value;
       //print(value);
     });
-  }
-
-  void getIfPhotoPayed({required String uidPhoto}) {
-    getSecureReference(type: "photo", uidItem: uidPhoto)
-        .then((value) => locked[2] = value);
-  }
-
-  bool getIfExamPayed({required String uidExam}) {
-    bool isPayed = false;
-    getSecureReference(type: "exam", uidItem: uidExam)
-        .then((value) => isPayed = isPayed);
-    return isPayed;
   }
 
   Future<bool> getSecureReference(
@@ -890,5 +893,40 @@ class AppCubit extends Cubit<AppState> {
         return alert;
       },
     );
+  }
+
+  void getTeacherNotes({
+    required String academicYear,
+    required String semester,
+    required String subjectName,
+    required String lectureName,
+  }) {
+    _dataReference(
+            academicYear: academicYear,
+            semester: semester,
+            subjectName: subjectName,
+            lectureName: lectureName,
+            type: 'notes')
+        .get()
+        .then((value) async {
+      subjectNotes = value.docs.last.get("notes");
+      emit(GetPdfSuccessfully());
+    }).catchError((onError) {
+      log(onError.toString());
+      emit(GetPdfFailed());
+    });
+  }
+
+  void getNote(subjectName, lectureName) {
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user.uid)
+        .collection("Notes")
+        .doc(subjectName)
+        .collection(lectureName)
+        .get()
+        .then((value) {
+      studentNotes = value.docs.last.get("notes");
+    });
   }
 }
