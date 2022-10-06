@@ -67,4 +67,10 @@ flutter:
     - family: Stoor
       fonts:
         - asset: assets/font/ad-STOOR.otf
+    - family: AdvertisingExtraBold
+      fonts:
+        - asset: assets/font/AdvertisingExtraBold-1.ttf
+    - family: ABarada Reqa
+      fonts:
+        - asset: assets/font/barada-reqa.ttf
 

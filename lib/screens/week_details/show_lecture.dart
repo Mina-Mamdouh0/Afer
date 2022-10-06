@@ -22,11 +22,12 @@ class _ShowLectureState extends State<ShowLecture> {
 
   @override
   void initState() {
-    super.initState();
     _pdfController = PdfController(
       document: PdfDocument.openData(AppCubit.get(context).bytes),
       initialPage: _initialPage,
     );
+    super.initState();
+
   }
 
   @override
@@ -45,7 +46,7 @@ class _ShowLectureState extends State<ShowLecture> {
       condition: AppCubit.get(context).pdf.linkPdf != null &&
           AppCubit.get(context).pdf.linkPdf!.isNotEmpty &&
           AppCubit.get(context).bytes.isNotEmpty,
-      builder: (context) => Scaffold(
+        builder: (context) => Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -96,10 +97,26 @@ class _ShowLectureState extends State<ShowLecture> {
           ],
         ),
         body: BlocConsumer<AppCubit, AppState>(
+
             listener: (context, state) {},
             builder: (context, state) {
               return PdfView(
                 builders: PdfViewBuilders<DefaultBuilderOptions>(
+                  errorBuilder: (context, error) => Center(
+                    child:  IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: () {
+                        if (_isSampleDoc) {
+                          _pdfController.loadDocument(
+                              PdfDocument.openData(AppCubit.get(context).bytes));
+                        } else {
+                          _pdfController.loadDocument(
+                              PdfDocument.openData(AppCubit.get(context).bytes));
+                        }
+                        _isSampleDoc = !_isSampleDoc;
+                      },
+                    ),
+                  ),
                   options: const DefaultBuilderOptions(),
                   documentLoaderBuilder: (_) =>
                       const Center(child: CircularProgressIndicator()),
@@ -108,20 +125,32 @@ class _ShowLectureState extends State<ShowLecture> {
                   pageBuilder: _pageBuilder,
                 ),
                 controller: _pdfController,
+                onDocumentError: (error) {
+
+                  _pdfController.loadDocument(
+                      PdfDocument.openData(AppCubit.get(context).bytes));
+                },
+
               );
             }),
       ),
-      fallback: (context) => Center(
-        child: Text(
-          LocaleKeys.noPdfYet.tr(),
-          style: const TextStyle(
-            fontSize: 22,
-            fontFamily: 'Stoor',
-            fontWeight: FontWeight.normal,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
+      fallback: (context) {
+        if(AppCubit.get(context).pdf.linkPdf != null) {
+          return const Center(child: CircularProgressIndicator());
+        } else {
+          return  Center(
+            child: Text(
+              LocaleKeys.noPdfYet.tr(),
+              style: const TextStyle(
+                fontSize: 22,
+                fontFamily: 'Stoor',
+                fontWeight: FontWeight.normal,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
+      }
     );
   },
 );
@@ -134,10 +163,12 @@ class _ShowLectureState extends State<ShowLecture> {
     PdfDocument document,
   ) {
     return PhotoViewGalleryPageOptions(
+      filterQuality: FilterQuality.high,
       imageProvider: PdfPageImageProvider(
         pageImage,
         index,
         document.id,
+
       ),
       minScale: PhotoViewComputedScale.contained * 1,
       maxScale: PhotoViewComputedScale.contained * 2,

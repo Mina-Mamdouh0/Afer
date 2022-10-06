@@ -61,32 +61,26 @@ class _ShowQuestionState extends State<ShowQuestion> {
                       color: ColorsManger.appbarColor.withOpacity(0.8),
                     ),
                   ),
-                  BlocBuilder<AppCubit, AppState>(
-                    builder: (context, state) {
-                      return Padding(
+                Padding(
                         padding: const EdgeInsets.only(top: 10, right: 10),
                         child: Text(
                           AppCubit.get(context).questions.length.toString(),
                           style: const TextStyle(color: Colors.grey, fontSize: 15),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+
                 ],
               ),
               const SizedBox(height: 25),
-              BlocBuilder<AppCubit, AppState>(
-                builder: (context, state) {
-                  return Text(
+        Text(
                     AppCubit.get(context).questions[pageIndex - 1].question!,
                     maxLines: 5,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 19,
+                      fontFamily:"AdvertisingExtraBold"
                     ),
-                  );
-                },
-              ),
+                  ),
               const SizedBox(height: 20),
               InkWell(
                 onTap: () {
@@ -259,7 +253,8 @@ class QuestionCard extends StatelessWidget {
           Flexible(
             child: Text(
               text,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+              style: const TextStyle(fontWeight: FontWeight.w400, fontSize: 15,fontFamily: "ABarada Reqa"),
+
             ),
           ),
           Padding(

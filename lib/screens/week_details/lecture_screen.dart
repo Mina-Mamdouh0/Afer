@@ -65,13 +65,14 @@ class _LectureScreenState extends State<LectureScreen> {
   late AppCubit cubit;
   @override
   void initState() {
+    AppCubit.get(context).subjectName = subjectName;
+    AppCubit.get(context).lectureName = lectureName;
     AppCubit.get(context).getLectureData(
         subjectName: subjectName,
         academicYear: academicYear,
         lectureName: lectureName,
         context: context);
-    AppCubit.get(context).subjectName= subjectName;
-    AppCubit.get(context).lectureName= lectureName;
+
     super.initState();
   }
 
@@ -228,7 +229,7 @@ class _LectureScreenState extends State<LectureScreen> {
   @override
   void dispose() {
     cubit.locked = [false, false, true, true, true];
-cubit.studentNotes="";
+    cubit.studentNotes.clear();
     super.dispose();
   }
 
@@ -236,8 +237,8 @@ cubit.studentNotes="";
     return InkWell(
       onTap: () {
         if (cubit.locked[index] == true) {
-          if(index==1){
-              BlocProvider.of<AppCubit>(context).showImageUnderVideo= false;
+          if (index == 1) {
+            BlocProvider.of<AppCubit>(context).showImageUnderVideo = false;
           }
           cubit.weekTemplateChangeIndex(index);
         } else {
@@ -245,9 +246,9 @@ cubit.studentNotes="";
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                title: const Text(
-                  'pay it for unlock',
-                  style: TextStyle(
+                title: Text(
+                  LocaleKeys.payTitle.tr(),
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 25,
                     color: Colors.teal,
@@ -255,7 +256,7 @@ cubit.studentNotes="";
                 ),
                 elevation: 10,
                 content: Text(
-                  'you will pay ${cubit.getPoint(index)} point to unlock this lecture',
+                  '${LocaleKeys.youWillPay.tr()} ${cubit.getPoint(index)} ${LocaleKeys.pointLecture.tr()}',
                   style: const TextStyle(
                     fontWeight: FontWeight.normal,
                     fontSize: 20,
@@ -267,9 +268,9 @@ cubit.studentNotes="";
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(
+                      child: Text(
+                        LocaleKeys.cancel.tr(),
+                        style: const TextStyle(
                           color: Colors.red,
                           fontSize: 20,
                           fontWeight: FontWeight.normal,
@@ -280,9 +281,9 @@ cubit.studentNotes="";
                         Navigator.pop(context);
                         cubit.secure(index: index, context: context);
                       },
-                      child: const Text(
-                        'Ok',
-                        style: TextStyle(
+                      child: Text(
+                        LocaleKeys.yes.tr(),
+                        style: const TextStyle(
                           color: Colors.teal,
                           fontSize: 20,
                           fontWeight: FontWeight.normal,

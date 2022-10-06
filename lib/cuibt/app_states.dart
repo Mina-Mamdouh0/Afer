@@ -35,4 +35,7 @@ class LosePointsFailed extends AppState{}
 class ShowImageUnderVideo extends AppState{}
 class UploadNotesSuccessfully extends AppState{}
 class UploadNotesFailed extends AppState{}
+class GetIsLocked extends AppState{}
+class GetStudentNotesSuccessfully extends AppState{}
+class ToggleNotesShow extends AppState{}
 
