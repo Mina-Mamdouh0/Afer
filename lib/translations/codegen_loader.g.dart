@@ -76,7 +76,18 @@ class CodegenLoader extends AssetLoader{
     "ScanBarcode": "مسح الباركود",
     "notFoundSubject": "لا يوجد مواد حتي الان من فضلك توجه الي صفحه الاعدادات لاضافه موادك",
     "notFoundVideo": "لا يوجد فيديو حتي الان",
-    "question":"السؤال"
+    "question":"السؤال",
+    "errorQr":"هذا الكود غير صحيح لا تحاول  مجددا من الممكن ان يعطل حسابك ",
+    "thisQrNotValid":"هذا الكود غير صالح للاستخدام ",
+    "notEnoughPoints":"ليس لديك نقاط كافيه لشراء هذا الاسبوع",
+    "errorWhilePaying":"حدث خطأ اثناء الدفع من فضلك حاول مجددا",
+    "Loading":"جاري التحميل...",
+    "PayTitle":" ادفع لتلمتلك هذه الصلاحيه ",
+    "youWillPay":"سوف تدفع",
+    "pointLecture":"نقاط لتلمتلك صلاحيه الدخول لهذا الملف",
+    "enterMoreNotes":"ادخل الملاحظات",
+    "showNotes":"عرض الملاحظات",
+
 };
 static const Map<String,dynamic> en = {
   "welcome": "Welcome",
@@ -135,7 +146,17 @@ static const Map<String,dynamic> en = {
   "ScanBarcode": "Scan Barcode",
   "notFoundSubject":"Not found your Subjects please go setting to choose your subjects",
   "notFoundVideo":"Not found your Videos ",
-  "question":"question"
+  "question":"question",
+  "errorQr":"don't try  this again because that maybe block your account",
+  "thisQrNotValid":"this qr code is not valid",
+  "notEnoughPoints":"you don't have enough points to buy this",
+  "errorWhilePaying":"Error while paying",
+  "Loading":"Loading...",
+"PayTitle":"pay for unlock",
+"youWillPay":"you will pay",
+"pointLecture":"point to unlock this lecture",
+"enterMoreNotes":"enter more notes",
+"showNotes":"show notes",
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": ar, "en": en};
 }

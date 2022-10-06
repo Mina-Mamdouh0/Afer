@@ -1,5 +1,5 @@
-import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_states.dart';
@@ -8,6 +8,7 @@ import 'package:afer/screens/week_details/feedback_screen.dart';
 import 'package:afer/screens/week_details/show_alerts.dart';
 import 'package:afer/screens/week_details/show_lecture.dart';
 import 'package:afer/screens/week_details/show_question.dart';
+import 'package:afer/translations/locale_keys.g.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -22,6 +23,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import '../model/exam.dart';
 import '../model/lecture.dart';
 
+import '../model/notes.dart';
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -48,8 +50,8 @@ class AppCubit extends Cubit<AppState> {
     Setting()
   ];
   String subjectNotes = "";
-  String studentNotes = "";
-
+  List<Notes> studentNotes = [];
+String uidNote="";
   String subjectName = "";
   String lectureName = "";
   // Home Layout Screen variables
@@ -116,18 +118,15 @@ class AppCubit extends Cubit<AppState> {
       DateTime.now().month >= 9 ? "First semester" : "Second semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
-
+Notes notes=Notes();
   //Settings Screen variables
   List<Subject> firstYear = [];
   List<Subject> subjects = [];
-  Video video = Video();
+  Video video = Video(isPaid: false);
   Photo photo = Photo();
   Pdf pdf = Pdf();
   List<Question> questions = [];
   Uint8List bytes = Uint8List(0);
-  bool videoLocked = false;
-  bool photoLocked = false;
-  bool pdfLocked = false;
   List<bool> locked = [false, false, true, true, true];
   bool isObscureEditInfo = true;
 
@@ -196,7 +195,6 @@ class AppCubit extends Cubit<AppState> {
         .then((value) {
       emit(CreateAccountSuccess());
     }).catchError((error) {
-      log(error.toString());
       emit(CreateAccountFailed());
     });
   }
@@ -275,7 +273,6 @@ class AppCubit extends Cubit<AppState> {
       createAccount(value.user!.uid);
       navigator(context: context, page: const AuthScreen(), returnPage: false);
     }).catchError((error) {
-      log(error.toString());
       emit(CreateAccountFailed());
     });
   }
@@ -292,7 +289,6 @@ class AppCubit extends Cubit<AppState> {
       }
       navigator(context: context, page: HomeLayout(), returnPage: false);
     }).catchError((error) {
-      log(error.toString());
       MotionToast.error(
         description: const Text("حدث خطا ما في تسجيل الدخول"),
         title:
@@ -352,7 +348,6 @@ class AppCubit extends Cubit<AppState> {
         .then((value) {
       getInfo(sherdprefrence.getdate(key: "token"));
     }).catchError((onError) {
-      log(onError.toString());
     });
   }
 
@@ -430,7 +425,6 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) {
       for (var element in value.docs) {
-
         if (year == "First Year" &&
             !firstYear
                 .any((E) => E.isEqutaple(Subject.fromJson(element.data())))) {
@@ -492,7 +486,6 @@ class AppCubit extends Cubit<AppState> {
       photo = Photo.fromJson(value.docs.last.data()!);
       emit(GetPhotoSuccessfully());
     }).catchError((onError) {
-      log(onError.toString());
       photo = Photo(
           id: null,
           isPaid: null,
@@ -517,7 +510,7 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) {
       video = Video.fromJson(value.docs.last.data()!);
-      getIfVideoPayed(uidVideo: video.id!);
+      getIfVideoPayed(uidVideo: video.id!,isPayed: video.isPaid??false);
       emit(GetVideoSuccessfully());
     }).catchError((onError) {
       video = Video(
@@ -526,7 +519,6 @@ class AppCubit extends Cubit<AppState> {
           description: null,
           linkVideo: null,
           point: null);
-      log(onError.toString());
       emit(GetVideoFailed());
     });
   }
@@ -546,14 +538,13 @@ class AppCubit extends Cubit<AppState> {
         .get()
         .then((value) async {
       pdf = Pdf.fromJson(value.docs.last.data()!);
-      getIfPdfPayed(uidPdf: pdf.id!);
+      getIfPdfPayed(uidPdf: pdf.id!,isPayed: pdf.isPaid!);
       bytes = await InternetFile.get(
         pdf.linkPdf!,
       );
 
       emit(GetPdfSuccessfully());
     }).catchError((onError) {
-      log(onError.toString());
       pdf = Pdf(
           id: null,
           isPaid: null,
@@ -578,24 +569,29 @@ class AppCubit extends Cubit<AppState> {
             type: 'Question')
         .get()
         .then((value) {
-
       questions.addAll(value.docs.map((e) => Question.fromJson(e.data()!)));
       print(questions.length);
     });
   }
 
-  void uploadNotes({
-    required String notes,
-  }) {
+  void uploadNotes(
+      String note
+  ) {
+    notes=Notes(
+      date:  DateFormat.yMMMd("en").format(DateTime.now()),
+          notes: note,
+      uid: Random.secure().nextInt(1000000000).toString(),
+    );
     FirebaseFirestore.instance
         .collection("Users")
         .doc(user.uid)
         .collection("Notes")
         .doc(subjectName)
-        .collection(lectureName)
-        .add({"notes": notes}).then((value) {
+        .collection(lectureName).doc(notes.uid).set(notes.toMap()).then((value) {
       emit(UploadNotesSuccessfully());
     });
+
+
   }
 
   Future<void> getLectureData({
@@ -610,6 +606,8 @@ class AppCubit extends Cubit<AppState> {
         point: "0", linkVideo: '', description: '', id: '', isPaid: false);
     photo = Photo(
         point: "0", linkPhoto: '', description: '', id: '', isPaid: false);
+studentNotes.clear();
+
     getPdf(
         academicYear: academicYear,
         semester: user.semester!,
@@ -627,7 +625,7 @@ class AppCubit extends Cubit<AppState> {
       subjectName: subjectName,
       lectureName: lectureName,
     );
-    getNote(subjectName, lectureName);
+    getNote();
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,
@@ -647,38 +645,48 @@ class AppCubit extends Cubit<AppState> {
     emit(ChangeLocale());
   }
 
-  void readQrCode(String qrCode, context)async {
+  void readQrCode(String qrCode, context) async {
     qrStar = qrCode;
     await FirebaseFirestore.instance
         .collection("qrcode")
         .doc(qrCode)
         .get()
-        .then((value) async{
+        .then((value) async {
       if (value.exists) {
-         pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
+        pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
         FirebaseFirestore.instance
             .collection("qrcode")
             .doc("money")
             .get()
-            .then((value)async {
+            .then((value) async {
           var money = int.tryParse(value.data()!["money"]) ?? 0;
-          await   FirebaseFirestore.instance.collection("qrcode").doc("money").update({
+          await FirebaseFirestore.instance
+              .collection("qrcode")
+              .doc("money")
+              .update({
             "money": (money + int.tryParse(qrCode.split(" ").last)!).toString()
           });
         });
-         await      FirebaseFirestore.instance.collection("qrcode").doc(qrCode).delete();
+        await FirebaseFirestore.instance
+            .collection("qrcode")
+            .doc(qrCode)
+            .delete();
       } else {
         MotionToast.warning(
-          description: const Text(
-              "don't  try this because that maybe block your account"),
-          title: const Text("this qr code is not valid"),
+          description: Text(
+            LocaleKeys.errorQr.tr(),
+          ),
+          title: Text(
+            LocaleKeys.qrNotFound.tr(),
+          ),
         ).show(context);
       }
     }).catchError((onError) {
       MotionToast.warning(
-        description: const Text(
-            "don't try this again because that maybe block your account"),
-        title: const Text("this qr code is not valid"),
+        description: Text(
+          LocaleKeys.errorQr.tr(),
+        ),
+        title: Text(LocaleKeys.qrNotFound.tr()),
       ).show(context);
     });
     emit((BrCodeReading()));
@@ -700,22 +708,22 @@ class AppCubit extends Cubit<AppState> {
         .collection(type);
   }
 
-  void getIfVideoPayed({required String uidVideo}) {
-    getSecureReference(type: "video", uidItem: uidVideo).then((value) {
+  void getIfVideoPayed({required String uidVideo,required bool isPayed}) {
+    getSecureReference(type: "video", uidItem: uidVideo,isPayed: isPayed).then((value) {
       locked[1] = value;
-      //print("this vidoe $value");
     });
   }
 
-  void getIfPdfPayed({required String uidPdf}) {
-    getSecureReference(type: "Pdf", uidItem: uidPdf).then((value) {
+  void getIfPdfPayed({required String uidPdf,required bool isPayed}) {
+    getSecureReference(type: "Pdf", uidItem: uidPdf,isPayed:isPayed ).then((value) {
       locked[0] = value;
-      //print(value);
+    }).catchError((onError){
+      locked[0] = true;
     });
   }
 
   Future<bool> getSecureReference(
-      {required String uidItem, required String type}) async {
+      {required String uidItem, required String type, bool isPayed=false}) async {
     return await FirebaseFirestore.instance
         .collection("secure")
         .doc(type)
@@ -723,11 +731,16 @@ class AppCubit extends Cubit<AppState> {
         .doc(user.uid)
         .get()
         .then((value) {
-      if (value.exists) {
-        return true;
-      } else {
-        return false;
-      }
+          if(isPayed){
+            if (value.exists) {
+              return true;
+            } else {
+              return false;
+            }
+          }else {
+            return true;
+          }
+
     });
   }
 
@@ -814,8 +827,8 @@ class AppCubit extends Cubit<AppState> {
     } else {
       //print("you don't have enough points");
       MotionToast.error(
-        description: const Text("You don't have enough points"),
-        title: const Text("Error while paying"),
+        description: Text(LocaleKeys.notEnoughPoints.tr()),
+        title: Text(LocaleKeys.errorWhilePaying.tr()),
         height: 100,
         width: 350,
         animationDuration: const Duration(milliseconds: 900),
@@ -853,8 +866,10 @@ class AppCubit extends Cubit<AppState> {
   }
 
   void getAllSucre() {
-    getIfPdfPayed(uidPdf: pdf.id!);
-    getIfVideoPayed(uidVideo: video.id!);
+    getIfPdfPayed(uidPdf: pdf.id!,isPayed: pdf.isPaid!);
+    getIfVideoPayed(uidVideo: video.id!,isPayed: video.isPaid!);
+    emit(GetIsLocked());
+
   }
 
   bool showImageUnderVideo = false;
@@ -870,14 +885,14 @@ class AppCubit extends Cubit<AppState> {
       content: SizedBox(
         height: 100,
         width: 100,
-        child: Column(children: const [
-          CircularProgressIndicator(color: Colors.blue),
-          SizedBox(
+        child: Column(children: [
+          const CircularProgressIndicator(color: Colors.blue),
+          const SizedBox(
             height: 10,
           ),
           Text(
-            "Loading...",
-            style: TextStyle(
+            LocaleKeys.loading.tr(),
+            style: const TextStyle(
                 fontSize: 25, fontWeight: FontWeight.w700, color: Colors.blue),
           )
         ]),
@@ -909,12 +924,11 @@ class AppCubit extends Cubit<AppState> {
       subjectNotes = value.docs.last.get("notes");
       emit(GetPdfSuccessfully());
     }).catchError((onError) {
-      log(onError.toString());
       emit(GetPdfFailed());
     });
   }
 
-  void getNote(subjectName, lectureName) {
+  void getNote() {
     FirebaseFirestore.instance
         .collection("Users")
         .doc(user.uid)
@@ -923,7 +937,46 @@ class AppCubit extends Cubit<AppState> {
         .collection(lectureName)
         .get()
         .then((value) {
-      studentNotes = value.docs.last.get("notes");
+      studentNotes = List.generate(value.docs.length, (index) =>Notes.fromJson(value.docs[index].data()) );
+      emit(GetStudentNotesSuccessfully());
     });
+  }
+  void  uploadOrUpdateNotes(note){
+    if(uidNote.isEmpty) {
+      uploadNotes(note);
+    }
+    if(uidNote.isNotEmpty){
+      updateNotes(note);
+    }
+  }
+  void updateNotes(
+      String note
+      ) {
+    notes=Notes(
+      date:  DateFormat.yMMMd("en").format(DateTime.now()),
+      notes: note,
+      uid: uidNote
+    );
+    FirebaseFirestore.instance
+        .collection("Users")
+        .doc(user.uid)
+        .collection("Notes")
+        .doc(subjectName)
+        .collection(lectureName).doc(notes.uid).update(notes.toMap()).then((value) {
+      emit(UploadNotesSuccessfully());
+    });
+
+
+  }
+  void  toggleNotesShow(bool isEdit,String uid){
+    if(isEdit){
+ uidNote= uid;
+ studentNotes.clear();
+    }
+    else {
+      uidNote="";
+      studentNotes.clear();
+    }
+    emit(ToggleNotesShow());
   }
 }

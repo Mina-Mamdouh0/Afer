@@ -58,6 +58,17 @@ abstract class  LocaleKeys {
   static const notFoundSubject = 'notFoundSubject';
   static const notFoundVideo = 'notFoundVideo';
   static const question = 'question';
+  static const errorQr = 'errorQr';
+  static const qrNotFound = 'thisQrNotValid';
+  static const notEnoughPoints = 'notEnoughPoints';
+  static const errorWhilePaying = 'errorWhilePaying';
+  static const loading = 'Loading';
+  static const payTitle = 'PayTitle';
+  static const youWillPay = 'youWillPay';
+  static const pointLecture = 'pointLecture';
+  static const enterMoreNotes = 'enterMoreNotes';
+  static const showNotes = 'showNotes';
+
 
 
 }
