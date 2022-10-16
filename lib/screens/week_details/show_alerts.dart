@@ -13,15 +13,15 @@ class ShowAlerts extends StatelessWidget {
     return  Center(
       child: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: BlocBuilder<AppCubit, AppState>(
+        child: BlocBuilder<AppCubit, AppStates>(
           bloc: AppCubit(),
           builder: (context, state) {
             return  Text(
             context.read<AppCubit>().subjectNotes.isNotEmpty? context.read<AppCubit>().subjectNotes:LocaleKeys.noNotes.tr(),
               style: const TextStyle(
                 fontSize: 25,
-                fontFamily: 'Stoor',
-                fontWeight: FontWeight.normal,
+                fontFamily: 'Droid Arabic Naskh Bold',
+                fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
             );

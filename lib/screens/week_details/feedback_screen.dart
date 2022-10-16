@@ -17,7 +17,7 @@ class FeedBackScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(10.0),
-      child: BlocConsumer<AppCubit, AppState>(
+      child: BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
           var cubit = AppCubit.get(context);

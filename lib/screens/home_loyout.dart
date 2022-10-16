@@ -8,6 +8,7 @@ import 'package:afer/screens/message_screen.dart';
 import 'package:afer/screens/payment_screen.dart';
 import 'package:afer/screens/subjects_screen.dart';
 import 'package:afer/widget/widget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:circular_bottom_navigation/circular_bottom_navigation.dart';
 import 'package:circular_bottom_navigation/tab_item.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
@@ -19,30 +20,30 @@ import 'package:iconly/iconly.dart';
 import '../translations/locale_keys.g.dart';
 
 class HomeLayout extends StatefulWidget {
+  const HomeLayout({super.key});
+
   @override
   State<HomeLayout> createState() => _HomeLayoutState();
 }
 
 class _HomeLayoutState extends State<HomeLayout> {
-  int selectedPos = 0;
 
   double bottomNavBarHeight = 60;
- late List<TabItem> tabItems;
-  late CircularBottomNavigationController _navigationController;
+  late List<TabItem> tabItems;
 
   @override
   void initState() {
     super.initState();
-    _navigationController = CircularBottomNavigationController(selectedPos);
+    AppCubit.get(context).navigationController = CircularBottomNavigationController(   AppCubit.get(context).selectedPos);
   }
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
-        tabItems = List.of([
+          tabItems = List.of([
             TabItem(IconlyLight.home, LocaleKeys.home.tr(), Colors.blue,
                 labelStyle: const TextStyle(
                   color: Colors.blue,
@@ -57,12 +58,12 @@ class _HomeLayoutState extends State<HomeLayout> {
                 fontWeight: FontWeight.normal,
               ),
             ),
-            TabItem(IconlyLight.message,  LocaleKeys.messages.tr(), Colors.red,
+            TabItem(IconlyLight.message, LocaleKeys.messages.tr(), Colors.red,
                 labelStyle: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.normal,
                 )),
-            TabItem(IconlyLight.setting,  LocaleKeys.setting.tr(), Colors.cyan,
+            TabItem(IconlyLight.setting, LocaleKeys.setting.tr(), Colors.cyan,
                 labelStyle: const TextStyle(
                   color: Colors.cyan,
                   fontWeight: FontWeight.normal,
@@ -149,7 +150,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                                       onTap: () {
                                         navigator(
                                             context: context,
-                                            page: PaymentScreen(),
+                                            page: const PaymentScreen(),
                                             returnPage: true);
                                       },
                                       child: Padding(
@@ -183,20 +184,23 @@ class _HomeLayoutState extends State<HomeLayout> {
                             child: CircleAvatar(
                               radius: size.width * 0.11,
                               backgroundColor: ColorsManger.appbarColor,
-                              child: CircleAvatar(
-                                radius: size.width * 0.09,
-                                backgroundImage:
-                                    NetworkImage(cubit.user.profileUrl!),
-                                backgroundColor: Colors.white,
-                                onBackgroundImageError:
-                                    (exception, stackTrace) {},
-                                child: cubit.user.profileUrl == null
-                                    ? const Icon(
-                                        Icons.person,
-                                        size: 50,
-                                        color: Colors.black,
-                                      )
-                                    : null,
+                              child: CachedNetworkImage(
+                                imageUrl: cubit.user.profileUrl!,
+                                cacheKey: cubit.user.profileUrl,
+
+                                imageBuilder: (context, imageProvider) => CircleAvatar(
+                                  radius: size.width * 0.09,
+                                  backgroundImage: imageProvider,
+                                  backgroundColor: Colors.white,
+                                  onBackgroundImageError: (exception, stackTrace) {},
+                                  child: cubit.user.profileUrl == null
+                                      ? const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: Colors.black,
+                                  )
+                                      : null,
+                                ),
                               ),
                             ),
                           )
@@ -216,6 +220,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                     ),
                   ),
                   disconnected: const DisConnected(),
+
                 );
               });
         });
@@ -223,15 +228,15 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   Widget bodyContainer() {
     Widget screen;
-    switch (selectedPos) {
+    switch (   AppCubit.get(context).selectedPos) {
       case 0:
         screen = const SubjectsScreen();
         break;
       case 1:
-        screen = MessageScreen();
+        screen = const MessageScreen();
         break;
       case 2:
-        screen = MessageScreen();
+        screen = const MessageScreen();
         break;
       case 3:
         screen = Setting();
@@ -244,10 +249,10 @@ class _HomeLayoutState extends State<HomeLayout> {
     return GestureDetector(
       child: screen,
       onTap: () {
-        if (_navigationController.value == tabItems.length - 1) {
-          _navigationController.value = 0;
+        if (   AppCubit.get(context).navigationController.value == tabItems.length - 1) {
+             AppCubit.get(context).navigationController.value = 0;
         } else {
-          _navigationController.value = _navigationController.value! + 1;
+             AppCubit.get(context).navigationController.value =    AppCubit.get(context).navigationController.value! + 1;
         }
       },
     );
@@ -256,8 +261,8 @@ class _HomeLayoutState extends State<HomeLayout> {
   Widget bottomNav() {
     return CircularBottomNavigation(
       tabItems,
-      controller: _navigationController,
-      selectedPos: selectedPos,
+      controller:    AppCubit.get(context).navigationController,
+      selectedPos:    AppCubit.get(context).selectedPos,
       barHeight: bottomNavBarHeight,
       barBackgroundColor: Colors.white,
       backgroundBoxShadow: const <BoxShadow>[
@@ -266,7 +271,7 @@ class _HomeLayoutState extends State<HomeLayout> {
       animationDuration: const Duration(milliseconds: 300),
       selectedCallback: (int? selectedPos) {
         setState(() {
-          this.selectedPos = selectedPos ?? 0;
+           AppCubit.get(context).selectedPos = selectedPos ?? 0;
         });
       },
     );
@@ -275,6 +280,6 @@ class _HomeLayoutState extends State<HomeLayout> {
   @override
   void dispose() {
     super.dispose();
-    _navigationController.dispose();
+    AppCubit.get(context).navigationController.dispose();
   }
 }

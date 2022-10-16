@@ -38,7 +38,7 @@ class _ShowLectureState extends State<ShowLecture> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
   listener: (context, state) {
   },
   builder: (context, state) {
@@ -96,7 +96,7 @@ class _ShowLectureState extends State<ShowLecture> {
             ),
           ],
         ),
-        body: BlocConsumer<AppCubit, AppState>(
+        body: BlocConsumer<AppCubit, AppStates>(
 
             listener: (context, state) {},
             builder: (context, state) {

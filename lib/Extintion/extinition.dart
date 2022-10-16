@@ -2,10 +2,7 @@ import 'package:afer/model/Subject.dart';
 
 extension ispassword on String {
   bool get isPassword {
-    if (length >= 8 &&
-        contains(RegExp(r'[A-Z]')) &&
-        contains(RegExp(r'[a-z]')) &&
-        contains(RegExp(r'[0-9]'))) {
+    if (length >= 8 ) {
       return false;
     } else {
       return true;
