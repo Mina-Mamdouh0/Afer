@@ -18,7 +18,7 @@ class SignupScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size=MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {},
       builder: (context, state) {
         var cubit = AppCubit.get(context);
@@ -248,7 +248,7 @@ class SignupScreen extends StatelessWidget {
                     hintText: '**********',
                     validator: (value) {
                       if (value!.isPassword) {
-                        return 'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number';
+                        return 'at least 8 characters ';
                       }
                       return null;
                     },
@@ -263,8 +263,7 @@ class SignupScreen extends StatelessWidget {
                       onPressed: () => cubit.changeObscureSignUp(),
                     ),
                     obscureText: cubit.isObscureSignup,
-                    helperText:
-                    'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number',
+
 
                   ),
 
@@ -293,8 +292,7 @@ class SignupScreen extends StatelessWidget {
     cubit.signUp(context);
     }},
                     obscureText: cubit.isObscureSignup,
-                    helperText:
-                    'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number',
+
 
                   ),
                   SizedBox(height: size.height*0.02,),

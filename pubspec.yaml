@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none'
 
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -34,9 +34,12 @@ dependencies:
   barcode_widget: ^2.0.2
   flutter_barcode_scanner: ^2.0.0
 #to get pdf from url and show it
-  internet_file: ^1.2.0
   pdfx: ^2.2.0
   circular_bottom_navigation: ^2.1.2
+  photo_view: ^0.14.0
+  flutter_cache_manager: ^3.3.0
+  cached_network_image: ^3.2.1
+  google_mobile_ads: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -47,10 +50,10 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/image/logo.png"
+  image_path: "assets/image/splash.png"
   remove_alpha_ios: true
   adaptive_icon_background: "#FFFFFF"
-  adaptive_icon_foreground: "assets/image/logo.png"
+  adaptive_icon_foreground: "assets/image/splash.png"
 
   flutter_lints: ^1.0.0
 
@@ -59,6 +62,7 @@ flutter:
 
   assets:
     - assets/image/
+
 
   fonts:
     - family: Rajab
@@ -73,4 +77,7 @@ flutter:
     - family: ABarada Reqa
       fonts:
         - asset: assets/font/barada-reqa.ttf
+    - family: Droid Arabic Naskh Bold
+      fonts:
+        - asset: assets/font/naskh.ttf
 

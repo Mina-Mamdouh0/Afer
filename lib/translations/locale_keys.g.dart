@@ -68,6 +68,15 @@ abstract class  LocaleKeys {
   static const pointLecture = 'pointLecture';
   static const enterMoreNotes = 'enterMoreNotes';
   static const showNotes = 'showNotes';
+  static const sendForgetPassword = 'sendForgetPassword';
+  static const error = 'error';
+  static const oldPassword = 'oldPassword';
+  static const next = 'Next';
+  static const end = 'End';
+  static const before = 'Before';
+  static const congratulations = 'congratulations';
+  static const yourNowPremium = 'yourNowPremium';
+  static const notFoundLac = 'notFoundLac';
 
 
 

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import '../translations/locale_keys.g.dart';
 
 class MessageScreen extends StatelessWidget {
+  const MessageScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {

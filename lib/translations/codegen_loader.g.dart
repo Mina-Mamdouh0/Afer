@@ -10,7 +10,7 @@ class CodegenLoader extends AssetLoader{
   const CodegenLoader();
 
   @override
-  Future<Map<String, dynamic>> load(String fullPath, Locale locale ) {
+  Future<Map<String, dynamic>> load(String path, Locale locale ) {
     return Future.value(mapLocales[locale.toString()]);
   }
 
@@ -79,14 +79,23 @@ class CodegenLoader extends AssetLoader{
     "question":"السؤال",
     "errorQr":"هذا الكود غير صحيح لا تحاول  مجددا من الممكن ان يعطل حسابك ",
     "thisQrNotValid":"هذا الكود غير صالح للاستخدام ",
-    "notEnoughPoints":"ليس لديك نقاط كافيه لشراء هذا الاسبوع",
+    "notEnoughPoints":"ليس  لديك نقاط كافيه لشراء هذا الاسبوع",
     "errorWhilePaying":"حدث خطأ اثناء الدفع من فضلك حاول مجددا",
     "Loading":"جاري التحميل...",
-    "PayTitle":" ادفع لتلمتلك هذه الصلاحيه ",
+    "PayTitle":" ادفع لتمتلك هذه الصلاحيه ",
     "youWillPay":"سوف تدفع",
-    "pointLecture":"نقاط لتلمتلك صلاحيه الدخول لهذا الملف",
+    "pointLecture":"نقاط لتمتلك  صلاحيه الدخول لهذا الملف",
     "enterMoreNotes":"ادخل الملاحظات",
     "showNotes":"عرض الملاحظات",
+    "sendForgetPassword":"ارسال",
+    "error":"خطأ",
+    "oldPassword":"الرقم السري القديم",
+    "Next":"التالي",
+    "End":"انهاء",
+    "Before":"السابق",
+    "congratulations":"تهانينا",
+    "yourNowPremium":"انت الان مشترك بالنسخه البريميوم",
+    "notFoundLac":"لا يوجد محاضرات  حتي الان",
 
 };
 static const Map<String,dynamic> en = {
@@ -157,6 +166,17 @@ static const Map<String,dynamic> en = {
 "pointLecture":"point to unlock this lecture",
 "enterMoreNotes":"enter more notes",
 "showNotes":"show notes",
+"sendForgetPassword":"Send",
+"error":"Error",
+"oldPassword":"Old Password",
+"Next":"Next",
+  "End":"End",
+  "Before":"Before",
+  "congratulations":"congratulations",
+  "yourNowPremium":"you are Now Premium user",
+  "notFoundLac":"Not found Lectures yet" ,
+
+
 };
 static const Map<String, Map<String,dynamic>> mapLocales = {"ar": ar, "en": en};
 }

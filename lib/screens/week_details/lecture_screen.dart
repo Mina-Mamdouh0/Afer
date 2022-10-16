@@ -3,6 +3,7 @@ import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/screens/payment_screen.dart';
 import 'package:afer/widget/widget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class LectureScreen extends StatefulWidget {
   final String academicYear;
   final String lectureName;
 
-  LectureScreen(
+  const LectureScreen(
       {Key? key,
       required this.subjectName,
       required this.academicYear,
@@ -67,6 +68,7 @@ class _LectureScreenState extends State<LectureScreen> {
   void initState() {
     AppCubit.get(context).subjectName = subjectName;
     AppCubit.get(context).lectureName = lectureName;
+    //AppCubit.get(context). showLoaderDialog(context);
     AppCubit.get(context).getLectureData(
         subjectName: subjectName,
         academicYear: academicYear,
@@ -79,7 +81,7 @@ class _LectureScreenState extends State<LectureScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
           cubit = AppCubit.get(context);
@@ -155,7 +157,7 @@ class _LectureScreenState extends State<LectureScreen> {
                                 onTap: () {
                                   navigator(
                                       context: context,
-                                      page: PaymentScreen(),
+                                      page: const PaymentScreen(),
                                       returnPage: true);
                                 },
                                 child: Padding(
@@ -201,18 +203,23 @@ class _LectureScreenState extends State<LectureScreen> {
                       child: CircleAvatar(
                         radius: size.width * 0.11,
                         backgroundColor: ColorsManger.appbarColor,
-                        child: CircleAvatar(
-                          radius: size.width * 0.09,
-                          backgroundImage: NetworkImage(cubit.user.profileUrl!),
-                          backgroundColor: Colors.white,
-                          onBackgroundImageError: (exception, stackTrace) {},
-                          child: cubit.user.profileUrl == null
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 50,
-                                  color: Colors.black,
-                                )
-                              : null,
+                        child: CachedNetworkImage(
+                          imageUrl: cubit.user.profileUrl!,
+                          cacheKey: cubit.user.profileUrl,
+
+                          imageBuilder: (context, imageProvider) => CircleAvatar(
+                            radius: size.width * 0.09,
+                            backgroundImage: imageProvider,
+                            backgroundColor: Colors.white,
+                            onBackgroundImageError: (exception, stackTrace) {},
+                            child: cubit.user.profileUrl == null
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: Colors.black,
+                                  )
+                                : null,
+                          ),
                         ),
                       ),
                     )
@@ -236,7 +243,7 @@ class _LectureScreenState extends State<LectureScreen> {
   Widget tabBuilder(int index, AppCubit cubit, context) {
     return InkWell(
       onTap: () {
-        if (cubit.locked[index] == true) {
+        if (cubit.locked[index] == true||cubit.user.premium==true) {
           if (index == 1) {
             BlocProvider.of<AppCubit>(context).showImageUnderVideo = false;
           }
@@ -345,11 +352,11 @@ class _LectureScreenState extends State<LectureScreen> {
             ),
           ),
           ConditionalBuilder(
-              condition: !cubit.locked[index],
-              fallback: (context) {
+              condition: cubit.locked[index]||cubit.user.premium==true,
+              builder:  (context) {
                 return Container();
               },
-              builder: (context) {
+              fallback: (context) {
                 return const Icon(
                   Icons.lock_outline_rounded,
                   size: 18,

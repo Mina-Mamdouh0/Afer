@@ -14,9 +14,11 @@ import '../translations/locale_keys.g.dart';
 class Setting extends StatelessWidget {
   late AppCubit cubit;
 
+  Setting({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
           cubit = AppCubit.get(context);

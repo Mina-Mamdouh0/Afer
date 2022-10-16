@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
@@ -10,13 +11,15 @@ import 'package:afer/screens/week_details/show_lecture.dart';
 import 'package:afer/screens/week_details/show_question.dart';
 import 'package:afer/translations/locale_keys.g.dart';
 import 'package:afer/widget/widget.dart';
+import 'package:circular_bottom_navigation/circular_bottom_navigation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:internet_file/internet_file.dart';
+
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -36,7 +39,7 @@ import '../screens/Settings.dart';
 import '../screens/subjects_screen.dart';
 import 'package:afer/SheredPreferance/sheredHelper.dart';
 
-class AppCubit extends Cubit<AppState> {
+class AppCubit extends Cubit<AppStates> {
   AppCubit() : super(AferInitState());
 
   static AppCubit get(context) => BlocProvider.of(context);
@@ -45,27 +48,31 @@ class AppCubit extends Cubit<AppState> {
   UserModule user = UserModule();
   List<Widget> screens = [
     const SubjectsScreen(),
-    MessageScreen(),
-    MessageScreen(),
+    const MessageScreen(),
+    const MessageScreen(),
     Setting()
   ];
   String subjectNotes = "";
   List<Notes> studentNotes = [];
-String uidNote="";
+  String uidNote = "";
   String subjectName = "";
   String lectureName = "";
+  bool isSend = false;
   // Home Layout Screen variables
-
+  int selectedPos = 0;
+  File? fileer;
+  late CircularBottomNavigationController navigationController;
   List<Widget> lectureScreen = [
     const ShowLecture(),
     const ShowVideo(),
-    ShowQuestion(),
+    const ShowQuestion(),
     const ShowAlerts(),
     FeedBackScreen(),
   ];
   int currentIndex = 0;
   int indexRegisterScreen = 0;
   XFile? file;
+  File? vidoe;
   XFile? fileUpdate;
   String? profileUrl;
 
@@ -118,12 +125,12 @@ String uidNote="";
       DateTime.now().month >= 9 ? "First semester" : "Second semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
-Notes notes=Notes();
+  Notes notes = Notes();
   //Settings Screen variables
   List<Subject> firstYear = [];
   List<Subject> subjects = [];
   Video video = Video(isPaid: false);
-  Photo photo = Photo();
+  List<Photo> photo = [];
   Pdf pdf = Pdf();
   List<Question> questions = [];
   Uint8List bytes = Uint8List(0);
@@ -149,7 +156,8 @@ Notes notes=Notes();
 
   // Home Layout Screen Functions
   void changeIndex(int index) {
-    currentIndex = index;
+    selectedPos = index;
+    navigationController.value = 0;
     emit(ChangeIndex());
   }
 
@@ -273,6 +281,11 @@ Notes notes=Notes();
       createAccount(value.user!.uid);
       navigator(context: context, page: const AuthScreen(), returnPage: false);
     }).catchError((error) {
+      MotionToast.error(
+        description: Text(error.toString()),
+        title: Text(LocaleKeys.error.tr()),
+      ).show(context);
+
       emit(CreateAccountFailed());
     });
   }
@@ -287,7 +300,7 @@ Notes notes=Notes();
       if (rememberMe) {
         sherdprefrence.setdate(key: "token", value: value.user!.uid);
       }
-      navigator(context: context, page: HomeLayout(), returnPage: false);
+      navigator(context: context, page: const HomeLayout(), returnPage: false);
     }).catchError((error) {
       MotionToast.error(
         description: const Text("حدث خطا ما في تسجيل الدخول"),
@@ -347,12 +360,11 @@ Notes notes=Notes();
         .update(user.toJson())
         .then((value) {
       getInfo(sherdprefrence.getdate(key: "token"));
-    }).catchError((onError) {
-    });
+    }).catchError((onError) {});
   }
 
-  void updateProfile() {
-    updatePassword();
+  void updateProfile(String oldPass) {
+    updatePassword(oldPass);
     user = UserModule(
       uid: user.uid,
       profileUrl: profileUrl ?? user.profileUrl,
@@ -368,7 +380,7 @@ Notes notes=Notes();
       sixSubjects: user.sixSubjects,
       sevenSubjects: user.sevenSubjects,
       premium: user.premium,
-      pass: userPasswordController.text,
+      pass: userConfirmPasswordController.text,
       points: user.points,
       semester: user.semester,
       academicYear: user.academicYear,
@@ -382,24 +394,29 @@ Notes notes=Notes();
     }).catchError((onError) {});
   }
 
-  void updatePassword() {
+  void updatePassword(String oldPass) {
     FirebaseAuth.instance
-        .signInWithEmailAndPassword(email: user.email!, password: user.pass!)
+        .signInWithEmailAndPassword(email: user.email!, password: oldPass)
         .then((value) {
       FirebaseAuth.instance.currentUser!
-          .updatePassword(userPasswordController.text);
+          .updatePassword(userConfirmPasswordController.text);
+    }).catchError((onError) {
+      MotionToast.error(
+        description: Text(onError.toString()),
+        title: Text(LocaleKeys.error.tr()),
+      );
     });
   }
 
 // to add new subject into map to get it from data base
   void addSubject(String year, Subject subject, value, int index) {
     if (value == false) {
-      var itemIndex =
-          subjects.indexWhere((element) => element.isEqutaple(subject));
+      var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
+      print(itemIndex);
       subjects.removeAt(itemIndex);
+
     } else {
       subjects.insert(subjects.length, subject);
-      print(subject.toJson());
     }
     emit(MakeMapSubjectState());
   }
@@ -412,7 +429,7 @@ Notes notes=Notes();
         check = true;
       }
     }
-
+print(check);
     return check!;
   }
 
@@ -482,16 +499,13 @@ Notes notes=Notes();
             lectureName: lectureName,
             type: 'photo')
         .get()
-        .then((value) {
-      photo = Photo.fromJson(value.docs.last.data()!);
+        .then((value) async {
+      photo = List.generate(value.docs.length,
+          (index) => Photo.fromJson(value.docs[index].data()!));
+
       emit(GetPhotoSuccessfully());
     }).catchError((onError) {
-      photo = Photo(
-          id: null,
-          isPaid: null,
-          description: null,
-          linkPhoto: null,
-          point: null);
+      photo.clear();
       emit(GetPhotoFailed());
     });
   }
@@ -500,7 +514,7 @@ Notes notes=Notes();
       {required String academicYear,
       required String semester,
       required String subjectName,
-      required String lectureName}) {
+      required String lectureName}) async {
     _dataReference(
             academicYear: academicYear,
             semester: semester,
@@ -508,9 +522,36 @@ Notes notes=Notes();
             lectureName: lectureName,
             type: 'videos')
         .get()
-        .then((value) {
+        .then((value) async {
       video = Video.fromJson(value.docs.last.data()!);
-      getIfVideoPayed(uidVideo: video.id!,isPayed: video.isPaid??false);
+      getIfVideoPayed(uidVideo: video.id!, isPayed: video.isPaid ?? false);
+      await DefaultCacheManager()
+          .getFileFromCache(video.linkVideo!)
+          .then((value) async {
+        print("she is cached ${value!.file.path}");
+        vidoe = await DefaultCacheManager()
+            .getFileFromCache(video.linkVideo!)
+            .then((value) => value!.file);
+      }).catchError((onError) {
+        print("not exist");
+        DefaultCacheManager()
+            .downloadFile(video.linkVideo!)
+            .then((value) async {
+          print("downloaded");
+          DefaultCacheManager()
+              .putFile(video.linkVideo!, await value.file.readAsBytes(),
+                  key: video.linkVideo!,
+                  eTag: video.linkVideo!,
+                  maxAge: const Duration(days: 120))
+              .then((value) async {
+            vidoe = await DefaultCacheManager()
+                .getFileFromCache(video.linkVideo!, ignoreMemCache: true)
+                .then((value) => value!.file);
+          });
+          emit(GetVideoSuccessfully());
+        });
+      });
+
       emit(GetVideoSuccessfully());
     }).catchError((onError) {
       video = Video(
@@ -519,6 +560,8 @@ Notes notes=Notes();
           description: null,
           linkVideo: null,
           point: null);
+      locked[1] = true;
+      print(onError.toString());
       emit(GetVideoFailed());
     });
   }
@@ -538,11 +581,31 @@ Notes notes=Notes();
         .get()
         .then((value) async {
       pdf = Pdf.fromJson(value.docs.last.data()!);
-      getIfPdfPayed(uidPdf: pdf.id!,isPayed: pdf.isPaid!);
-      bytes = await InternetFile.get(
-        pdf.linkPdf!,
-      );
-
+      getIfPdfPayed(uidPdf: pdf.id!, isPayed: pdf.isPaid ?? false);
+      await DefaultCacheManager()
+          .getFileFromCache(pdf.linkPdf!)
+          .then((value) async {
+        print("she is cached ${value!.file.path}");
+        bytes = await DefaultCacheManager()
+            .getFileFromCache(pdf.linkPdf!)
+            .then((value) => value!.file.readAsBytes());
+      }).catchError((onError) {
+        print("not exist");
+        DefaultCacheManager().downloadFile(pdf.linkPdf!).then((value) async {
+          print("downloaded");
+          DefaultCacheManager()
+              .putFile(pdf.linkPdf!, await value.file.readAsBytes(),
+                  key: pdf.linkPdf!,
+                  eTag: pdf.linkPdf!,
+                  maxAge: const Duration(days: 30))
+              .then((value) async {
+            bytes = await DefaultCacheManager()
+                .getFileFromCache(pdf.linkPdf!)
+                .then((value) => value!.file.readAsBytes());
+          });
+          emit(GetVideoSuccessfully());
+        });
+      });
       emit(GetPdfSuccessfully());
     }).catchError((onError) {
       pdf = Pdf(
@@ -551,6 +614,7 @@ Notes notes=Notes();
           description: null,
           linkPdf: null,
           point: null);
+      locked[2] = true;
       emit(GetPdfFailed());
     });
   }
@@ -570,16 +634,13 @@ Notes notes=Notes();
         .get()
         .then((value) {
       questions.addAll(value.docs.map((e) => Question.fromJson(e.data()!)));
-      print(questions.length);
     });
   }
 
-  void uploadNotes(
-      String note
-  ) {
-    notes=Notes(
-      date:  DateFormat.yMMMd("en").format(DateTime.now()),
-          notes: note,
+  void uploadNotes(String note) {
+    notes = Notes(
+      date: DateFormat.yMMMd("en").format(DateTime.now()),
+      notes: note,
       uid: Random.secure().nextInt(1000000000).toString(),
     );
     FirebaseFirestore.instance
@@ -587,11 +648,12 @@ Notes notes=Notes();
         .doc(user.uid)
         .collection("Notes")
         .doc(subjectName)
-        .collection(lectureName).doc(notes.uid).set(notes.toMap()).then((value) {
+        .collection(lectureName)
+        .doc(notes.uid)
+        .set(notes.toMap())
+        .then((value) {
       emit(UploadNotesSuccessfully());
     });
-
-
   }
 
   Future<void> getLectureData({
@@ -604,10 +666,8 @@ Notes notes=Notes();
     pdf = Pdf(point: "0", linkPdf: '', description: '', id: '', isPaid: false);
     video = Video(
         point: "0", linkVideo: '', description: '', id: '', isPaid: false);
-    photo = Photo(
-        point: "0", linkPhoto: '', description: '', id: '', isPaid: false);
-studentNotes.clear();
-
+    photo.clear();
+    studentNotes.clear();
     getPdf(
         academicYear: academicYear,
         semester: user.semester!,
@@ -636,7 +696,7 @@ studentNotes.clear();
         semester: user.semester!,
         subjectName: subjectName,
         lectureName: lectureName);
-
+//Navigator.pop(context);
     weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
   }
 
@@ -653,24 +713,51 @@ studentNotes.clear();
         .get()
         .then((value) async {
       if (value.exists) {
-        pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
-        FirebaseFirestore.instance
-            .collection("qrcode")
-            .doc("money")
-            .get()
-            .then((value) async {
-          var money = int.tryParse(value.data()!["money"]) ?? 0;
+        if (qrStar.split(" ").first == "Prm") {
+          await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(user.uid)
+              .update({"premium": true});
+          FirebaseFirestore.instance
+              .collection("qrcode")
+              .doc("premium")
+              .get()
+              .then((value) async {
+            var premium = value.data()!["premium"] ?? 0;
+            await FirebaseFirestore.instance
+                .collection("qrcode")
+                .doc("premium")
+                .update({"premium": (premium + 1)});
+          });
           await FirebaseFirestore.instance
               .collection("qrcode")
+              .doc(qrCode)
+              .delete();
+          MotionToast.success(
+                  description: Text(LocaleKeys.yourNowPremium.tr()),
+                  title: Text(LocaleKeys.congratulations.tr()))
+              .show(context);
+        } else {
+          pointsIncrease(point: int.tryParse(qrCode.split(" ").last) ?? 0);
+          FirebaseFirestore.instance
+              .collection("qrcode")
               .doc("money")
-              .update({
-            "money": (money + int.tryParse(qrCode.split(" ").last)!).toString()
+              .get()
+              .then((value) async {
+            var money = int.tryParse(value.data()!["money"]) ?? 0;
+            await FirebaseFirestore.instance
+                .collection("qrcode")
+                .doc("money")
+                .update({
+              "money":
+                  (money + int.tryParse(qrCode.split(" ").last)!).toString()
+            });
           });
-        });
-        await FirebaseFirestore.instance
-            .collection("qrcode")
-            .doc(qrCode)
-            .delete();
+          await FirebaseFirestore.instance
+              .collection("qrcode")
+              .doc(qrCode)
+              .delete();
+        }
       } else {
         MotionToast.warning(
           description: Text(
@@ -708,22 +795,26 @@ studentNotes.clear();
         .collection(type);
   }
 
-  void getIfVideoPayed({required String uidVideo,required bool isPayed}) {
-    getSecureReference(type: "video", uidItem: uidVideo,isPayed: isPayed).then((value) {
+  void getIfVideoPayed({required String uidVideo, required bool isPayed}) {
+    getSecureReference(type: "video", uidItem: uidVideo, isPayed: isPayed)
+        .then((value) {
       locked[1] = value;
     });
   }
 
-  void getIfPdfPayed({required String uidPdf,required bool isPayed}) {
-    getSecureReference(type: "Pdf", uidItem: uidPdf,isPayed:isPayed ).then((value) {
+  void getIfPdfPayed({required String uidPdf, required bool isPayed}) {
+    getSecureReference(type: "Pdf", uidItem: uidPdf, isPayed: isPayed)
+        .then((value) {
       locked[0] = value;
-    }).catchError((onError){
+    }).catchError((onError) {
       locked[0] = true;
     });
   }
 
   Future<bool> getSecureReference(
-      {required String uidItem, required String type, bool isPayed=false}) async {
+      {required String uidItem,
+      required String type,
+      bool isPayed = false}) async {
     return await FirebaseFirestore.instance
         .collection("secure")
         .doc(type)
@@ -731,16 +822,15 @@ studentNotes.clear();
         .doc(user.uid)
         .get()
         .then((value) {
-          if(isPayed){
-            if (value.exists) {
-              return true;
-            } else {
-              return false;
-            }
-          }else {
-            return true;
-          }
-
+      if (isPayed) {
+        if (value.exists) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return true;
+      }
     });
   }
 
@@ -753,23 +843,45 @@ studentNotes.clear();
         .doc(user.uid!);
   }
 
-  void secureDataVideo({videoId}) {
-    secureDataReference(uidItem: videoId, type: "video")
-        .set({"uid": user.uid!, "videoId": videoId}).then((value) {
-      losePoints(point: int.tryParse(video.point!) ?? 0);
-      emit(SecureDataSuccessfully());
+  void secureDataVideo(context, {videoId}) async {
+    losePoints(point: int.tryParse(video.point!) ?? 0).then((value) {
+      if (value) {
+        secureDataReference(uidItem: videoId, type: "video")
+            .set({"uid": user.uid!, "videoId": videoId}).then((value) {
+          getIfVideoPayed(uidVideo: videoId, isPayed: video.isPaid!);
+          getInfo(user.uid!);
+        }).catchError((onError) {
+          //print(onError);
+          MotionToast.error(
+            description: Text(LocaleKeys.errorWhilePaying.tr()),
+            title: Text(LocaleKeys.error.tr()),
+          ).show(context);
+        });
+      }
     }).catchError((onError) {
-      emit(SecureDataFailed());
+      //print(onError);
+      MotionToast.error(
+        description: Text(LocaleKeys.errorWhilePaying.tr()),
+        title: Text(LocaleKeys.error.tr()),
+      ).show(context);
     });
   }
 
-  void secureDataPdf({pdfId}) {
-    secureDataReference(uidItem: pdfId, type: "Pdf")
-        .set({"uid": user.uid, "pdfId": pdfId}).then((value) {
-      losePoints(point: int.tryParse(pdf.point!) ?? 0);
-      emit(SecureDataSuccessfully());
-    }).catchError((onError) {
-      emit(SecureDataFailed());
+  void secureDataPdf(context, {pdfId}) async {
+    losePoints(point: int.tryParse(pdf.point!) ?? 0).then((value) {
+      if (value) {
+        secureDataReference(uidItem: pdfId, type: "Pdf")
+            .set({"uid": user.uid!, "pdfId": pdfId}).then((value) {
+          getIfPdfPayed(uidPdf: pdfId, isPayed: pdf.isPaid!);
+          getInfo(user.uid!);
+        }).catchError((onError) {
+          print(onError);
+          MotionToast.error(
+            description: Text(LocaleKeys.errorWhilePaying.tr()),
+            title: Text(LocaleKeys.error.tr()),
+          ).show(context);
+        });
+      }
     });
   }
 
@@ -793,14 +905,13 @@ studentNotes.clear();
     });
   }
 
-  void losePoints({required int point}) {
-    FirebaseFirestore.instance
+  Future<bool> losePoints({required int point}) async {
+    return await FirebaseFirestore.instance
         .collection("Users")
         .doc(user.uid)
         .update({"points": (int.parse(user.points!) - point).toString()})
-        .then((value) => emit(LosePointsSuccessfully()))
-        .catchError((onError) => emit(LosePointsFailed()));
-    getInfo(user.uid!);
+        .then((value) => Future.value(true))
+        .catchError((onError) => Future.value(false));
   }
 
   void pointsIncrease({required int point}) {
@@ -817,10 +928,10 @@ studentNotes.clear();
   void secure({required int index, required context}) {
     if (getPoint(index) < int.parse(user.points!)) {
       if (index == 0) {
-        secureDataPdf(pdfId: pdf.id!);
+        secureDataPdf(context, pdfId: pdf.id!);
       }
       if (index == 1) {
-        secureDataVideo(videoId: video.id!);
+        secureDataVideo(context, videoId: video.id!);
       }
       getAllSucre();
       getInfo(user.uid!);
@@ -866,10 +977,9 @@ studentNotes.clear();
   }
 
   void getAllSucre() {
-    getIfPdfPayed(uidPdf: pdf.id!,isPayed: pdf.isPaid!);
-    getIfVideoPayed(uidVideo: video.id!,isPayed: video.isPaid!);
+    getIfPdfPayed(uidPdf: pdf.id!, isPayed: pdf.isPaid!);
+    getIfVideoPayed(uidVideo: video.id!, isPayed: video.isPaid!);
     emit(GetIsLocked());
-
   }
 
   bool showImageUnderVideo = false;
@@ -937,46 +1047,62 @@ studentNotes.clear();
         .collection(lectureName)
         .get()
         .then((value) {
-      studentNotes = List.generate(value.docs.length, (index) =>Notes.fromJson(value.docs[index].data()) );
+      studentNotes = List.generate(value.docs.length,
+          (index) => Notes.fromJson(value.docs[index].data()));
       emit(GetStudentNotesSuccessfully());
     });
   }
-  void  uploadOrUpdateNotes(note){
-    if(uidNote.isEmpty) {
+
+  void uploadOrUpdateNotes(note) {
+    if (uidNote.isEmpty) {
       uploadNotes(note);
     }
-    if(uidNote.isNotEmpty){
+    if (uidNote.isNotEmpty) {
       updateNotes(note);
     }
   }
-  void updateNotes(
-      String note
-      ) {
-    notes=Notes(
-      date:  DateFormat.yMMMd("en").format(DateTime.now()),
-      notes: note,
-      uid: uidNote
-    );
+
+  void updateNotes(String note) {
+    notes = Notes(
+        date: DateFormat.yMMMd("en").format(DateTime.now()),
+        notes: note,
+        uid: uidNote);
     FirebaseFirestore.instance
         .collection("Users")
         .doc(user.uid)
         .collection("Notes")
         .doc(subjectName)
-        .collection(lectureName).doc(notes.uid).update(notes.toMap()).then((value) {
+        .collection(lectureName)
+        .doc(notes.uid)
+        .update(notes.toMap())
+        .then((value) {
       emit(UploadNotesSuccessfully());
     });
-
-
   }
-  void  toggleNotesShow(bool isEdit,String uid){
-    if(isEdit){
- uidNote= uid;
- studentNotes.clear();
-    }
-    else {
-      uidNote="";
+
+  void toggleNotesShow(bool isEdit, String uid) {
+    if (isEdit) {
+      uidNote = uid;
+      studentNotes.clear();
+    } else {
+      uidNote = "";
       studentNotes.clear();
     }
     emit(ToggleNotesShow());
+  }
+
+  void forgetPassword(String email, context) {
+    FirebaseAuth.instance.sendPasswordResetEmail(email: email).then((value) {
+      isSend = true;
+      emailSignInController.text = "";
+
+      emit(ForgetPasswordSuccessfully());
+    }).catchError((onError) {
+      MotionToast.error(
+        title: Text(LocaleKeys.error.tr()),
+        description: Text(onError.toString()),
+      ).show(context);
+      emit(ForgetPasswordFailed());
+    });
   }
 }

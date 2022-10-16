@@ -11,12 +11,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 
 class PaymentScreen extends StatelessWidget {
-  PaymentScreen({Key? key}) : super(key: key);
+  const PaymentScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
           return Scaffold(

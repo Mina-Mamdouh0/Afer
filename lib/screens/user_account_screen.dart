@@ -18,7 +18,7 @@ class UserAccountScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size=MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit,AppState>(
+    return BlocConsumer<AppCubit,AppStates>(
       listener: (context,state){},
         builder:(context,state){
       AppCubit cubit=AppCubit.get(context);
@@ -188,7 +188,7 @@ class UserAccountScreen extends StatelessWidget {
                height: 20,
              ),
              TheTextFiled(
-                 hintText:LocaleKeys.password.tr() ,
+                 hintText:LocaleKeys.oldPassword.tr() ,
                  controller:cubit.userPasswordController ,
                  keyboardType: TextInputType.text,
                  prefix: Icons.password,
@@ -199,7 +199,7 @@ class UserAccountScreen extends StatelessWidget {
                  return null;
                },
                textInputAction: TextInputAction.next,
-               labelText: LocaleKeys.password.tr(),
+               labelText: LocaleKeys.oldPassword.tr(),
                suffixIcon: IconButton(
                  icon: cubit.isObscureSignup
                      ? const Icon(Icons.visibility_off)
@@ -207,21 +207,19 @@ class UserAccountScreen extends StatelessWidget {
                  onPressed: () => cubit.changeObscureSignUp(),
                ),
                obscureText: cubit.isObscureSignup,
-               helperText:
-               'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number',
+
 
              ),
              const SizedBox(
                height: 20,
              ),
-
              TheTextFiled(
-                 hintText:LocaleKeys.confirmPassword.tr() ,
+                 hintText:LocaleKeys.password.tr() ,
                  controller:cubit.userConfirmPasswordController ,
                  keyboardType: TextInputType.text,
                  prefix: Icons.password,
                validator: (value) {
-                 if (value != cubit.userPasswordController.text) {
+                 if (value!.isPassword) {
                    return 'Password not match';
                  }
                  return null;
@@ -239,8 +237,7 @@ class UserAccountScreen extends StatelessWidget {
                    cubit.signUp(context);
                  }},
                obscureText: cubit.isObscureSignup,
-               helperText:
-               'at least 8 characters and contain at least one uppercase letter, one lowercase letter, and one number',
+
 
              ),
              const SizedBox(
@@ -268,7 +265,7 @@ class UserAccountScreen extends StatelessWidget {
              MainButton(text: LocaleKeys.editInformation.tr(),
                  fct: () {
                    if(cubit.userFormKey.currentState!.validate()) {
-                     cubit.updateProfile();
+                     cubit.updateProfile(cubit.userPasswordController.text);
                      Navigator.of(context).pop();
                    }
                  }

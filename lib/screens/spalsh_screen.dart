@@ -2,10 +2,8 @@
 import 'dart:async';
 
 import 'package:afer/cuibt/app_cuibt.dart';
-import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import '../const/photo_manger.dart';
 import 'auth/login_screen.dart';
 import 'package:afer/SheredPreferance/sheredHelper.dart';
@@ -29,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
             AppCubit.get(context).getInfo(
                 sherdprefrence.getdate(key: "token"));
             navigator(
-                context: context, page: HomeLayout(), returnPage: false);
+                context: context, page: const HomeLayout(), returnPage: false);
           }
           else {
             navigator(context: context,

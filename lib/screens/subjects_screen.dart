@@ -4,20 +4,31 @@ import 'package:afer/model/Subject.dart';
 import 'package:afer/screens/week_details/lecture_screen.dart';
 import 'package:afer/translations/locale_keys.g.dart';
 import 'package:afer/widget/widget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
 import '../const/photo_manger.dart';
 import '../model/lecture.dart';
+InterstitialAd? interstitialAd;
 
-class SubjectsScreen extends StatelessWidget {
+class SubjectsScreen extends StatefulWidget {
   const SubjectsScreen({Key? key}) : super(key: key);
 
   @override
+  State<SubjectsScreen> createState() => _SubjectsScreenState();
+}
+
+class _SubjectsScreenState extends State<SubjectsScreen> {
+
+
+  @override
   Widget build(BuildContext context) {
-    return BlocConsumer<AppCubit, AppState>(
+    return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {},
       builder: (context, state) {
         var cubit = BlocProvider.of<AppCubit>(context);
@@ -33,9 +44,13 @@ class SubjectsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Lottie.asset(PhotoManger.notFound, fit: BoxFit.fill),
-               Text(
-              LocaleKeys.notFoundSubject.tr(),
-                style: const TextStyle(fontSize: 30),
+              Text(
+                LocaleKeys.notFoundSubject.tr(),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontFamily: 'Stoor',
+                  fontWeight: FontWeight.normal,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -108,8 +123,16 @@ class _SubjectWidgetState extends State<SubjectWidget> {
             height: 5,
           ),
           lectures.isEmpty
-              ? const Center(
-                  child: CircularProgressIndicator(),
+              ? Center(
+                  child: Text(
+                    LocaleKeys.notFoundLac.tr(),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontFamily: 'Stoor',
+                      fontWeight: FontWeight.normal,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 )
               : Expanded(
                   child: ListView.builder(
@@ -117,14 +140,27 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
                         return InkWell(
-                          onTap: () => navigator(
-                            context: context,
-                            returnPage: true,
-                            page: LectureScreen(
-                                academicYear: subject.academicYear!,
-                                subjectName: subject.name!,
-                                lectureName: lectures[index].lectureName!),
-                          ),
+                          onTap: () {
+                            navigator(
+                              context: context,
+                              returnPage: true,
+                              page: LectureScreen(
+                                  academicYear: subject.academicYear!,
+                                  subjectName: subject.name!,
+                                  lectureName: lectures[index].lectureName!),
+                            );
+                            InterstitialAd.load(
+                                adUnitId: "ca-app-pub-4437547145211454/4543712918",
+                                request: const AdRequest(),
+                                adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad){
+                               ad.show();
+                                }
+                                    ,onAdFailedToLoad: (error){
+                                  print(error);
+                                    })
+                            );
+
+                          },
                           child: Card(
                             color: Colors.white,
                             elevation: 5,
@@ -142,8 +178,8 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                     Align(
                                       alignment:
                                           context.locale == const Locale('ar')
-                                              ? Alignment.centerLeft
-                                              : Alignment.centerRight,
+                                              ? Alignment.centerRight
+                                              : Alignment.bottomLeft,
                                       child: Text(lectures[index].lectureName!,
                                           style: TextStyle(
                                             color: Colors.black,
@@ -162,16 +198,24 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        CircleAvatar(
-                                          radius: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
-                                              0.08,
-                                          backgroundImage: NetworkImage(
-                                              subject.urlPhotoTeacher!),
-                                          backgroundColor: Colors.white,
-                                          onBackgroundImageError:
-                                              (exception, stackTrace) {},
+                                        CachedNetworkImage(
+                                          imageUrl:
+                                              subject.urlPhotoTeacher ?? "",
+                                          imageBuilder: (context, image) =>
+                                              CircleAvatar(
+                                            radius: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.08,
+                                            backgroundImage: image,
+                                            backgroundColor: Colors.white,
+                                          ),
+                                          placeholder: (context, url) =>
+                                              const CircularProgressIndicator(),
+                                          errorWidget: (context, url, error) =>
+                                              const Icon(Icons.error),
+                                          cacheKey: subject.urlPhotoTeacher,
+                                          cacheManager: DefaultCacheManager(),
                                         ),
                                         const SizedBox(
                                           width: 10,
@@ -218,11 +262,11 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                         child: Text(
                                             lectures[index].lectureDescription!,
                                             softWrap: true,
-                                            textAlign: TextAlign.center,
-                                            maxLines: context.locale ==
+                                            textAlign: context.locale ==
                                                     const Locale('ar')
-                                                ? 1
-                                                : 2,
+                                                ? TextAlign.left
+                                                : TextAlign.right,
+                                            maxLines: 2,
                                             style: TextStyle(
                                               color: Colors.grey.shade700,
                                               fontSize: MediaQuery.of(context)

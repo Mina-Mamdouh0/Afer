@@ -1,7 +1,7 @@
 const String photoPath = 'assets/image';
 class PhotoManger {
    static const String profilepic="$photoPath/profile_pic.jpg";
-   static const String logo="$photoPath/logo.png";
+   static const String logo="$photoPath/splash.png";
    static const String coins="$photoPath/coins.png";
    static const String exam="$photoPath/exam.png";
    static const String growth="$photoPath/growth.png";
@@ -12,5 +12,7 @@ class PhotoManger {
    static const String lostConnection="$photoPath/lostConnection.json";
    static const String qrCode="$photoPath/scan-qr-code.json";
    static const String notFound="$photoPath/emptysubject.json";
+   static const String forgetPassword="$photoPath/forgetPasswordLottei.json";
+   static const String sendEmail="$photoPath/email-send.json";
 
 }

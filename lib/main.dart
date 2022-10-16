@@ -1,4 +1,3 @@
-
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/screens/spalsh_screen.dart';
 import 'package:afer/translations/codegen_loader.g.dart';
@@ -9,45 +8,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afer/SheredPreferance/sheredHelper.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-void main()async {
- WidgetsFlutterBinding.ensureInitialized();
- await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
- await Firebase.initializeApp();
- await sherdprefrence.init();
- await EasyLocalization.ensureInitialized();
 
- runApp(
-   EasyLocalization(
-       supportedLocales: const [Locale('en'), Locale('ar')],
-       path: 'assets/translition',
-       fallbackLocale: const Locale('en'),
-       assetLoader: const CodegenLoader(),
-       child: const MyApp()
-   )
- );
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterWindowManager.addFlags(FlutterWindowManager.FLAG_SECURE);
+  await Firebase.initializeApp();
+  await sherdprefrence.init();
+  await EasyLocalization.ensureInitialized();
+  MobileAds.instance.initialize();
+
+  runApp(
+      EasyLocalization(
+          supportedLocales: const [Locale('en'), Locale('ar')],
+          path: 'assets/translition',
+          startLocale: const Locale('ar'),
+          fallbackLocale: const Locale('ar'),
+          assetLoader: const CodegenLoader(),
+          child:  const MyApp()
+      )
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+
+   const MyApp({Key? key, }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ConnectionNotifier(
 
-      child:  BlocProvider(
-        create: (BuildContext context) => AppCubit(),
-        child: MaterialApp(
-          localizationsDelegates: context.localizationDelegates,
-          supportedLocales: context.supportedLocales,
-          locale: context.locale,
-          title: 'Afer',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            primarySwatch: Colors.grey,
-          ),
-          home:  const SplashScreen() ,
-        ),
+      child: BlocProvider(
+        create: (BuildContext context) =>
+        AppCubit(),
+        child:
+           MaterialApp(
+              localizationsDelegates: context.localizationDelegates,
+              supportedLocales: context.supportedLocales,
+              locale: context.locale,
+              title: 'Afer',
+              debugShowCheckedModeBanner: false,
+              theme: ThemeData(
+                primarySwatch: Colors.grey,
+              ),
+              home:  const SplashScreen(),
+            )
       ),
     );
   }
