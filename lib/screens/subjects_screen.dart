@@ -12,8 +12,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
+import 'package:motion_toast/motion_toast.dart';
 import '../const/photo_manger.dart';
 import '../model/lecture.dart';
+
 InterstitialAd? interstitialAd;
 
 class SubjectsScreen extends StatefulWidget {
@@ -24,8 +26,6 @@ class SubjectsScreen extends StatefulWidget {
 }
 
 class _SubjectsScreenState extends State<SubjectsScreen> {
-
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppStates>(
@@ -140,26 +140,40 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                       scrollDirection: Axis.horizontal,
                       itemBuilder: (context, index) {
                         return InkWell(
-                          onTap: () {
-                            navigator(
-                              context: context,
-                              returnPage: true,
-                              page: LectureScreen(
-                                  academicYear: subject.academicYear!,
-                                  subjectName: subject.name!,
-                                  lectureName: lectures[index].lectureName!),
-                            );
-                            InterstitialAd.load(
-                                adUnitId: "ca-app-pub-4437547145211454/4543712918",
-                                request: const AdRequest(),
-                                adLoadCallback: InterstitialAdLoadCallback(onAdLoaded: (ad){
-                               ad.show();
-                                }
-                                    ,onAdFailedToLoad: (error){
-                                  print(error);
-                                    })
-                            );
+                          onTap: () async {
+                            AppCubit.get(context).locked = [
+                              false,
+                              false,
+                              true,
+                              true,
+                              true
+                            ];
+                            await AppCubit.get(context)
+                                .getLectureData(
+                                    subjectName: subject.name!,
+                                    academicYear: subject.academicYear!,
+                                    lectureName: lectures[index].lectureName!,
+                                    context: context)
+                                .whenComplete(() {
+                              navigator(
+                                context: context,
+                                returnPage: true,
+                                page: LectureScreen(
+                                    academicYear: subject.academicYear!,
+                                    subjectName: subject.name!,
+                                    lectureName: lectures[index].lectureName!),
+                              );
+                            });
 
+                            InterstitialAd.load(
+                                adUnitId:
+                                    "ca-app-pub-4437547145211454/4543712918",
+                                request: const AdRequest(),
+                                adLoadCallback: InterstitialAdLoadCallback(
+                                    onAdLoaded: (ad) {
+                                  ad.show();
+                                }, onAdFailedToLoad: (error) {
+                                }));
                           },
                           child: Card(
                             color: Colors.white,

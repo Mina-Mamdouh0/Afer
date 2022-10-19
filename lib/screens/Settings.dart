@@ -102,10 +102,13 @@ class Setting extends StatelessWidget {
                 buildItemSetting(
                     text: LocaleKeys.share.tr(),
                     icons: Icons.share,
-                    fct: () {}),
+                    fct: () {
+                      cubit.shareApp();
+                    }),
                 buildItemSetting(
                     text: LocaleKeys.technicalSupport.tr(),
                     icons: Icons.biotech,
+
                     fct: () {}),
                 Padding(
                   padding: const EdgeInsets.all(15),

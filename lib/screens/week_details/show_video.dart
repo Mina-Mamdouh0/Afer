@@ -4,7 +4,6 @@ import 'package:afer/cuibt/app_states.dart';
 import 'package:afer/translations/locale_keys.g.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
 import 'package:video_player/video_player.dart';
-import 'dart:io';
 
 class ShowVideo extends StatefulWidget {
   const ShowVideo({Key? key}) : super(key: key);
@@ -24,24 +22,37 @@ class ShowVideo extends StatefulWidget {
 
 class _ShowVideoState extends State<ShowVideo> {
   late FlickManager flickManager;
+  late AppCubit cubit;
   @override
   void initState() {
-    super.initState();
+    if( AppCubit.get(context).video.id != null) {
+      AppCubit.get(context).getIfVideoPayed(uidVideo: AppCubit
+          .get(context)
+          .video
+          .id!, isPayed: true).then((value) {
+        if (value == false) {
+          AppCubit.get(context).changeIndexTap(1);
+        }
+      });
+    }
     if (AppCubit.get(context).video.linkVideo != null) {
       if (AppCubit.get(context).vidoe != null) {
-        print("cached");
         flickManager = FlickManager(
           videoPlayerController:
-              VideoPlayerController.file(AppCubit.get(context).vidoe!),
+          VideoPlayerController.file(AppCubit.get(context).vidoe!),
           autoPlay: false,
         );
       }
     }
+
+    super.initState();
   }
 
   @override
   void dispose() {
-    flickManager.dispose();
+    if(cubit.video.linkVideo != null) {
+      flickManager.dispose();
+    }
 
     super.dispose();
   }
@@ -51,6 +62,7 @@ class _ShowVideoState extends State<ShowVideo> {
     return BlocConsumer<AppCubit, AppStates>(
       listener: (context, state) {},
       builder: (context, state) {
+        cubit= AppCubit.get(context);
         return ConditionalBuilder(
             fallback: (context) => Column(
                   mainAxisAlignment: MainAxisAlignment.center,

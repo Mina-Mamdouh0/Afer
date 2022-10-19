@@ -77,6 +77,7 @@ abstract class  LocaleKeys {
   static const congratulations = 'congratulations';
   static const yourNowPremium = 'yourNowPremium';
   static const notFoundLac = 'notFoundLac';
+  static const tryAgain = 'tryAgain';
 
 
 

@@ -22,6 +22,12 @@ class _ShowLectureState extends State<ShowLecture> {
 
   @override
   void initState() {
+    AppCubit.get(context).getIfPdfPayed(uidPdf:  AppCubit.get(context).pdf.id!, isPayed: AppCubit.get(context).pdf.isPaid!).then((value) {
+      if(value==false){
+        AppCubit.get(context).   changeIndexTap(0);
+
+      }
+    } );
     _pdfController = PdfController(
       document: PdfDocument.openData(AppCubit.get(context).bytes),
       initialPage: _initialPage,

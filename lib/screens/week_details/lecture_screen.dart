@@ -66,14 +66,12 @@ class _LectureScreenState extends State<LectureScreen> {
   late AppCubit cubit;
   @override
   void initState() {
+    AppCubit.get(context).locked = [false, false, true, true, true];
+    AppCubit.get(context).getAllSucre();
     AppCubit.get(context).subjectName = subjectName;
     AppCubit.get(context).lectureName = lectureName;
-    //AppCubit.get(context). showLoaderDialog(context);
-    AppCubit.get(context).getLectureData(
-        subjectName: subjectName,
-        academicYear: academicYear,
-        lectureName: lectureName,
-        context: context);
+
+
 
     super.initState();
   }
@@ -206,6 +204,7 @@ class _LectureScreenState extends State<LectureScreen> {
                         child: CachedNetworkImage(
                           imageUrl: cubit.user.profileUrl!,
                           cacheKey: cubit.user.profileUrl,
+                          errorWidget: (context, url, error) => const Icon(Icons.person),
 
                           imageBuilder: (context, imageProvider) => CircleAvatar(
                             radius: size.width * 0.09,
@@ -242,14 +241,14 @@ class _LectureScreenState extends State<LectureScreen> {
 
   Widget tabBuilder(int index, AppCubit cubit, context) {
     return InkWell(
-      onTap: () {
-        if (cubit.locked[index] == true||cubit.user.premium==true) {
+      onTap: ()async {
+        if ( AppCubit.get(context).locked[index] == true||AppCubit.get(context).user.premium==true) {
           if (index == 1) {
             BlocProvider.of<AppCubit>(context).showImageUnderVideo = false;
           }
-          cubit.weekTemplateChangeIndex(index);
+           AppCubit.get(context).weekTemplateChangeIndex(index);
         } else {
-          if (cubit.getIfPayed(index) == true) {
+          if ( await  AppCubit.get(context).getIfPayed(index) == true) {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -300,6 +299,7 @@ class _LectureScreenState extends State<LectureScreen> {
               ),
             );
           } else {
+
             cubit.weekTemplateChangeIndex(index);
           }
         }

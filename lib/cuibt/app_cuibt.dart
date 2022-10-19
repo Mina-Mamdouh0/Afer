@@ -23,10 +23,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:share_plus/share_plus.dart';
 import '../model/exam.dart';
 import '../model/lecture.dart';
 
 import '../model/notes.dart';
+import '../screens/week_details/lecture_screen.dart';
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -412,7 +414,6 @@ class AppCubit extends Cubit<AppStates> {
   void addSubject(String year, Subject subject, value, int index) {
     if (value == false) {
       var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
-      print(itemIndex);
       subjects.removeAt(itemIndex);
 
     } else {
@@ -429,7 +430,6 @@ class AppCubit extends Cubit<AppStates> {
         check = true;
       }
     }
-print(check);
     return check!;
   }
 
@@ -528,16 +528,13 @@ print(check);
       await DefaultCacheManager()
           .getFileFromCache(video.linkVideo!)
           .then((value) async {
-        print("she is cached ${value!.file.path}");
         vidoe = await DefaultCacheManager()
             .getFileFromCache(video.linkVideo!)
             .then((value) => value!.file);
       }).catchError((onError) {
-        print("not exist");
         DefaultCacheManager()
             .downloadFile(video.linkVideo!)
             .then((value) async {
-          print("downloaded");
           DefaultCacheManager()
               .putFile(video.linkVideo!, await value.file.readAsBytes(),
                   key: video.linkVideo!,
@@ -561,7 +558,6 @@ print(check);
           linkVideo: null,
           point: null);
       locked[1] = true;
-      print(onError.toString());
       emit(GetVideoFailed());
     });
   }
@@ -585,14 +581,11 @@ print(check);
       await DefaultCacheManager()
           .getFileFromCache(pdf.linkPdf!)
           .then((value) async {
-        print("she is cached ${value!.file.path}");
         bytes = await DefaultCacheManager()
             .getFileFromCache(pdf.linkPdf!)
             .then((value) => value!.file.readAsBytes());
       }).catchError((onError) {
-        print("not exist");
         DefaultCacheManager().downloadFile(pdf.linkPdf!).then((value) async {
-          print("downloaded");
           DefaultCacheManager()
               .putFile(pdf.linkPdf!, await value.file.readAsBytes(),
                   key: pdf.linkPdf!,
@@ -662,6 +655,7 @@ print(check);
     required String lectureName,
     required BuildContext context,
   }) async {
+  locked = [false, false, true, true, true];
     weekTemplateCurrentIndex = 0;
     pdf = Pdf(point: "0", linkPdf: '', description: '', id: '', isPaid: false);
     video = Video(
@@ -685,7 +679,7 @@ print(check);
       subjectName: subjectName,
       lectureName: lectureName,
     );
-    getNote();
+getNote();
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,
@@ -696,8 +690,10 @@ print(check);
         semester: user.semester!,
         subjectName: subjectName,
         lectureName: lectureName);
+
 //Navigator.pop(context);
     weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
+
   }
 
   void changeLocale(BuildContext context, language) {
@@ -795,19 +791,25 @@ print(check);
         .collection(type);
   }
 
-  void getIfVideoPayed({required String uidVideo, required bool isPayed}) {
-    getSecureReference(type: "video", uidItem: uidVideo, isPayed: isPayed)
+  Future <bool> getIfVideoPayed({required String uidVideo, required bool isPayed}) async{
+    return  await getSecureReference(type: "video", uidItem: uidVideo, isPayed: isPayed)
         .then((value) {
       locked[1] = value;
+      return value;
+    }).catchError((onError) {
+      locked[1] = true;
+      return true;
     });
   }
 
-  void getIfPdfPayed({required String uidPdf, required bool isPayed}) {
-    getSecureReference(type: "Pdf", uidItem: uidPdf, isPayed: isPayed)
+Future <bool> getIfPdfPayed({required String uidPdf, required bool isPayed})async {
+  return  await getSecureReference(type: "Pdf", uidItem: uidPdf, isPayed: isPayed)
         .then((value) {
       locked[0] = value;
+      return value;
     }).catchError((onError) {
       locked[0] = true;
+      return true;
     });
   }
 
@@ -875,7 +877,6 @@ print(check);
           getIfPdfPayed(uidPdf: pdfId, isPayed: pdf.isPaid!);
           getInfo(user.uid!);
         }).catchError((onError) {
-          print(onError);
           MotionToast.error(
             description: Text(LocaleKeys.errorWhilePaying.tr()),
             title: Text(LocaleKeys.error.tr()),
@@ -965,7 +966,7 @@ print(check);
     }
   }
 
-  bool getIfPayed(index) {
+  Future<bool> getIfPayed(index) async{
     if (index == 0) {
       return pdf.isPaid ?? false;
     }
@@ -976,9 +977,11 @@ print(check);
     }
   }
 
-  void getAllSucre() {
+  Future<void> getAllSucre() async {
     getIfPdfPayed(uidPdf: pdf.id!, isPayed: pdf.isPaid!);
-    getIfVideoPayed(uidVideo: video.id!, isPayed: video.isPaid!);
+    if(video.id != null){
+      getIfVideoPayed(uidVideo: video.id!, isPayed: video.isPaid!);
+    }
     emit(GetIsLocked());
   }
 
@@ -1050,6 +1053,8 @@ print(check);
       studentNotes = List.generate(value.docs.length,
           (index) => Notes.fromJson(value.docs[index].data()));
       emit(GetStudentNotesSuccessfully());
+    }).catchError((onError) {
+      emit(GetStudentNotesFailed());
     });
   }
 
@@ -1104,5 +1109,14 @@ print(check);
       ).show(context);
       emit(ForgetPasswordFailed());
     });
+  }
+  void changeIndexTap(index){
+    weekTemplateCurrentIndex=2;
+    locked[index]=false;
+emit(ChangeIndexTap());
+
+  }
+  void shareApp(){
+    Share.share('https://play.google.com/store/apps/details?id=wai.waidevloper.afer',subject: 'Afer');
   }
 }

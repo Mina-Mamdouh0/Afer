@@ -40,4 +40,6 @@ class GetStudentNotesSuccessfully extends AppStates{}
 class ToggleNotesShow extends AppStates{}
 class ForgetPasswordSuccessfully extends AppStates{}
 class ForgetPasswordFailed extends AppStates{}
+class ChangeIndexTap extends AppStates{}
+class GetStudentNotesFailed extends AppStates{}
 

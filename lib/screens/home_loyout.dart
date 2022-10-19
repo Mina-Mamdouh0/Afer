@@ -16,6 +16,7 @@ import 'package:connection_notifier/connection_notifier.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:iconly/iconly.dart';
 import '../translations/locale_keys.g.dart';
 
@@ -33,6 +34,21 @@ class _HomeLayoutState extends State<HomeLayout> {
 
   @override
   void initState() {
+    AppOpenAd.load(
+        orientation: 0,
+        adUnitId: 'ca-app-pub-4437547145211454/6382228560',
+        request: const AdRequest(),
+        adLoadCallback: AppOpenAdLoadCallback(
+          onAdLoaded: (AppOpenAd ad) {
+
+            ad.show();
+
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            print('App Open Ad failed to load: $error');
+          },
+        )
+    );
     super.initState();
     AppCubit.get(context).navigationController = CircularBottomNavigationController(   AppCubit.get(context).selectedPos);
   }
@@ -187,7 +203,7 @@ class _HomeLayoutState extends State<HomeLayout> {
                               child: CachedNetworkImage(
                                 imageUrl: cubit.user.profileUrl!,
                                 cacheKey: cubit.user.profileUrl,
-
+errorWidget: (context, url, error) => const Icon(Icons.person),
                                 imageBuilder: (context, imageProvider) => CircleAvatar(
                                   radius: size.width * 0.09,
                                   backgroundImage: imageProvider,
