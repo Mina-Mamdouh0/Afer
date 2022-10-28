@@ -568,6 +568,7 @@ class AppCubit extends Cubit<AppStates> {
       required String subjectName,
       required String lectureName,
       required BuildContext context}) {
+    bytes= Uint8List(0);
     _dataReference(
             academicYear: academicYear,
             semester: semester,
@@ -576,27 +577,27 @@ class AppCubit extends Cubit<AppStates> {
             type: 'pdf')
         .get()
         .then((value) async {
+          var pdfId = value.docs.last.id;
       pdf = Pdf.fromJson(value.docs.last.data()!);
-      getIfPdfPayed(uidPdf: pdf.id!, isPayed: pdf.isPaid ?? false);
+      getIfPdfPayed(uidPdf: pdfId, isPayed: value.docs.last.get("isPaid") ?? false);
       await DefaultCacheManager()
-          .getFileFromCache(pdf.linkPdf!)
-          .then((value) async {
+          .getFileFromCache(pdfId)
+          .then((pdf) async {
         bytes = await DefaultCacheManager()
-            .getFileFromCache(pdf.linkPdf!)
+            .getFileFromCache(pdfId)
             .then((value) => value!.file.readAsBytes());
       }).catchError((onError) {
-        DefaultCacheManager().downloadFile(pdf.linkPdf!).then((value) async {
+        DefaultCacheManager().downloadFile(value.docs.last.get("link")).then((pdf) async {
           DefaultCacheManager()
-              .putFile(pdf.linkPdf!, await value.file.readAsBytes(),
-                  key: pdf.linkPdf!,
-                  eTag: pdf.linkPdf!,
-                  maxAge: const Duration(days: 30))
-              .then((value) async {
+              .putFile(value.docs.last.get("link"), await pdf.file.readAsBytes(),
+                  key: pdfId,
+                  eTag: pdfId,
+                  maxAge: const Duration(days: 120))
+              .then((pdf) async {
             bytes = await DefaultCacheManager()
-                .getFileFromCache(pdf.linkPdf!)
+                .getFileFromCache(pdfId)
                 .then((value) => value!.file.readAsBytes());
           });
-          emit(GetVideoSuccessfully());
         });
       });
       emit(GetPdfSuccessfully());
@@ -679,7 +680,7 @@ class AppCubit extends Cubit<AppStates> {
       subjectName: subjectName,
       lectureName: lectureName,
     );
-getNote();
+//getNote();
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,

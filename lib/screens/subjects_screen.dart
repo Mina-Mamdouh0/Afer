@@ -165,15 +165,15 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                               );
                             });
 
-                            InterstitialAd.load(
-                                adUnitId:
-                                    "ca-app-pub-4437547145211454/4543712918",
-                                request: const AdRequest(),
-                                adLoadCallback: InterstitialAdLoadCallback(
-                                    onAdLoaded: (ad) {
-                                  ad.show();
-                                }, onAdFailedToLoad: (error) {
-                                }));
+                            // InterstitialAd.load(
+                            //     adUnitId:
+                            //         "ca-app-pub-4437547145211454/4543712918",
+                            //     request: const AdRequest(),
+                            //     adLoadCallback: InterstitialAdLoadCallback(
+                            //         onAdLoaded: (ad) {
+                            //       ad.show();
+                            //     }, onAdFailedToLoad: (error) {
+                            //     }));
                           },
                           child: Card(
                             color: Colors.white,
