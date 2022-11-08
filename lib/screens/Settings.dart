@@ -10,6 +10,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
 import '../translations/locale_keys.g.dart';
+import 'package:flutter/services.dart';
 
 class Setting extends StatelessWidget {
   late AppCubit cubit;
@@ -105,11 +106,72 @@ class Setting extends StatelessWidget {
                     fct: () {
                       cubit.shareApp();
                     }),
-                buildItemSetting(
-                    text: LocaleKeys.technicalSupport.tr(),
-                    icons: Icons.biotech,
-
-                    fct: () {}),
+                Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Row(children: [
+                      Expanded(
+                          child: ExpansionTile(
+                        tilePadding: const EdgeInsets.symmetric(
+                            horizontal: 0.0, vertical: 0.0),
+                        title: Text(
+                          LocaleKeys.technicalSupport.tr(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        leading: const CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.deepPurpleAccent,
+                            child: Icon(
+                              Icons.biotech,
+                              color: Colors.white,
+                              size: 15,
+                            )),
+                        children: [
+                          Row(children: [
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            const Icon(
+                              Icons.email,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            const Text(
+                              "afeercorporate@gmail.com",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            const Spacer(),
+                            IconButton(
+                                onPressed: () async {
+                                  await Clipboard.setData(const ClipboardData(
+                                      text: "afeercorporate@gmail.com")).then((value) => MotionToast.success(
+                                          title:  Text(LocaleKeys.copy.tr()),
+                                          description:  Text("${LocaleKeys.emailHint.tr()} ${LocaleKeys.copy.tr()}" ),
+                                          height: 100,
+                                          width: 350,
+                                          animationDuration:
+                                              const Duration(milliseconds: 900),
+                                          borderRadius: 25,
+                                          barrierColor:
+                                              Colors.black.withOpacity(0.5),
+                                          position: MotionToastPosition.bottom,
+                                          toastDuration: const Duration(
+                                            milliseconds: 600,
+                                          ),
+                                          animationType: AnimationType.fromBottom,
+                                        ).show(context));
+                                },
+                                icon:const  Icon(
+                                  Icons.copy,
+                                  color: Colors.grey,
+                                ))
+                          ]),
+                        ],
+                      ))
+                    ])),
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Row(
@@ -148,12 +210,12 @@ class Setting extends StatelessWidget {
                             return AlertDialog(
                               title: Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
-                                children:  [
-                                  const     Icon(
+                                children: [
+                                  const Icon(
                                     Icons.logout,
                                     color: Colors.deepPurpleAccent,
                                   ),
-                                  const  SizedBox(
+                                  const SizedBox(
                                     width: 5,
                                   ),
                                   Text(
@@ -164,9 +226,9 @@ class Setting extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              content:  Text(
+                              content: Text(
                                 LocaleKeys.wantSignOut.tr(),
-                                style:const TextStyle(fontSize: 15),
+                                style: const TextStyle(fontSize: 15),
                               ),
                               actions: [
                                 TextButton(
@@ -175,7 +237,7 @@ class Setting extends StatelessWidget {
                                           ? Navigator.pop(m)
                                           : null;
                                     },
-                                    child:  Text(
+                                    child: Text(
                                       LocaleKeys.cancel.tr(),
                                       style: const TextStyle(
                                         color: Colors.deepPurpleAccent,
@@ -185,10 +247,9 @@ class Setting extends StatelessWidget {
                                     onPressed: () {
                                       cubit.signOut(context);
                                       Navigator.pop(m);
-
                                     },
-                                    child:  Text(
-                            LocaleKeys.yes.tr(),
+                                    child: Text(
+                                      LocaleKeys.yes.tr(),
                                       style: const TextStyle(color: Colors.red),
                                     ))
                               ],

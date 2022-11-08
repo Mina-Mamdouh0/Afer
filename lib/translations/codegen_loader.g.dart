@@ -97,6 +97,7 @@ class CodegenLoader extends AssetLoader{
     "yourNowPremium":"انت الان مشترك بالنسخه البريميوم",
     "notFoundLac":"لا يوجد محاضرات  حتي الان",
 "tryAgain":"حاول مجددا",
+"copy":"تم النسخ",
 };
 static const Map<String,dynamic> en = {
   "welcome": "Welcome",
@@ -176,6 +177,7 @@ static const Map<String,dynamic> en = {
   "yourNowPremium":"you are Now Premium user",
   "notFoundLac":"Not found Lectures yet" ,
   "tryAgain":"please try again",
+  "copy":"copied to clipboard",
 
 
 };

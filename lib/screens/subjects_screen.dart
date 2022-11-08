@@ -12,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:lottie/lottie.dart';
-import 'package:motion_toast/motion_toast.dart';
 import '../const/photo_manger.dart';
 import '../model/lecture.dart';
 
@@ -165,15 +164,15 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                               );
                             });
 
-                            // InterstitialAd.load(
-                            //     adUnitId:
-                            //         "ca-app-pub-4437547145211454/4543712918",
-                            //     request: const AdRequest(),
-                            //     adLoadCallback: InterstitialAdLoadCallback(
-                            //         onAdLoaded: (ad) {
-                            //       ad.show();
-                            //     }, onAdFailedToLoad: (error) {
-                            //     }));
+                            InterstitialAd.load(
+                                adUnitId:
+                                    "ca-app-pub-4437547145211454/4543712918",
+                                request: const AdRequest(),
+                                adLoadCallback: InterstitialAdLoadCallback(
+                                    onAdLoaded: (ad) {
+                                  ad.show();
+                                }, onAdFailedToLoad: (error) {
+                                }));
                           },
                           child: Card(
                             color: Colors.white,

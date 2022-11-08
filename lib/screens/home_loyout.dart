@@ -45,7 +45,6 @@ class _HomeLayoutState extends State<HomeLayout> {
 
           },
           onAdFailedToLoad: (LoadAdError error) {
-            print('App Open Ad failed to load: $error');
           },
         )
     );

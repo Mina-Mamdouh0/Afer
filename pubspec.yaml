@@ -3,7 +3,7 @@ description: A new Flutter project.
 
 publish_to: 'none'
 
-version: 1.1.1+3
+version: 1.1.2+4
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
@@ -21,11 +21,13 @@ dependencies:
   flutter_windowmanager: ^0.2.0
 
   image_picker: ^0.8.5+3
-  firebase_core: ^1.15.0
-  firebase_auth: ^3.3.16
-  cloud_firestore: ^3.1.13
-  firebase_storage: ^10.3.8
-  shared_preferences: ^2.0.11
+  firebase_core: any
+  firebase_auth: any
+  cloud_firestore: any
+  firebase_storage: any
+  firebase_messaging: any
+  flutter_local_notifications: ^12.0.3
+  shared_preferences: any
   motion_toast: ^2.3.2
   conditional_builder_null_safety: ^0.0.6
   connection_notifier: ^0.0.1
@@ -33,14 +35,16 @@ dependencies:
   lottie: ^1.4.2
   barcode_widget: ^2.0.2
   flutter_barcode_scanner: ^2.0.0
-#to get pdf from url and show it
-  p_mobile_ads: ^2.0.0
-    share_dfx: ^2.2.0
   circular_bottom_navigation: ^2.1.2
+#to get pdf from url and show it
+  google_mobile_ads: ^2.2.0
+  share_plus: ^6.2.0
+  pdfx: ^2.3.0
   photo_view: ^0.14.0
   flutter_cache_manager: ^3.3.0
   cached_network_image: ^3.2.1
-  googleplus: ^4.5.3
+  firebase_in_app_messaging: ^0.7.0+4
+
 
 dev_dependencies:
   flutter_test:

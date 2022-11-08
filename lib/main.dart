@@ -4,12 +4,18 @@ import 'package:afer/translations/codegen_loader.g.dart';
 import 'package:connection_notifier/connection_notifier.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:afer/SheredPreferance/sheredHelper.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_windowmanager/flutter_windowmanager.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,7 +24,35 @@ void main() async {
   await sherdprefrence.init();
   await EasyLocalization.ensureInitialized();
   MobileAds.instance.initialize();
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+ FirebaseInAppMessaging.instance;
+  messaging.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
 
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+ await messaging.requestPermission(
+
+    alert: true,
+    announcement: true,
+    badge: true,
+    carPlay: false,
+    criticalAlert: false,
+    provisional: false,
+    sound: true,
+  );
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+
+    if (message.notification != null) {
+    }
+  });
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+  flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()?.requestPermission();
   runApp(
       EasyLocalization(
           supportedLocales: const [Locale('en'), Locale('ar')],

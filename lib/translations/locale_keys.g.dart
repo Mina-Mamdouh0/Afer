@@ -78,6 +78,7 @@ abstract class  LocaleKeys {
   static const yourNowPremium = 'yourNowPremium';
   static const notFoundLac = 'notFoundLac';
   static const tryAgain = 'tryAgain';
+  static const copy = 'copy';
 
 
 

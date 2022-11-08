@@ -18,7 +18,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
@@ -28,7 +27,6 @@ import '../model/exam.dart';
 import '../model/lecture.dart';
 
 import '../model/notes.dart';
-import '../screens/week_details/lecture_screen.dart';
 import '../screens/week_details/show_video.dart';
 import '../model/UserModel.dart';
 import '../model/pdf.dart';
@@ -60,6 +58,7 @@ class AppCubit extends Cubit<AppStates> {
   String subjectName = "";
   String lectureName = "";
   bool isSend = false;
+
   // Home Layout Screen variables
   int selectedPos = 0;
   File? fileer;
@@ -106,6 +105,7 @@ class AppCubit extends Cubit<AppStates> {
   bool isObscureSignup = true;
   var signUpFormKey = GlobalKey<FormState>();
   int points = 0;
+
   //user Screen variables
   var userEmailController = TextEditingController();
   var usernameController = TextEditingController();
@@ -128,6 +128,7 @@ class AppCubit extends Cubit<AppStates> {
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
   Notes notes = Notes();
+
   //Settings Screen variables
   List<Subject> firstYear = [];
   List<Subject> subjects = [];
@@ -413,9 +414,9 @@ class AppCubit extends Cubit<AppStates> {
 // to add new subject into map to get it from data base
   void addSubject(String year, Subject subject, value, int index) {
     if (value == false) {
-      var itemIndex = subjects.indexWhere((element) => element.isEqutaple(subject));
+      var itemIndex =
+          subjects.indexWhere((element) => element.isEqutaple(subject));
       subjects.removeAt(itemIndex);
-
     } else {
       subjects.insert(subjects.length, subject);
     }
@@ -568,7 +569,7 @@ class AppCubit extends Cubit<AppStates> {
       required String subjectName,
       required String lectureName,
       required BuildContext context}) {
-    bytes= Uint8List(0);
+    bytes = Uint8List(0);
     _dataReference(
             academicYear: academicYear,
             semester: semester,
@@ -577,22 +578,22 @@ class AppCubit extends Cubit<AppStates> {
             type: 'pdf')
         .get()
         .then((value) async {
-          var pdfId = value.docs.last.id;
+      var pdfId = value.docs.last.id;
       pdf = Pdf.fromJson(value.docs.last.data()!);
-      getIfPdfPayed(uidPdf: pdfId, isPayed: value.docs.last.get("isPaid") ?? false);
-      await DefaultCacheManager()
-          .getFileFromCache(pdfId)
-          .then((pdf) async {
+      getIfPdfPayed(
+          uidPdf: pdfId, isPayed: value.docs.last.get("isPaid") ?? false);
+      await DefaultCacheManager().getFileFromCache(pdfId).then((pdf) async {
         bytes = await DefaultCacheManager()
             .getFileFromCache(pdfId)
             .then((value) => value!.file.readAsBytes());
       }).catchError((onError) {
-        DefaultCacheManager().downloadFile(value.docs.last.get("link")).then((pdf) async {
+        DefaultCacheManager()
+            .downloadFile(value.docs.last.get("link"))
+            .then((pdf) async {
           DefaultCacheManager()
-              .putFile(value.docs.last.get("link"), await pdf.file.readAsBytes(),
-                  key: pdfId,
-                  eTag: pdfId,
-                  maxAge: const Duration(days: 120))
+              .putFile(
+                  value.docs.last.get("link"), await pdf.file.readAsBytes(),
+                  key: pdfId, eTag: pdfId, maxAge: const Duration(days: 120))
               .then((pdf) async {
             bytes = await DefaultCacheManager()
                 .getFileFromCache(pdfId)
@@ -656,7 +657,7 @@ class AppCubit extends Cubit<AppStates> {
     required String lectureName,
     required BuildContext context,
   }) async {
-  locked = [false, false, true, true, true];
+    locked = [false, false, true, true, true];
     weekTemplateCurrentIndex = 0;
     pdf = Pdf(point: "0", linkPdf: '', description: '', id: '', isPaid: false);
     video = Video(
@@ -680,7 +681,7 @@ class AppCubit extends Cubit<AppStates> {
       subjectName: subjectName,
       lectureName: lectureName,
     );
-//getNote();
+
     getPhoto(
         academicYear: academicYear,
         semester: user.semester!,
@@ -691,10 +692,9 @@ class AppCubit extends Cubit<AppStates> {
         semester: user.semester!,
         subjectName: subjectName,
         lectureName: lectureName);
-
+    getNote();
 //Navigator.pop(context);
     weekTemplateCurrentIndex = locked.contains(true) ? locked.indexOf(true) : 4;
-
   }
 
   void changeLocale(BuildContext context, language) {
@@ -792,8 +792,10 @@ class AppCubit extends Cubit<AppStates> {
         .collection(type);
   }
 
-  Future <bool> getIfVideoPayed({required String uidVideo, required bool isPayed}) async{
-    return  await getSecureReference(type: "video", uidItem: uidVideo, isPayed: isPayed)
+  Future<bool> getIfVideoPayed(
+      {required String uidVideo, required bool isPayed}) async {
+    return await getSecureReference(
+            type: "video", uidItem: uidVideo, isPayed: isPayed)
         .then((value) {
       locked[1] = value;
       return value;
@@ -803,8 +805,10 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-Future <bool> getIfPdfPayed({required String uidPdf, required bool isPayed})async {
-  return  await getSecureReference(type: "Pdf", uidItem: uidPdf, isPayed: isPayed)
+  Future<bool> getIfPdfPayed(
+      {required String uidPdf, required bool isPayed}) async {
+    return await getSecureReference(
+            type: "Pdf", uidItem: uidPdf, isPayed: isPayed)
         .then((value) {
       locked[0] = value;
       return value;
@@ -967,7 +971,7 @@ Future <bool> getIfPdfPayed({required String uidPdf, required bool isPayed})asyn
     }
   }
 
-  Future<bool> getIfPayed(index) async{
+  Future<bool> getIfPayed(index) async {
     if (index == 0) {
       return pdf.isPaid ?? false;
     }
@@ -980,13 +984,14 @@ Future <bool> getIfPdfPayed({required String uidPdf, required bool isPayed})asyn
 
   Future<void> getAllSucre() async {
     getIfPdfPayed(uidPdf: pdf.id!, isPayed: pdf.isPaid!);
-    if(video.id != null){
+    if (video.id != null) {
       getIfVideoPayed(uidVideo: video.id!, isPayed: video.isPaid!);
     }
     emit(GetIsLocked());
   }
 
   bool showImageUnderVideo = false;
+
   void showImageVideo() {
     showImageUnderVideo = !showImageUnderVideo;
     emit(ShowImageUnderVideo());
@@ -1111,13 +1116,16 @@ Future <bool> getIfPdfPayed({required String uidPdf, required bool isPayed})asyn
       emit(ForgetPasswordFailed());
     });
   }
-  void changeIndexTap(index){
-    weekTemplateCurrentIndex=2;
-    locked[index]=false;
-emit(ChangeIndexTap());
 
+  void changeIndexTap(index) {
+    weekTemplateCurrentIndex = 2;
+    locked[index] = false;
+    emit(ChangeIndexTap());
   }
-  void shareApp(){
-    Share.share('https://play.google.com/store/apps/details?id=wai.waidevloper.afer',subject: 'Afer');
+
+  void shareApp() {
+    Share.share(
+        'https://play.google.com/store/apps/details?id=wai.waidevloper.afer',
+        subject: 'Afer');
   }
 }
