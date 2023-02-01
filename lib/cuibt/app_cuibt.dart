@@ -4,7 +4,8 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:afer/Extintion/extinition.dart';
 import 'package:afer/cuibt/app_states.dart';
-import 'package:afer/model/Subject.dart';
+import 'package:afer/model/subject.dart';
+import 'package:afer/screens/auth/un_normal_auth.dart';
 import 'package:afer/screens/week_details/feedback_screen.dart';
 import 'package:afer/screens/week_details/show_alerts.dart';
 import 'package:afer/screens/week_details/show_lecture.dart';
@@ -18,6 +19,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:motion_toast/motion_toast.dart';
 import 'package:motion_toast/resources/arrays.dart';
@@ -28,16 +30,16 @@ import '../model/lecture.dart';
 
 import '../model/notes.dart';
 import '../screens/week_details/show_video.dart';
-import '../model/UserModel.dart';
+import '../model/user_model.dart';
 import '../model/pdf.dart';
 import '../model/photo.dart';
 import '../model/video.dart';
 import '../screens/message_screen.dart';
-import '../screens/auth/login_screen.dart';
+import '../screens/auth/auth_home.dart';
 import '../screens/home_loyout.dart';
-import '../screens/Settings.dart';
+import '../screens/settings_screen.dart';
 import '../screens/subjects_screen.dart';
-import 'package:afer/SheredPreferance/sheredHelper.dart';
+import 'package:afer/SheredPreferance/shered_helper.dart';
 
 class AppCubit extends Cubit<AppStates> {
   AppCubit() : super(AferInitState());
@@ -50,8 +52,9 @@ class AppCubit extends Cubit<AppStates> {
     const SubjectsScreen(),
     const MessageScreen(),
     const MessageScreen(),
-    Setting()
+    const Setting()
   ];
+  final TextEditingController feedBackController = TextEditingController();
   String subjectNotes = "";
   List<Notes> studentNotes = [];
   String uidNote = "";
@@ -68,7 +71,7 @@ class AppCubit extends Cubit<AppStates> {
     const ShowVideo(),
     const ShowQuestion(),
     const ShowAlerts(),
-    FeedBackScreen(),
+    const FeedBackScreen(),
   ];
   int currentIndex = 0;
   int indexRegisterScreen = 0;
@@ -123,8 +126,7 @@ class AppCubit extends Cubit<AppStates> {
   List<Subject> thirdYear = [];
   List<Subject> fourthYear = [];
   String academicYear = "First year";
-  String semester =
-      DateTime.now().month >= 9 ? "First semester" : "Second semester";
+  String semester ="First semester";
   bool isObscureSignIn = true;
   var signInFormKey = GlobalKey<FormState>();
   Notes notes = Notes();
@@ -185,8 +187,11 @@ class AppCubit extends Cubit<AppStates> {
     uploadProfilePhoto();
     emit(UpdateImage());
   }
-
-  void createAccount(uid) {
+void changeSemester(semestervalue){
+  semester = semestervalue;
+  emit(ChangeSemester());
+}
+  Future<void> createAccount(uid) async {
     UserModule user = UserModule(
       uid: uid,
       firstName: nameController.text,
@@ -196,7 +201,7 @@ class AppCubit extends Cubit<AppStates> {
       premium: false,
       profileUrl: profileUrl,
       pass: passwordController.text,
-      semester: "First semester",
+      semester: semester,
       academicYear: academicYear,
     );
     FirebaseFirestore.instance
@@ -204,6 +209,7 @@ class AppCubit extends Cubit<AppStates> {
         .doc(uid)
         .set(user.toJson())
         .then((value) {
+      getInfo(uid);
       emit(CreateAccountSuccess());
     }).catchError((error) {
       emit(CreateAccountFailed());
@@ -234,7 +240,7 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
-  void getInfo(uid) {
+  Future<void> getInfo(uid) async {
     FirebaseFirestore.instance.collection("Users").doc(uid).get().then((value) {
       user = UserModule.fromJson(value.data()!);
       // add subjects to list to use it in subject screen to show subjects to user and get all data of subject
@@ -271,18 +277,23 @@ class AppCubit extends Cubit<AppStates> {
 
       emit(GetUserInfoSuccess());
     }).catchError((error) {
+      user = UserModule();
       emit(GetUserInfoFailed());
     });
   }
 
-  void signUp(context) {
+  void signUp(context) async {
     //print(" this is ${emailController.text}");
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(
             email: emailController.text, password: passwordController.text)
         .then((value) {
       createAccount(value.user!.uid);
-      navigator(context: context, page: const AuthScreen(), returnPage: false);
+      navigator(
+        context: context,
+        page: const AuthScreen(),
+        returnPage: false,
+      );
     }).catchError((error) {
       MotionToast.error(
         description: Text(error.toString()),
@@ -293,6 +304,90 @@ class AppCubit extends Cubit<AppStates> {
     });
   }
 
+  String codeSent = "";
+
+  void verifyPhoneNumber({
+    required BuildContext context,
+    required String phone,
+  }) async {
+    int? forceResendingToken;
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      forceResendingToken: forceResendingToken,
+        phoneNumber: "+2$phone",
+        verificationCompleted: (credential) {
+        },
+        verificationFailed: (verificationFailed) {
+          MotionToast.error(
+            description: Text(verificationFailed.message.toString()),
+            title: const Text(LocaleKeys.tryAgain),
+          ).show(context);
+        },
+        codeSent: (verificationId, resendingToken) {
+          codeSent = verificationId;
+          forceResendingToken = resendingToken;
+          },
+        codeAutoRetrievalTimeout: (codeAutoRetrievalTimeout) {
+          codeSent = codeAutoRetrievalTimeout;
+        },
+        timeout: const Duration(seconds: 60));
+  }
+
+  Future<void> signInWithPhone(BuildContext context, String otp,String phoneNumber,) async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithCredential(PhoneAuthProvider.credential(
+              verificationId: AppCubit.get(context).codeSent, smsCode: otp,))
+          .then((value) {
+if(value.additionalUserInfo!.isNewUser){
+  navigator(
+    context: context,
+    page:  UnNormalSignUp(isGoogleSignIn: false, phone: phoneNumber, uid: value.user!.uid),
+    returnPage: false,
+  );
+}
+else{
+  Sherdprefrence.setdate(key: "token", value: value.user!.uid);
+  getInfo(value.user!.uid).then((value) =>   navigator(page: const HomeLayout(),returnPage: false,context: context));
+}
+      });
+    } catch (e) {
+      MotionToast.error(
+        description: Text(e.toString()),
+        title: const Text(LocaleKeys.tryAgain),
+      ).show(context);
+    }
+  }
+  Future<void> signInWithGoogle(BuildContext context)async{
+    try{final googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleSignInAccount ;
+    final googleUser=await googleSignIn.signIn();
+    if(googleUser!=null){
+      googleSignInAccount=googleUser;
+      final googleAuth=await googleSignInAccount.authentication;
+      final credential=GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential).then((value) {
+        if(value.additionalUserInfo!.isNewUser){
+          navigator(page:  UnNormalSignUp(isGoogleSignIn: true, phone: "", uid: value.user!.uid),returnPage: false,context: context);
+        }else{
+          Sherdprefrence.setdate(key: "token", value: value.user!.uid);
+          getInfo(value.user!.uid).then((value) =>   navigator(page: const HomeLayout(),returnPage: false,context: context));
+        }
+
+      });
+    }}
+        catch(e){
+          MotionToast.error(
+            description: Text(e.toString()),
+            title: const Text(LocaleKeys.tryAgain),
+          ).show(context);
+
+        }
+
+  }
+
   void signIn(context) {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(
@@ -301,7 +396,7 @@ class AppCubit extends Cubit<AppStates> {
         .then((value) {
       getInfo(value.user!.uid);
       if (rememberMe) {
-        sherdprefrence.setdate(key: "token", value: value.user!.uid);
+        Sherdprefrence.setdate(key: "token", value: value.user!.uid);
       }
       navigator(context: context, page: const HomeLayout(), returnPage: false);
     }).catchError((error) {
@@ -326,7 +421,7 @@ class AppCubit extends Cubit<AppStates> {
   void signOut(context) {
     FirebaseAuth.instance.signOut().then((value) {
       navigator(context: context, page: const AuthScreen(), returnPage: false);
-      sherdprefrence.removedate(key: "token");
+      Sherdprefrence.removedate(key: "token");
       emit(LogOut());
     });
   }
@@ -359,10 +454,10 @@ class AppCubit extends Cubit<AppStates> {
     );
     FirebaseFirestore.instance
         .collection("Users")
-        .doc(sherdprefrence.getdate(key: "token"))
+        .doc(Sherdprefrence.getdate(key: "token"))
         .update(user.toJson())
         .then((value) {
-      getInfo(sherdprefrence.getdate(key: "token"));
+      getInfo(Sherdprefrence.getdate(key: "token"));
     }).catchError((onError) {});
   }
 
@@ -390,10 +485,10 @@ class AppCubit extends Cubit<AppStates> {
     );
     FirebaseFirestore.instance
         .collection("Users")
-        .doc(sherdprefrence.getdate(key: "token"))
+        .doc(Sherdprefrence.getdate(key: "token"))
         .update(user.toJson())
         .then((value) {
-      getInfo(sherdprefrence.getdate(key: "token"));
+      getInfo(Sherdprefrence.getdate(key: "token"));
     }).catchError((onError) {});
   }
 

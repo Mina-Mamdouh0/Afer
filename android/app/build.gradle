@@ -38,12 +38,6 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    lintOptions {
-        disable 'InvalidPackage'
-        disable "Instantiatable"
-        checkReleaseBuilds false
-        abortOnError false
-    }
     kotlinOptions {
         jvmTarget = '1.8'
     }
@@ -54,9 +48,7 @@ android {
 
     defaultConfig {
         multiDexEnabled true
-
         applicationId "wai.waidevloper.afer"
-
         minSdkVersion 21
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
@@ -76,6 +68,12 @@ android {
             signingConfig signingConfigs.release
         }
     }
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
+        disable 'InvalidPackage', 'Instantiatable'
+    }
+    namespace 'wai.waidevloper.afer'
 
 
 }
@@ -90,5 +88,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:21.3.0'
     implementation 'com.google.firebase:firebase-analytics'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
+    implementation 'com.google.firebase:firebase-auth'
+
 
 }

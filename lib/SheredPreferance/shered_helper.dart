@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-class sherdprefrence{
+class Sherdprefrence{
   static SharedPreferences? sharedpreferences;
   static init()async{
     sharedpreferences= await SharedPreferences.getInstance();

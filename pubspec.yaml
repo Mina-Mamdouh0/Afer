@@ -3,13 +3,14 @@ description: A new Flutter project.
 
 publish_to: 'none'
 
-version: 1.1.2+4
+version: 1.1.3+6
 
 environment:
   sdk: ">=2.17.6 <3.0.0"
 dependencies:
   flutter:
     sdk: flutter
+  circular_bottom_navigation: ^2.1.2
   cupertino_icons: ^1.0.2
   iconly: ^1.0.1
   bloc: ^8.0.1
@@ -18,7 +19,7 @@ dependencies:
   flick_video_player: ^0.5.0
   video_player: ^2.4.6
   #prevent screen recording
-  flutter_windowmanager: ^0.2.0
+  flutter_windowmanager: any
 
   image_picker: ^0.8.5+3
   firebase_core: any
@@ -26,7 +27,7 @@ dependencies:
   cloud_firestore: any
   firebase_storage: any
   firebase_messaging: any
-  flutter_local_notifications: ^12.0.3
+
   shared_preferences: any
   motion_toast: ^2.3.2
   conditional_builder_null_safety: ^0.0.6
@@ -35,7 +36,6 @@ dependencies:
   lottie: ^1.4.2
   barcode_widget: ^2.0.2
   flutter_barcode_scanner: ^2.0.0
-  circular_bottom_navigation: ^2.1.2
 #to get pdf from url and show it
   google_mobile_ads: ^2.2.0
   share_plus: ^6.2.0
@@ -44,12 +44,14 @@ dependencies:
   flutter_cache_manager: ^3.3.0
   cached_network_image: ^3.2.1
   firebase_in_app_messaging: ^0.7.0+4
-
+  google_sign_in: ^5.4.2
+  pin_code_fields: ^7.4.0
+  youtube_player_flutter: ^8.1.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_launcher_icons: "^0.9.2"
+  flutter_launcher_icons: ^0.10.0
   flutter_lints: any
 
 flutter_icons:

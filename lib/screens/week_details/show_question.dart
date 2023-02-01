@@ -236,11 +236,11 @@ class _ShowQuestionState extends State<ShowQuestion> {
 }
 
 class QuestionCard extends StatelessWidget {
-  String text;
-  bool isChecked;
-  bool isCorrect;
+final   String text;
+final bool isChecked;
+final bool isCorrect;
 
-  QuestionCard({super.key,
+ const QuestionCard({super.key,
     required this.text,
     required this.isChecked,
     this.isCorrect = false,

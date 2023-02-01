@@ -1,6 +1,6 @@
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
-import 'package:afer/model/Subject.dart';
+import 'package:afer/model/subject.dart';
 import 'package:afer/screens/week_details/lecture_screen.dart';
 import 'package:afer/translations/locale_keys.g.dart';
 import 'package:afer/widget/widget.dart';
@@ -63,19 +63,21 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
 class SubjectWidget extends StatefulWidget {
   final Subject subject;
+
   const SubjectWidget({Key? key, required this.subject}) : super(key: key);
 
   @override
-  State<SubjectWidget> createState() => _SubjectWidgetState(subject: subject);
+  State<SubjectWidget> createState() => _SubjectWidgetState();
 }
 
 class _SubjectWidgetState extends State<SubjectWidget> {
-  _SubjectWidgetState({required this.subject});
-  final Subject subject;
+  _SubjectWidgetState();
+
   late List<Lecture> lectures = [];
+
   @override
   void initState() {
-    AppCubit.get(context).getMyLectures(subject: subject).then((value) {
+    AppCubit.get(context).getMyLectures(subject: widget.subject).then((value) {
       setState(() {
         lectures = value;
       });
@@ -109,7 +111,7 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                     color: Colors.amber.withOpacity(0.4),
                     shape: BoxShape.circle),
               ),
-              Text(subject.name!,
+              Text(widget.subject.name!,
                   style: TextStyle(
                       color: Colors.black,
                       fontFamily: 'Stoor',
@@ -149,8 +151,8 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                             ];
                             await AppCubit.get(context)
                                 .getLectureData(
-                                    subjectName: subject.name!,
-                                    academicYear: subject.academicYear!,
+                                    subjectName: widget.subject.name!,
+                                    academicYear: widget.subject.academicYear!,
                                     lectureName: lectures[index].lectureName!,
                                     context: context)
                                 .whenComplete(() {
@@ -158,8 +160,8 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                 context: context,
                                 returnPage: true,
                                 page: LectureScreen(
-                                    academicYear: subject.academicYear!,
-                                    subjectName: subject.name!,
+                                    academicYear: widget.subject.academicYear!,
+                                    subjectName: widget.subject.name!,
                                     lectureName: lectures[index].lectureName!),
                               );
                             });
@@ -213,7 +215,8 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                       children: [
                                         CachedNetworkImage(
                                           imageUrl:
-                                              subject.urlPhotoTeacher ?? "",
+                                              widget.subject.urlPhotoTeacher ??
+                                                  "",
                                           imageBuilder: (context, image) =>
                                               CircleAvatar(
                                             radius: MediaQuery.of(context)
@@ -227,7 +230,8 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                               const CircularProgressIndicator(),
                                           errorWidget: (context, url, error) =>
                                               const Icon(Icons.error),
-                                          cacheKey: subject.urlPhotoTeacher,
+                                          cacheKey:
+                                              widget.subject.urlPhotoTeacher,
                                           cacheManager: DefaultCacheManager(),
                                         ),
                                         const SizedBox(
@@ -239,7 +243,7 @@ class _SubjectWidgetState extends State<SubjectWidget> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Text(subject.teacherName!,
+                                            Text(widget.subject.teacherName!,
                                                 style: TextStyle(
                                                   color: Colors.grey.shade700,
                                                   fontSize:

@@ -9,6 +9,43 @@
       "client_info": {
         "mobilesdk_app_id": "1:164538397597:android:2e15f5d8f4faeb560db574",
         "android_client_info": {
+          "package_name": "com.example.afer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164538397597-aue9t3quqjbpgbill07u3gplqrfmj2du.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.afer",
+            "certificate_hash": "68008584627bb226ba7b18402699cd39d9cb1885"
+          }
+        },
+        {
+          "client_id": "164538397597-c5k2d9fs6i281vpq5u5uvhv9codke9oq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBoVF1Bc7RlkM-XwFHgx0WqBhkxmAth_qA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164538397597-c5k2d9fs6i281vpq5u5uvhv9codke9oq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164538397597:android:28904bc30473d2200db574",
+        "android_client_info": {
           "package_name": "wai.waidevloper.afer"
         }
       },

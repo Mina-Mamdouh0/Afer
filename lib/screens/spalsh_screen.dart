@@ -5,8 +5,8 @@ import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:flutter/material.dart';
 import '../const/photo_manger.dart';
-import 'auth/login_screen.dart';
-import 'package:afer/SheredPreferance/sheredHelper.dart';
+import 'auth/auth_home.dart';
+import 'package:afer/SheredPreferance/shered_helper.dart';
 import 'home_loyout.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,16 +17,15 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  var Interstitial;
   @override
   void initState() {
 
     Timer(
         const Duration(seconds: 2),
             () async {
-          if (sherdprefrence.getdate(key: "token") != null) {
+          if (Sherdprefrence.getdate(key: "token") != null) {
             AppCubit.get(context).getInfo(
-                sherdprefrence.getdate(key: "token"));
+                Sherdprefrence.getdate(key: "token"));
             navigator(
                 context: context, page: const HomeLayout(), returnPage: false);
           }

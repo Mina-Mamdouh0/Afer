@@ -6,13 +6,13 @@ import '../const/colors_manger.dart';
 
 
  navigator({page, context, returnPage = false}) {
-  return Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=> page),(Route route)=>returnPage);
+  return Navigator.pushAndRemoveUntil(context,MaterialPageRoute(builder: (context)=> page,),(Route route)=>returnPage,);
 }
 class TheTextFiled extends StatelessWidget {
   final String? Function(String?)? validator;
   final TextEditingController controller;
   final String hintText;
-  final  prefix;
+  final IconData ? prefix;
   final TextInputType keyboardType;
   final String? labelText;
   final String? helperText;
@@ -23,7 +23,7 @@ class TheTextFiled extends StatelessWidget {
 final int? maxLength;
 final int? maxLine;
 
-  const TheTextFiled({Key? key, this.validator, required this.controller, required this.hintText,required  this.prefix, required this.keyboardType, this.labelText, this.textInputAction, this.suffixIcon, this.onFieldSubmitted, this.obscureText, this.helperText,this.maxLength, this.maxLine}) : super(key: key);
+  const TheTextFiled({Key? key, this.validator, required this.controller, required this.hintText,  this.prefix, required this.keyboardType, this.labelText, this.textInputAction, this.suffixIcon, this.onFieldSubmitted, this.obscureText, this.helperText,this.maxLength, this.maxLine}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ maxLength: maxLength,
           hintText: hintText,
           hintStyle:const TextStyle(color: Colors.black),
           labelStyle: const TextStyle(color: Colors.black),
-          prefixIcon:prefix==1?null: Icon(prefix),
+          prefixIcon: Icon(prefix),
           suffixIcon: suffixIcon,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),

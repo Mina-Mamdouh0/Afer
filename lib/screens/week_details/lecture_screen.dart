@@ -25,20 +25,11 @@ class LectureScreen extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<LectureScreen> createState() => _LectureScreenState(
-      lectureName: lectureName,
-      subjectName: subjectName,
-      academicYear: academicYear);
+  State<LectureScreen> createState() => _LectureScreenState();
 }
 
 class _LectureScreenState extends State<LectureScreen> {
-  _LectureScreenState(
-      {required this.subjectName,
-      required this.academicYear,
-      required this.lectureName});
-  final String subjectName;
-  final String academicYear;
-  final String lectureName;
+  _LectureScreenState();
 
   List<Map<String, dynamic>> weekDetails = [
     {
@@ -64,14 +55,13 @@ class _LectureScreenState extends State<LectureScreen> {
   ];
 
   late AppCubit cubit;
+
   @override
   void initState() {
     AppCubit.get(context).locked = [false, false, true, true, true];
     AppCubit.get(context).getAllSucre();
-    AppCubit.get(context).subjectName = subjectName;
-    AppCubit.get(context).lectureName = lectureName;
-
-
+    AppCubit.get(context).subjectName = widget.subjectName;
+    AppCubit.get(context).lectureName = widget.lectureName;
 
     super.initState();
   }
@@ -204,9 +194,10 @@ class _LectureScreenState extends State<LectureScreen> {
                         child: CachedNetworkImage(
                           imageUrl: cubit.user.profileUrl!,
                           cacheKey: cubit.user.profileUrl,
-                          errorWidget: (context, url, error) => const Icon(Icons.person),
-
-                          imageBuilder: (context, imageProvider) => CircleAvatar(
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.person),
+                          imageBuilder: (context, imageProvider) =>
+                              CircleAvatar(
                             radius: size.width * 0.09,
                             backgroundImage: imageProvider,
                             backgroundColor: Colors.white,
@@ -241,14 +232,15 @@ class _LectureScreenState extends State<LectureScreen> {
 
   Widget tabBuilder(int index, AppCubit cubit, context) {
     return InkWell(
-      onTap: ()async {
-        if ( AppCubit.get(context).locked[index] == true||AppCubit.get(context).user.premium==true) {
+      onTap: () async {
+        if (AppCubit.get(context).locked[index] == true ||
+            AppCubit.get(context).user.premium == true) {
           if (index == 1) {
             BlocProvider.of<AppCubit>(context).showImageUnderVideo = false;
           }
-           AppCubit.get(context).weekTemplateChangeIndex(index);
+          AppCubit.get(context).weekTemplateChangeIndex(index);
         } else {
-          if ( await  AppCubit.get(context).getIfPayed(index) == true) {
+          if (await AppCubit.get(context).getIfPayed(index) == true) {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
@@ -299,7 +291,6 @@ class _LectureScreenState extends State<LectureScreen> {
               ),
             );
           } else {
-
             cubit.weekTemplateChangeIndex(index);
           }
         }
@@ -352,8 +343,8 @@ class _LectureScreenState extends State<LectureScreen> {
             ),
           ),
           ConditionalBuilder(
-              condition: cubit.locked[index]||cubit.user.premium==true,
-              builder:  (context) {
+              condition: cubit.locked[index] || cubit.user.premium == true,
+              builder: (context) {
                 return Container();
               },
               fallback: (context) {

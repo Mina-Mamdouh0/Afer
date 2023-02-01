@@ -10,6 +10,7 @@ class PhotoManger {
    static const String camera="$photoPath/video-camera.png";
    static const String sad="$photoPath/sad.png";
    static const String lostConnection="$photoPath/lostConnection.json";
+   static const String phoneSignIn="$photoPath/phoneauth.png";
    static const String qrCode="$photoPath/scan-qr-code.json";
    static const String notFound="$photoPath/emptysubject.json";
    static const String forgetPassword="$photoPath/forgetPasswordLottei.json";

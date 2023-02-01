@@ -10,7 +10,7 @@ abstract class  LocaleKeys {
   static const forgetPassword = 'forgetPassword';
   static const firstNameHint = 'firstNameHint';
   static const secondNameHint = 'secondNameHint';
-  static const WhatsAppHint = 'WhatsAppHint';
+  static const whatsAppHint = 'WhatsAppHint';
   static const confirm  = 'confirm ';
   static const createAccount  = 'createAccount ';
   static const home = 'home';
@@ -47,6 +47,9 @@ abstract class  LocaleKeys {
   static const fourthYear = 'fourthYear';
   static const rememberMe = 'rememberMe';
   static const technicalSupport = 'technicalSupport';
+  static const semester = 'semester';
+  static const semester1 = 'semes1';
+  static const semester2 = 'semester2';
   static const editInformation = 'editInformation';
   static const noQuestionsYet = 'noQuestionsYet';
   static const noPdfYet = 'noPdfYet';
@@ -79,6 +82,14 @@ abstract class  LocaleKeys {
   static const notFoundLac = 'notFoundLac';
   static const tryAgain = 'tryAgain';
   static const copy = 'copy';
+  static const invalidCode = 'invalidCode';
+  static const signInGoogle = 'signInGoogle';
+  static const signInWithPhone = 'signInWithPhone';
+  static const enterPhone = 'enterPhone';
+  static const  verify = 'verify';
+  static const  enterPin = 'enterPin';
+  static const  you = 'you';
+  static const  lastStep = 'LastStep';
 
 
 

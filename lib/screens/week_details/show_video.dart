@@ -39,7 +39,7 @@ class _ShowVideoState extends State<ShowVideo> {
       if (AppCubit.get(context).vidoe != null) {
         flickManager = FlickManager(
           videoPlayerController:
-          VideoPlayerController.file(AppCubit.get(context).vidoe!),
+          VideoPlayerController.contentUri( Uri.parse("https://youtu.be/ZA6H5SmcyXs")),
           autoPlay: false,
         );
       }
@@ -63,89 +63,91 @@ class _ShowVideoState extends State<ShowVideo> {
       listener: (context, state) {},
       builder: (context, state) {
         cubit= AppCubit.get(context);
-        return ConditionalBuilder(
-            fallback: (context) => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Lottie.asset(PhotoManger.notFound, fit: BoxFit.fill),
-                    Text(
-                      LocaleKeys.notFoundVideo.tr(),
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontFamily: 'Stoor',
-                        fontWeight: FontWeight.normal,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-            condition: AppCubit.get(context).video.linkVideo != null &&!flickManager.flickVideoManager!.videoPlayerValue!.hasError,
-            builder: (context) {
-              return SingleChildScrollView(
-                child: Padding(
-                    padding:
-                        const EdgeInsetsDirectional.only(end: 10, start: 10),
-                    child: Card(
-                      child: Column(children: [
-                        ClipRect(
-                          child: AspectRatio(
-                            aspectRatio: flickManager.flickVideoManager!
-                                .videoPlayerValue!.aspectRatio,
-                            child: FlickVideoPlayer(flickManager: flickManager),
-                          ),
+        return Scaffold(
+          body: ConditionalBuilder(
+              fallback: (context) => Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Lottie.asset(PhotoManger.notFound, fit: BoxFit.fill),
+                      Text(
+                        LocaleKeys.notFoundVideo.tr(),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontFamily: 'Stoor',
+                          fontWeight: FontWeight.normal,
                         ),
-                          Container(
-                            padding: const EdgeInsetsDirectional.all(10),
-                            child: Text(
-                                AppCubit.get(context).video.description!,
-                                style: const TextStyle(
-                                    fontSize: 15, fontWeight: FontWeight.bold)),
-                          ),
-                        if (AppCubit.get(context).photo.isNotEmpty)
-                          SizedBox(
-                            width: 120,
-                            child: MainButton(
-                              fct: () {
-                                BlocProvider.of<AppCubit>(context)
-                                    .showImageVideo();
-                              },
-                              text: LocaleKeys.summary.tr(),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+              condition: true,
+              builder: (context) {
+                return SingleChildScrollView(
+                  child: Padding(
+                      padding:
+                          const EdgeInsetsDirectional.only(end: 10, start: 10),
+                      child: Card(
+                        child: Column(children: [
+                          ClipRect(
+                            child: AspectRatio(
+                              aspectRatio: flickManager.flickVideoManager!
+                                  .videoPlayerValue!.aspectRatio,
+                              child: FlickVideoPlayer(flickManager: flickManager,),
                             ),
                           ),
-                        if (BlocProvider.of<AppCubit>(context)
-                            .showImageUnderVideo)
-                          SizedBox(
-                            height: 500,
-                            width: 500,
-                            child: ListView.separated(
-                                itemBuilder: (context, i) {
-                                  return Container(
-                                    margin: const EdgeInsets.all(10),
-                                    width: 250,
-                                    height: 250,
-                                    child: CachedNetworkImage(
-                                      imageUrl:     AppCubit.get(context).photo[i].linkPhoto??"",
-                                      imageBuilder: (context,image)=>PhotoView(
-                                        filterQuality: FilterQuality.high,
-                                        imageProvider: image,
-                                      ),
-                                      placeholder: (context, url) => const CircularProgressIndicator(),
-                                      errorWidget: (context, url, error) => const Icon(Icons.error),
-                                      cacheKey:  AppCubit.get(context).photo[i].linkPhoto,
-
-                                    ),
-
-                                  );
+                            Container(
+                              padding: const EdgeInsetsDirectional.all(10),
+                              child: Text(
+                                  AppCubit.get(context).video.description!,
+                                  style: const TextStyle(
+                                      fontSize: 15, fontWeight: FontWeight.bold)),
+                            ),
+                          if (AppCubit.get(context).photo.isNotEmpty)
+                            SizedBox(
+                              width: 120,
+                              child: MainButton(
+                                fct: () {
+                                  BlocProvider.of<AppCubit>(context)
+                                      .showImageVideo();
                                 },
-                                separatorBuilder: (context, i) =>
-                                    const SizedBox(height: 10),
-                                itemCount: AppCubit.get(context).photo.length),
-                          )
-                      ]),
-                    )),
-              );
-            });
+                                text: LocaleKeys.summary.tr(),
+                              ),
+                            ),
+                          if (BlocProvider.of<AppCubit>(context)
+                              .showImageUnderVideo)
+                            SizedBox(
+                              height: 500,
+                              width: 500,
+                              child: ListView.separated(
+                                  itemBuilder: (context, i) {
+                                    return Container(
+                                      margin: const EdgeInsets.all(10),
+                                      width: 250,
+                                      height: 250,
+                                      child: CachedNetworkImage(
+                                        imageUrl:     AppCubit.get(context).photo[i].linkPhoto??"",
+                                        imageBuilder: (context,image)=>PhotoView(
+                                          filterQuality: FilterQuality.high,
+                                          imageProvider: image,
+                                        ),
+                                        placeholder: (context, url) => const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) => const Icon(Icons.error),
+                                        cacheKey:  AppCubit.get(context).photo[i].linkPhoto,
+
+                                      ),
+
+                                    );
+                                  },
+                                  separatorBuilder: (context, i) =>
+                                      const SizedBox(height: 10),
+                                  itemCount: AppCubit.get(context).photo.length),
+                            )
+                        ]),
+                      )),
+                );
+              }),
+        );
       },
     );
   }

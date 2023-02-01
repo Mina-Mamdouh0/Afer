@@ -23,6 +23,9 @@ class GetPdfFailed extends AppStates{}
 class WeekTemplateChangeIndex extends AppStates{
 
 }
+class ChangeSemester extends AppStates{
+
+}
 class ChangeLocale extends AppStates{}
 class BrCodeReading extends AppStates{}
 class ChangeRegisterScreen extends AppStates{}

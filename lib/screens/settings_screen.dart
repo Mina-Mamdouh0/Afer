@@ -1,7 +1,7 @@
 import 'package:afer/const/constant_texts.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
-import 'package:afer/model/Subject.dart';
+import 'package:afer/model/subject.dart';
 import 'package:afer/screens/user_account_screen.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:easy_localization/easy_localization.dart';
@@ -13,16 +13,14 @@ import '../translations/locale_keys.g.dart';
 import 'package:flutter/services.dart';
 
 class Setting extends StatelessWidget {
-  late AppCubit cubit;
-
-  Setting({super.key});
+  const Setting({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<AppCubit, AppStates>(
         listener: (context, state) {},
         builder: (context, state) {
-          cubit = AppCubit.get(context);
+          var cubit = AppCubit.get(context);
 
           return SingleChildScrollView(
             child: Column(
@@ -36,6 +34,53 @@ class Setting extends StatelessWidget {
                           page: const UserAccountScreen(),
                           returnPage: true);
                     }),
+                Padding(
+                  padding: const EdgeInsets.all(15),
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: ExpansionTile(
+                        tilePadding: const EdgeInsets.symmetric(
+                            horizontal: 0.0, vertical: 0.0),
+                        title: Text(
+                          LocaleKeys.semester.tr(),
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                        leading: const CircleAvatar(
+                            radius: 18,
+                            backgroundColor: Colors.deepPurpleAccent,
+                            child: Icon(
+                              Icons.school_rounded,
+                              color: Colors.white,
+                              size: 15,
+                            )),
+                        children: [
+                          Column(children: [
+                            RadioListTile(
+                              value: "First semester",
+                              title:Text(LocaleKeys.semester1.tr()) ,
+                              onChanged: (value) {
+                                cubit.changeSemester(value);
+
+                              },
+                              groupValue: cubit.semester,
+                            ),
+                            RadioListTile(
+                              value: "Second semester",
+                              title:Text(LocaleKeys.semester2.tr()) ,
+                              onChanged: (value) {
+                                cubit.changeSemester(value);
+
+                              },
+                              groupValue: cubit.semester,
+                            ),
+                          ]),
+                        ],
+                      )),
+                    ],
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: Row(
@@ -62,13 +107,19 @@ class Setting extends StatelessWidget {
                                   )),
                               children: [
                             generateSubExpansion(cubit.firstYear,
-                                LocaleKeys.firstYear.tr(), "First Year"),
-                            generateSubExpansion(cubit.secondYear,
-                                LocaleKeys.secondYear.tr(), "Second Year"),
+                                LocaleKeys.firstYear.tr(), "First Year", cubit),
+                            generateSubExpansion(
+                                cubit.secondYear,
+                                LocaleKeys.secondYear.tr(),
+                                "Second Year",
+                                cubit),
                             generateSubExpansion(cubit.thirdYear,
-                                LocaleKeys.thirdYear.tr(), "Third Year"),
-                            generateSubExpansion(cubit.fourthYear,
-                                LocaleKeys.fourthYear.tr(), "Fourth Year"),
+                                LocaleKeys.thirdYear.tr(), "Third Year", cubit),
+                            generateSubExpansion(
+                                cubit.fourthYear,
+                                LocaleKeys.fourthYear.tr(),
+                                "Fourth Year",
+                                cubit),
                             MainButton(
                                 text: LocaleKeys.confirm.tr(),
                                 fct: () {
@@ -147,24 +198,28 @@ class Setting extends StatelessWidget {
                             IconButton(
                                 onPressed: () async {
                                   await Clipboard.setData(const ClipboardData(
-                                      text: "afeercorporate@gmail.com")).then((value) => MotionToast.success(
-                                          title:  Text(LocaleKeys.copy.tr()),
-                                          description:  Text("${LocaleKeys.emailHint.tr()} ${LocaleKeys.copy.tr()}" ),
-                                          height: 100,
-                                          width: 350,
-                                          animationDuration:
-                                              const Duration(milliseconds: 900),
-                                          borderRadius: 25,
-                                          barrierColor:
-                                              Colors.black.withOpacity(0.5),
-                                          position: MotionToastPosition.bottom,
-                                          toastDuration: const Duration(
-                                            milliseconds: 600,
-                                          ),
-                                          animationType: AnimationType.fromBottom,
-                                        ).show(context));
+                                          text: "afeercorporate@gmail.com"))
+                                      .then((value) => MotionToast.success(
+                                            title: Text(LocaleKeys.copy.tr()),
+                                            description: Text(
+                                                "${LocaleKeys.emailHint.tr()} ${LocaleKeys.copy.tr()}"),
+                                            height: 100,
+                                            width: 350,
+                                            animationDuration: const Duration(
+                                                milliseconds: 900),
+                                            borderRadius: 25,
+                                            barrierColor:
+                                                Colors.black.withOpacity(0.5),
+                                            position:
+                                                MotionToastPosition.bottom,
+                                            toastDuration: const Duration(
+                                              milliseconds: 600,
+                                            ),
+                                            animationType:
+                                                AnimationType.fromBottom,
+                                          ).show(context));
                                 },
-                                icon:const  Icon(
+                                icon: const Icon(
                                   Icons.copy,
                                   color: Colors.grey,
                                 ))
@@ -196,7 +251,7 @@ class Setting extends StatelessWidget {
                               children: List.generate(
                                   2,
                                   (index) => generateLanguageListTile(
-                                      context, index)))),
+                                      context, index, cubit)))),
                     ],
                   ),
                 ),
@@ -299,7 +354,7 @@ class Setting extends StatelessWidget {
     );
   }
 
-  ListTile generateLanguageListTile(BuildContext context, index) {
+  ListTile generateLanguageListTile(BuildContext context, index, cubit) {
     return ListTile(
       selectedTileColor: Colors.deepPurpleAccent,
       selected: context.locale.toString() == "ar" ? index == 0 : index == 1,
@@ -315,7 +370,8 @@ class Setting extends StatelessWidget {
     );
   }
 
-  ExpansionTile generateSubExpansion(List<Subject> year, title, nameYear) {
+  ExpansionTile generateSubExpansion(
+      List<Subject> year, title, nameYear, AppCubit cubit) {
     return ExpansionTile(
         onExpansionChanged: (value) {
           cubit.getAllSubject(nameYear, cubit.semester);
@@ -331,7 +387,7 @@ class Setting extends StatelessWidget {
               width: 500,
               child: ListView.separated(
                   itemBuilder: (context, index) =>
-                      generateCheckListTile(year[index], title, index),
+                      generateCheckListTile(year[index], title, index, cubit),
                   separatorBuilder: (context, _) => const SizedBox(height: 5),
                   itemCount: year.length)),
         ]);
@@ -341,6 +397,7 @@ class Setting extends StatelessWidget {
     Subject subject,
     String year,
     int index,
+    AppCubit cubit,
   ) {
     return CheckboxListTile(
       value: cubit.sureSubject(subject),

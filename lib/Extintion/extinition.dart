@@ -1,6 +1,6 @@
-import 'package:afer/model/Subject.dart';
+import 'package:afer/model/subject.dart';
 
-extension ispassword on String {
+extension Password on String {
   bool get isPassword {
     if (length >= 8 ) {
       return false;
@@ -10,7 +10,7 @@ extension ispassword on String {
   }
 }
 
-extension isemail on String {
+extension Email on String {
   bool get isEmail {
     if (contains(RegExp(r'@')) && contains(RegExp(r'\.'))) {
       return false;
@@ -20,7 +20,7 @@ extension isemail on String {
   }
 }
 
-extension isphone on String {
+extension Phone on String {
   bool get isPhoneNumber {
     if (length == 11 && contains(RegExp(r'[0-9]')) && startsWith('01')) {
       return false;

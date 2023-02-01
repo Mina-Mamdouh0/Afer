@@ -1,92 +1,14 @@
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
-import 'package:afer/screens/auth/signup_screen.dart';
+import 'package:afer/screens/auth/signin_with_phone.dart';
 import 'package:afer/widget/widget.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../const/photo_manger.dart';
+import 'package:iconly/iconly.dart';
+import '../../const/colors_manger.dart';
 import '../../translations/locale_keys.g.dart';
 import 'forget_password.dart';
-
-class AuthScreen extends StatelessWidget {
-  const AuthScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-    return BlocConsumer<AppCubit, AppStates>(listener: (context, state) {
-      if (state is ChangeRegisterScreen) {}
-    }, builder: (context, state) {
-      var cubit = BlocProvider.of<AppCubit>(context);
-      return DefaultTabController(
-        length: 2,
-        child: Scaffold(
-          appBar: AppBar(
-            flexibleSpace: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircleAvatar(
-                    radius: size.width * 0.125,
-                    backgroundImage: const AssetImage(PhotoManger.logo),
-                    backgroundColor: Colors.transparent,
-                  ),
-                  Expanded(
-                    child: Text(
-                      LocaleKeys.welcome.tr(),
-                      softWrap: true,
-                      overflow: TextOverflow.visible,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: size.width * 0.08,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            centerTitle: true,
-            backgroundColor: const Color(0xFFEEEEEE),
-            elevation: 0,
-            toolbarHeight: size.height * 0.2,
-            bottom: TabBar(
-              onTap: (value) {
-                cubit.changeRegister(value);
-              },
-              indicatorColor: Colors.blue[700],
-              indicatorWeight: 3,
-              indicatorSize: TabBarIndicatorSize.label,
-              tabs: [
-                Text(
-                  LocaleKeys.signIn.tr(),
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: size.width * 0.05,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  LocaleKeys.signUp.tr(),
-                  style: TextStyle(
-                      color: Colors.black,
-                      fontSize: size.width * 0.05,
-                      fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ),
-          body: const TabBarView(children: [
-            LoginScreen(),
-            SignupScreen(),
-          ]),
-        ),
-      );
-    });
-  }
-}
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -195,6 +117,60 @@ class LoginScreen extends StatelessWidget {
                     SizedBox(
                       height: size.height * 0.02,
                     ),
+                    ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(size.width, 50),
+                          backgroundColor:
+                              ColorsManger.appbarColor.withOpacity(0.8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ),
+                        onPressed: () => navigator(
+                            context: context,
+                            page: const SignInPhone(),
+                            returnPage: true),
+                        icon: const Icon(
+                          IconlyBold.call,
+                          color: Colors.white,
+                        ),
+                        label: Text(
+                          LocaleKeys.signInWithPhone.tr(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.05,
+                              color: Colors.white),
+                        )),
+                    SizedBox(
+                      height: size.height * 0.02,
+                    ),
+                    ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          fixedSize: Size(size.width, 50),
+                          backgroundColor:
+                              ColorsManger.appbarColor.withOpacity(0.8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15.0),
+                          ),
+                        ),
+                        onPressed: () => cubit.signInWithGoogle(context),
+                        icon: Image.network(
+                          "https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2048px-Google_%22G%22_Logo.svg.png",
+                          width: 30,
+                          height: 30,
+                        ),
+                        label: Text(
+                          LocaleKeys.signInGoogle.tr(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.05,
+                              color: Colors.white),
+                        )),
+                    SizedBox(
+                      height: size.height * 0.02,
+                    )
                   ],
                 ),
               ),

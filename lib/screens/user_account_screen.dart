@@ -245,7 +245,7 @@ class UserAccountScreen extends StatelessWidget {
              ),
 
              TheTextFiled(
-                 hintText:LocaleKeys.WhatsAppHint.tr() ,
+                 hintText:LocaleKeys.whatsAppHint.tr() ,
                  controller:cubit.userPhoneNumberController ,
                  keyboardType: TextInputType.number,
                  prefix: Icons.phone,
@@ -257,7 +257,7 @@ class UserAccountScreen extends StatelessWidget {
                },
                maxLength: 11,
                textInputAction: TextInputAction.next,
-               labelText: LocaleKeys.WhatsAppHint.tr(),
+               labelText: LocaleKeys.whatsAppHint.tr(),
                  ),
              const SizedBox(
                height: 20,

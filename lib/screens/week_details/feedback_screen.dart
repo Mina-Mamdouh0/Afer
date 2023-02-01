@@ -10,9 +10,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../cuibt/app_cuibt.dart';
 
 class FeedBackScreen extends StatelessWidget {
-  FeedBackScreen({Key? key}) : super(key: key);
-  final TextEditingController controller = TextEditingController();
-  bool isEnterOrEdit = false;
+
+
+  const FeedBackScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -137,10 +138,9 @@ class FeedBackScreen extends StatelessWidget {
                 return ListView(
                   children: [
                     TheTextFiled(
-                      controller: controller,
+                      controller: context.read<AppCubit>().feedBackController,
                       hintText: LocaleKeys.feedback.tr(),
                       keyboardType: TextInputType.text,
-                      prefix: 1,
                       maxLine: 12,
                     ),
                     const SizedBox(
@@ -149,10 +149,10 @@ class FeedBackScreen extends StatelessWidget {
                     MainButton(
                       fct: () {
                         BlocProvider.of<AppCubit>(context).uploadOrUpdateNotes(
-                          controller.text,
+                          context.read<AppCubit>().feedBackController.text,
                         );
                         BlocProvider.of<AppCubit>(context).getNote();
-                        controller.clear();
+                        context.read<AppCubit>().feedBackController.clear();
                       },
                       text: LocaleKeys.confirm.tr(),
                     ),

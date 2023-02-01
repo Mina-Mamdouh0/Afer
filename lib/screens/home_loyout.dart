@@ -2,7 +2,7 @@ import 'package:afer/const/colors_manger.dart';
 import 'package:afer/const/photo_manger.dart';
 import 'package:afer/cuibt/app_cuibt.dart';
 import 'package:afer/cuibt/app_states.dart';
-import 'package:afer/screens/Settings.dart';
+import 'package:afer/screens/settings_screen.dart';
 import 'package:afer/screens/disconnected.dart';
 import 'package:afer/screens/message_screen.dart';
 import 'package:afer/screens/payment_screen.dart';
@@ -254,7 +254,7 @@ errorWidget: (context, url, error) => const Icon(Icons.person),
         screen = const MessageScreen();
         break;
       case 3:
-        screen = Setting();
+        screen = const Setting();
         break;
       default:
         screen = Container();
